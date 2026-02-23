@@ -1,0 +1,36 @@
+<%- include('partials/header') %>
+<div class="min-h-screen bg-slate-950 text-slate-200">
+    <div class="max-w-5xl mx-auto p-6">
+        <a href="/" class="text-blue-400 hover:text-blue-300 flex items-center gap-2 transition group">
+            <svg class="w-5 h-5 group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Kembali ke Katalog
+        </a>
+    </div>
+    <main class="max-w-5xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div class="rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900">
+            <img src="<%= item.imageUrl %>" alt="<%= item.title %>" class="w-full h-auto object-cover">
+        </div>
+        <div class="space-y-6">
+            <div class="border-b border-slate-800 pb-6">
+                <span class="text-blue-500 font-mono text-xs uppercase tracking-widest">Template Detail</span>
+                <h1 class="text-4xl font-extrabold text-white mt-2 leading-tight"><%= item.title %></h1>
+                <p class="text-slate-500 text-sm mt-4 italic">Diunggah pada: <%= item.createdAt.toLocaleDateString('id-ID', { dateStyle: 'full' }) %></p>
+            </div>
+            <div class="prose prose-invert max-w-none">
+                <h3 class="text-lg font-semibold text-slate-300 mb-2 underline decoration-blue-500 underline-offset-8">Deskripsi Projek:</h3>
+                <p class="text-slate-400 leading-relaxed text-lg"><%= item.description %></p>
+            </div>
+            <div class="pt-8 flex flex-col sm:flex-row gap-4">
+                <button onclick="window.print()" class="flex-1 px-6 py-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 border border-slate-700 shadow-lg">
+                    Simpan PDF
+                </button>
+                <a href="https://api.whatsapp.com/send?text=Halo, cek template *<%= item.title %>* ini: https://apps.trendingbulk.top/detail/<%= item._id %>" 
+                   target="_blank"
+                   class="flex-1 px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
+                    Share WhatsApp
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+<%- include('partials/footer') %>

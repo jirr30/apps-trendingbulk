@@ -1,0 +1,132 @@
+<%- include('partials/header') %>
+
+<%
+  // HELPER: Fungsi cadangan untuk memastikan URL YouTube selalu dalam format Embed
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return null;
+    
+    // Jika URL sudah dalam format embed (hasil olahan controller), kembalikan langsung
+    if (url.includes('youtube.com/embed/')) return url;
+
+    // Jika URL masih format biasa (watch?v=), konversi di sini
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    
+    // PERBAIKAN: Gunakan syntax ${match[2]} yang benar dengan simbol $
+    return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : url;
+  };
+
+  const embedUrl = getYouTubeEmbedUrl(item.videoUrl);
+%>
+
+<div class="min-h-screen bg-slate-950 text-slate-200 py-10 md:py-16 px-4">
+    <div class="max-w-4xl mx-auto mb-8">
+        <a href="/articles" class="inline-flex items-center gap-2 text-emerald-500 hover:text-emerald-400 group transition-all">
+            <svg class="w-5 h-5 group-hover:-translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            <span class="text-[10px] font-black uppercase tracking-[0.2em]">Back to Knowledge Base</span>
+        </a>
+    </div>
+
+    <article class="max-w-4xl mx-auto bg-slate-900/50 border border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden">
+        <header class="p-8 md:p-12 bg-gradient-to-b from-slate-800/30 to-transparent border-b border-slate-800">
+            <h1 class="text-3xl md:text-5xl font-black text-white mb-6 leading-[1.1] uppercase italic tracking-tighter">
+                <%= item.title %>
+            </h1>
+            <div class="flex flex-wrap items-center gap-4 text-slate-500 font-mono text-[10px] uppercase tracking-widest">
+                <div class="flex items-center gap-2">
+                    <div class="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                    <span>Published: <%= item.createdAt.toLocaleDateString('id-ID', { dateStyle: 'full' }) %></span>
+                </div>
+                <div class="hidden md:block h-4 w-[1px] bg-slate-800"></div>
+                <div class="text-emerald-500/80 italic">Author: <%= item.author ? item.author.username : 'System Admin' %></div>
+            </div>
+        </header>
+
+        <div class="px-8 md:px-12 pt-10 pb-12">
+            <% if (item.videoUrl && embedUrl) { %>
+                <div class="aspect-video rounded-3xl overflow-hidden border border-slate-800 bg-black shadow-2xl mb-10">
+                    <iframe
+                        class="w-full h-full"
+                        src="<%= embedUrl %>"
+                        title="YouTube video player"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            <% } else if (item.thumbnail) { %>
+                <div class="rounded-3xl overflow-hidden mb-10 border border-slate-800 shadow-xl">
+                    <img src="<%= item.thumbnail %>" alt="<%= item.title %>" class="w-full h-auto object-cover max-h-[500px]">
+                </div>
+            <% } %>
+
+            <div class="ck-content prose prose-invert prose-emerald max-w-none text-slate-300 leading-relaxed text-lg">
+                <%- item.content %>
+            </div>
+
+            <div class="mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <h4 class="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-2">Share to Infrastructure Team</h4>
+                    <p class="text-slate-500 text-xs font-medium">Bagikan dokumentasi teknis ini melalui jalur koordinasi.</p>
+                </div>
+                <a href="https://api.whatsapp.com/send?text=📢 *DOKUMENTASI NOC BARU*: <%= encodeURIComponent(item.title) %>%0A%0ACek di sini: https://apps.trendingbulk.top/article/<%= item._id %>"
+                   target="_blank"
+                   class="flex items-center gap-3 bg-[#25D366]/10 hover:bg-[#25D366] text-[#25D366] hover:text-white px-6 py-3 rounded-2xl border border-[#25D366]/20 transition-all duration-300 group shadow-lg shadow-[#25D366]/5 active:scale-95">
+                    <svg class="w-5 h-5 fill-current transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.435 5.621 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    <span class="text-xs font-black uppercase tracking-widest ml-2">Bagikan ke WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </article>
+</div>
+
+<style>
+    /* CSS tetap sama seperti sebelumnya karena sudah bagus */
+    .ck-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 1.5rem;
+        margin: 2rem auto;
+        border: 1px solid #334155;
+        display: block;
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    }
+    .ck-content table {
+        width: 100% !important;
+        border-collapse: collapse;
+        margin: 2.5rem 0;
+        overflow-x: auto;
+        display: block;
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 1rem;
+        box-shadow: 0 0 0 1px #1e293b;
+    }
+    .ck-content table td, .ck-content table th {
+        border: 1px solid #1e293b;
+        padding: 1.25rem;
+        min-width: 140px;
+        color: #94a3b8;
+    }
+    .ck-content table th {
+        background: #1e293b;
+        color: #fff;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 0.15em;
+        font-weight: 900;
+    }
+    .ck-content h2 { font-size: 2rem; font-weight: 900; color: #fff; margin-top: 3.5rem; margin-bottom: 1.5rem; border-left: 4px solid #10b981; padding-left: 1rem; }
+    .ck-content blockquote {
+        border-left: 4px solid #3b82f6;
+        background: rgba(59, 130, 246, 0.05);
+        padding: 1.5rem 2rem;
+        font-style: italic;
+        border-radius: 0.75rem;
+        margin: 3rem 0;
+    }
+</style>
+<%- include('partials/footer') %>

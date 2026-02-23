@@ -1,0 +1,60 @@
+<%- include('partials/header') %>
+
+<div class="min-h-screen bg-slate-950 py-12 px-6">
+    <div class="max-w-4xl mx-auto">
+        
+        <div class="mb-8 flex justify-between items-end">
+            <div>
+                <h2 class="text-3xl font-extrabold text-white tracking-tight italic uppercase">Edit Template</h2>
+                <p class="text-slate-500 font-mono text-sm mt-2 tracking-widest text-blue-500 underline">Mode: Asset Update</p>
+            </div>
+            <a href="/dashboard" class="text-slate-400 hover:text-white text-xs font-mono transition border border-slate-800 px-4 py-2 rounded-lg"> 
+                [ CANCEL ] 
+            </a>
+        </div>
+        
+        <form action="/admin/template/update/<%= item._id %>" method="POST" enctype="multipart/form-data" class="space-y-6">
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6 shadow-2xl">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Template Title</label>
+                    <input type="text" name="title" value="<%= item.title %>" required 
+                        class="w-full p-4 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-1 focus:ring-blue-600 transition font-mono">
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Description</label>
+                    <textarea name="description" rows="4" required
+                        class="w-full p-4 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-1 focus:ring-blue-600 transition font-sans text-sm leading-relaxed"><%= item.description %></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] block mb-3">Current Image</label>
+                        <div class="relative group rounded-xl overflow-hidden border border-slate-800 bg-black aspect-video">
+                            <img src="<%= item.imageUrl %>" class="w-full h-full object-cover opacity-60">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-[9px] font-mono text-slate-400 bg-black/50 px-2 py-1 rounded">EXISTING_FILE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col justify-end">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] block mb-3">Replace Image (Optional)</label>
+                        <div class="border-2 border-dashed border-slate-800 rounded-xl p-6 flex flex-col items-center justify-center hover:border-blue-500/50 transition group">
+                            <input type="file" name="image" class="text-xs text-slate-500 file:bg-slate-800 file:text-slate-300 file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:hover:bg-slate-700 cursor-pointer">
+                            <p class="text-[9px] text-slate-600 mt-4 italic text-center">Leave blank to keep current image</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-[0.4em] rounded-xl transition shadow-xl shadow-blue-900/20">
+                Save Template Changes
+            </button>
+            
+        </form>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

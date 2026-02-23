@@ -1,0 +1,110 @@
+<%- include('partials/header') %>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+
+<div class="min-h-screen bg-slate-950 py-12 px-6">
+    <div class="max-w-5xl mx-auto">
+        
+        <div class="mb-8 flex justify-between items-end">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.8)]"></div>
+                    <h2 class="text-3xl font-black text-white tracking-tighter italic uppercase">Edit Article</h2>
+                </div>
+                <p class="text-emerald-500/80 font-mono text-[10px] uppercase tracking-[0.3em] italic">NOC CORE: Update Documentation Mode</p>
+            </div>
+            <a href="/dashboard" class="text-slate-400 hover:text-white text-[10px] font-mono transition border border-slate-800 px-4 py-2 rounded-xl bg-slate-900/50 uppercase tracking-widest hover:border-emerald-500">
+                [ Cancel_Changes ]
+            </a>
+        </div>
+
+        <form action="/admin/article/update/<%= item._id %>" method="POST" enctype="multipart/form-data" class="space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-2">Article Title</label>
+                    <input type="text" name="title" value="<%= item.title %>" required
+                        class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition shadow-inner font-mono text-sm">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-2">YouTube Documentation Link</label>
+                    <input type="text" name="videoUrl" value="<%= item.videoUrl %>"
+                        class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition shadow-inner font-mono text-sm">
+                </div>
+            </div>
+
+            <div class="p-6 bg-slate-900/50 border border-slate-800 rounded-2xl shadow-xl">
+                <label class="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] block mb-4">Featured Thumbnail Management</label>                
+                <div class="flex flex-col md:flex-row gap-8 items-center">
+                    <% if (item.thumbnail) { %>
+                        <div class="relative group shrink-0">
+                            <div class="absolute -top-2 -left-2 bg-blue-600 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-tighter z-10">Live Preview</div>
+                            <img src="<%= item.thumbnail %>" class="h-28 w-44 object-cover rounded-xl border border-slate-700 opacity-80 group-hover:opacity-100 transition duration-500 shadow-2xl">
+                        </div>
+                    <% } %>
+                    <div class="flex-1 w-full space-y-3">
+                        <p class="text-slate-500 text-[10px] italic leading-relaxed">Pilih file baru untuk mengganti thumbnail. Kosongkan jika tidak ingin mengubah.</p>
+                        <input type="file" name="thumbnail" class="text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-emerald-600/10 file:text-emerald-500 hover:file:bg-emerald-600/20 cursor-pointer w-full transition">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl overflow-hidden shadow-2xl">
+                <textarea name="content" id="article_editor"><%= item.content %></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-[0.4em] rounded-2xl transition-all duration-300 transform hover:scale-[1.005] shadow-[0_10px_30px_rgba(16,185,129,0.3)] active:scale-95">
+                Sync & Update Documentation
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Styling agar CKEditor muncul besar dan teks terbaca jelas */
+    .ck-editor__editable_inline {
+        min-height: 500px !important;
+        color: #1a1a1a !important;
+        font-family: 'Inter', sans-serif;
+        line-height: 1.8;
+        padding: 2rem !important;
+    }
+    .ck-editor {
+        width: 100% !important;
+    }
+    .ck-toolbar {
+        border: none !important;
+        background-color: #f8fafc !important;
+        padding: 0.5rem !important;
+    }
+</style>
+
+<script>
+    // Konfigurasi identik dengan halaman Add yang sudah berhasil
+    ClassicEditor
+        .create(document.querySelector('#article_editor'), {
+            ckfinder: {
+                // Endpoint untuk handle upload image & paste
+                uploadUrl: '/upload-image'
+            },
+            toolbar: {
+		items: [
+                	'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
+                	'uploadImage', 'insertTable', 'blockQuote', 'mediaEmbed', '|', 'undo', 'redo'
+            	],
+	    	shouldNotGroupWhenFull: true
+	    }
+        })
+        .then(editor => {
+            console.log('NOC Editor: Edit Mode Synchronized.');
+        })
+        .catch(error => {
+            console.error('Editor Error:', error);
+            // Fallback manual jika JS gagal
+            document.querySelector('#article_editor').style.display = 'block';
+            document.querySelector('#article_editor').style.height = '500px';
+            document.querySelector('#article_editor').style.width = '100%';
+        });
+</script>
+
+<%- include('partials/footer') %>

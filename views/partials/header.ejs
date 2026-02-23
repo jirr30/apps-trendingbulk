@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof item !== 'undefined' ? item.title + ' | Trending Bulk' : 'Trending Bulk | Library & Docs' %></title>
+    <% if (typeof item !== 'undefined') { %>
+        <meta property="og:title" content="<%= item.title %>">
+        <meta property="og:description" content="<%= item.description ? item.description.substring(0, 150) : (item.content ? item.content.replace(/<[^>]*>?/gm, '').substring(0, 150) : 'Lihat detail lengkap di Trending Bulk.') %>...">
+        <meta property="og:image" content="https://apps.trendingbulk.top<%= item.imageUrl || item.thumbnail || '/images/og-default.jpg' %>">
+        <meta property="og:url" content="https://apps.trendingbulk.top<%= (typeof page !== 'undefined' && page === 'articles') ? '/article/' + item._id : '/detail/' + item._id %>">
+        <meta property="og:type" content="article">
+    <% } else { %>
+        <meta property="og:title" content="Trending Bulk Library">
+        <meta property="og:description" content="Koleksi template dan resource terbaik dari NOC Trending Bulk.">
+        <meta property="og:image" content="https://apps.trendingbulk.top/images/og-default.jpg">
+        <meta property="og:type" content="website">
+    <% } %>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        #mobile-menu { transition: all 0.3s ease-in-out; transform-origin: top; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+<nav class="bg-slate-950/80 backdrop-blur-xl border-b border-slate-900 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex justify-between items-center h-12">
+            <a href="/" class="group flex items-center gap-3">
+                <div class="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/20 group-hover:rotate-6 transition-transform">
+                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-white font-black tracking-tighter text-xl uppercase italic">
+                    TRENDING<span class="text-blue-500 group-hover:text-blue-400 transition">BULK</span>
+                </h1>
+            </a>
+
+            <div class="hidden md:flex gap-10 items-center">
+                <a href="/" class="flex flex-col items-center group">
+                    <span class="text-[10px] font-mono uppercase tracking-[0.3em] transition
+                        <%= typeof page !== 'undefined' && page === 'templates' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300' %>">
+                        Templates
+                    </span>
+                    <% if (typeof page !== 'undefined' && page === 'templates') { %>
+                        <div class="h-[2px] w-4 bg-blue-500 mt-1 shadow-[0_0_10px_rgba(59,130,246,0.6)]"></div>
+                    <% } %>
+                </a>
+                <a href="/articles" class="flex flex-col items-center group">
+                    <span class="text-[10px] font-mono uppercase tracking-[0.3em] transition
+                        <%= typeof page !== 'undefined' && page === 'articles' ? 'text-emerald-400' : 'text-slate-500 group-hover:text-slate-300' %>">
+                        Knowledge Base
+                    </span>
+                    <% if (typeof page !== 'undefined' && page === 'articles') { %>
+                        <div class="h-[2px] w-4 bg-emerald-500 mt-1 shadow-[0_0_10px_rgba(16,185,129,0.6)]"></div>
+                    <% } %>
+                </a>
+
+                <% if (typeof userId !== 'undefined' && userId) { %>
+                    <div class="flex items-center gap-4">
+                        <a href="/dashboard" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-white transition">My Panel</a>
+                        <a href="/logout" class="px-4 py-2 bg-red-600/10 border border-red-600/50 rounded-lg text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-600 hover:text-white transition shadow-[0_0_15px_rgba(220,38,38,0.1)]">
+                            Logout
+                        </a>
+                    </div>
+                <% } else { %>
+                    <a href="/login" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-white transition">
+                        Login
+                    </a>
+                <% } %>
+            </div>
+
+            <button id="menu-toggle" class="md:hidden text-slate-400 hover:text-white focus:outline-none p-2">
+                <svg id="icon-open" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+                <svg id="icon-close" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden absolute w-full bg-slate-950 border-b border-slate-900 shadow-2xl overflow-hidden">
+        <div class="px-6 py-8 flex flex-col gap-6">
+            <a href="/" class="flex justify-between items-center group">
+                <span class="text-xs font-mono uppercase tracking-[0.3em] <%= typeof page !== 'undefined' && page === 'templates' ? 'text-blue-400' : 'text-slate-500' %>">Templates</span>
+            </a>
+            <a href="/articles" class="flex justify-between items-center group">
+                <span class="text-xs font-mono uppercase tracking-[0.3em] <%= typeof page !== 'undefined' && page === 'articles' ? 'text-emerald-400' : 'text-slate-500' %>">Knowledge Base</span>
+            </a>
+            <hr class="border-slate-900">
+            <% if (typeof userId !== 'undefined' && userId) { %>
+                <a href="/dashboard" class="w-full py-4 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">Dashboard Panel</a>
+                <a href="/logout" class="w-full py-4 bg-red-600 text-center rounded-xl text-xs font-black uppercase tracking-widest text-white">Logout System</a>
+            <% } else { %>
+                <a href="/login" class="w-full py-4 bg-slate-900 text-center rounded-xl text-xs font-black uppercase tracking-widest text-white border border-slate-800">Administrator Login</a>
+            <% } %>
+        </div>
+    </div>
+</nav>
+
+<script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const iconOpen = document.getElementById('icon-open');
+    const iconClose = document.getElementById('icon-close');
+
+    menuToggle.addEventListener('click', () => {
+        const isHidden = mobileMenu.classList.contains('hidden');
+        if (isHidden) {
+            mobileMenu.classList.remove('hidden');
+            iconOpen.classList.add('hidden');
+            iconClose.classList.remove('hidden');
+        } else {
+            mobileMenu.classList.add('hidden');
+            iconOpen.classList.remove('hidden');
+            iconClose.classList.add('hidden');
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 768) {
+            mobileMenu.classList.add('hidden');
+            iconOpen.classList.remove('hidden');
+            iconClose.classList.add('hidden');
+        }
+    });
+</script>

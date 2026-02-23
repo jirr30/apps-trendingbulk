@@ -1,0 +1,122 @@
+<%- include('partials/header') %>
+<div class="min-h-screen bg-slate-950 text-slate-200 font-sans pb-12">
+    <div class="bg-slate-900/50 border-b border-slate-800 px-4 md:px-8 py-6">
+        <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div>
+                <h1 class="text-xl md:text-2xl font-black tracking-tighter text-white uppercase italic">Global <span class="text-red-500">Command Center</span></h1>
+                <p class="text-slate-500 text-[9px] md:text-[10px] font-mono tracking-[0.3em] mt-1">SUPER_ADMIN_MODE // FULL_ACCESS_ENABLED</p>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4 md:gap-8 w-full lg:w-auto border-t border-slate-800 lg:border-none pt-6 lg:pt-0">
+                <div class="text-center">
+                    <p class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Users</p>
+                    <p class="text-lg md:text-2xl font-mono text-white"><%= users.length %></p>
+                </div>
+                <div class="text-center border-x border-slate-800 px-4">
+                    <p class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Articles</p>
+                    <p class="text-lg md:text-2xl font-mono text-emerald-500"><%= articles.length %></p>
+                </div>
+                <div class="text-center">
+                    <p class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Templates</p>
+                    <p class="text-lg md:text-2xl font-mono text-blue-500"><%= templates.length %></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[1600px] mx-auto p-4 md:p-8 space-y-10">
+        
+        <section>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <h2 class="text-xs font-black uppercase tracking-[0.4em] text-white">Global Article Management</h2>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px] md:min-w-full">
+                        <thead class="bg-slate-950 border-b border-slate-800">
+                            <tr>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase">Author</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase">Title</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase hidden sm:table-cell">Date</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase text-right">Moderation</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <% articles.forEach(item => { %>
+                            <tr class="hover:bg-slate-800/30 transition group">
+                                <td class="px-6 py-4">
+                                    <span class="bg-emerald-500/10 text-emerald-500 text-[10px] font-mono px-2 py-1 rounded border border-emerald-500/20">
+                                        <%= item.author ? item.author.username : 'LEGACY_SYSTEM' %>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-sm font-medium text-white line-clamp-1"><%= item.title %></p>
+                                    <p class="sm:hidden text-[9px] font-mono text-slate-500 mt-1"><%= item.createdAt.toDateString() %></p>
+                                </td>
+                                <td class="px-6 py-4 text-xs font-mono text-slate-500 hidden sm:table-cell">
+                                    <%= item.createdAt.toLocaleDateString() %>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <form action="/admin/article/delete/<%= item._id %>" method="POST" onsubmit="return confirm('FORCE DELETE: Konfirmasi penghapusan?')">
+                                        <button class="text-red-500 hover:bg-red-500 hover:text-white text-[9px] font-black uppercase tracking-tighter border border-red-900/50 px-3 py-1.5 rounded-lg transition-all active:scale-95">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></div>
+                <h2 class="text-xs font-black uppercase tracking-[0.4em] text-white">Global Template Assets</h2>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px] md:min-w-full">
+                        <thead class="bg-slate-950 border-b border-slate-800">
+                            <tr>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase">Owner</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase hidden md:table-cell text-center">Preview</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase">Asset Name</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase text-right">Moderation</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <% templates.forEach(item => { %>
+                            <tr class="hover:bg-slate-800/30 transition">
+                                <td class="px-6 py-4">
+                                    <span class="text-xs font-mono text-blue-400">@<%= item.author ? item.author.username : 'NULL' %></span>
+                                </td>
+                                <td class="px-6 py-4 hidden md:table-cell">
+                                    <img src="<%= item.imageUrl %>" class="h-8 w-12 object-cover rounded border border-slate-700 mx-auto grayscale group-hover:grayscale-0 transition">
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-sm font-medium text-white line-clamp-1"><%= item.title %></p>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <form action="/delete/<%= item._id %>" method="POST" onsubmit="return confirm('FORCE DELETE: Hapus asset ini?')">
+                                        <button class="text-red-500 hover:bg-red-500 hover:text-white text-[9px] font-black uppercase tracking-tighter border border-red-900/50 px-3 py-1.5 rounded-lg transition-all active:scale-95">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</div>
+<%- include('partials/footer') %>

@@ -1,0 +1,67 @@
+<%- include('partials/header') %>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+
+<div class="min-h-screen bg-slate-950 py-12 px-6">
+    <div class="max-w-5xl mx-auto">
+        <div class="mb-8 flex justify-between items-end">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="h-3 w-3 rounded-full bg-blue-600 animate-pulse"></div>
+                    <h2 class="text-3xl font-black text-white tracking-tighter uppercase italic">New Article</h2>
+                </div>
+            </div>
+            <a href="/dashboard" class="text-slate-400 hover:text-white text-[10px] font-mono border border-slate-800 px-4 py-2 rounded-xl bg-slate-900/50 uppercase">
+                [ Back ]
+            </a>
+        </div>
+
+        <form action="/admin/article/save" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input type="text" name="title" placeholder="Article Title" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none">
+                <input type="text" name="videoUrl" placeholder="YouTube URL" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none">
+            </div>
+
+            <div class="p-6 bg-slate-900/50 border border-slate-800 rounded-2xl">
+                <input type="file" name="thumbnail" class="text-slate-400 text-xs">
+            </div>
+
+            <div class="bg-white rounded-2xl overflow-hidden min-h-[500px]">
+                <textarea name="content" id="article_editor"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-5 bg-blue-600 text-white font-black uppercase rounded-2xl shadow-lg">
+                Publish Article
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Paksa CKEditor muncul dan besar */
+    .ck-editor__editable_inline {
+        min-height: 500px !important;
+        color: #1a1a1a !important;
+    }
+    .ck-editor {
+        width: 100% !important;
+    }
+</style>
+
+<script>
+    // Inisialisasi paling dasar (pasti jalan jika CDN ter-load)
+    ClassicEditor
+        .create(document.querySelector('#article_editor'), {
+            ckfinder: {
+                uploadUrl: '/upload-image'
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            // Jika gagal, tampilkan textarea biasa agar tetap bisa ngetik
+            document.querySelector('#article_editor').style.display = 'block';
+            document.querySelector('#article_editor').style.height = '500px';
+            document.querySelector('#article_editor').style.width = '100%';
+        });
+</script>
+<%- include('partials/footer') %>

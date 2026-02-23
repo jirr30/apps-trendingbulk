@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof item !== 'undefined' ? item.title + ' | Trending Bulk' : 'Trending Bulk | Library & Docs' %></title>
+    
+    <% if (typeof item !== 'undefined') { %>
+        <meta property="og:title" content="<%= item.title %>">
+        <meta property="og:description" content="<%= item.description ? item.description.substring(0, 150) : (item.content ? item.content.replace(/<[^>]*>?/gm, '').substring(0, 150) : 'Lihat detail lengkap di Trending Bulk.') %>...">
+        <meta property="og:image" content="https://apps.trendingbulk.top<%= item.imageUrl || item.thumbnail || '/images/og-default.jpg' %>">
+        <meta property="og:url" content="https://apps.trendingbulk.top<%= typeof articles !== 'undefined' || (typeof page !== 'undefined' && page === 'articles') ? '/article/' + item._id : '/detail/' + item._id %>">
+        <meta property="og:type" content="article">
+    <% } else { %>
+        <meta property="og:title" content="Trending Bulk Library">
+        <meta property="og:description" content="Koleksi template dan resource terbaik dari NOC Trending Bulk.">
+        <meta property="og:image" content="https://apps.trendingbulk.top/images/og-default.jpg">
+        <meta property="og:type" content="website">
+    <% } %>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        /* Transisi halus untuk navigasi */
+        .nav-link::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: currentColor;
+            transition: width .3s;
+            margin-top: 4px;
+        }
+        .nav-link-active::after { width: 1rem; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+
+<nav class="bg-slate-950/80 backdrop-blur-md border-b border-slate-900 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="/" class="group">
+            <h1 class="text-white font-bold tracking-tighter text-xl transition group-hover:opacity-80">
+                TRENDING<span class="text-blue-500 group-hover:text-blue-400 transition">BULK</span>
+            </h1>
+        </a>
+
+        <div class="flex gap-10 items-center">
+            <a href="/" class="flex flex-col items-center group">
+                <span class="text-[10px] font-mono uppercase tracking-[0.3em] transition 
+                    <%= typeof page !== 'undefined' && page === 'templates' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300' %>">
+                    Templates
+                </span>
+                <% if (typeof page !== 'undefined' && page === 'templates') { %>
+                    <div class="h-[2px] w-4 bg-blue-500 mt-1 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+                <% } %>
+            </a>
+
+            <a href="/articles" class="flex flex-col items-center group">
+                <span class="text-[10px] font-mono uppercase tracking-[0.3em] transition 
+                    <%= typeof page !== 'undefined' && page === 'articles' ? 'text-emerald-400' : 'text-slate-500 group-hover:text-slate-300' %>">
+                    Knowledge Base
+                </span>
+                <% if (typeof page !== 'undefined' && page === 'articles') { %>
+                    <div class="h-[2px] w-4 bg-emerald-500 mt-1 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                <% } %>
+            </a>
+        </div>
+    </div>
+</nav>
