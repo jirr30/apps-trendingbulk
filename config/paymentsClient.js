@@ -1,12 +1,12 @@
 /**
  * Client untuk berkomunikasi dengan payments.trendingbulk.top (Payment Server)
- * apps.trendingbulk.top TIDAK menyentuh Midtrans langsung.
+ * teatersaphalta.com TIDAK menyentuh Midtrans langsung.
  * Semua request pembayaran dikirim ke payment server via REST API.
  */
 
 const BASE_URL  = process.env.PAYMENTS_API_URL || 'https://payments.trendingbulk.top';
 const API_KEY   = process.env.PAYMENTS_API_KEY;
-const APPS_URL  = process.env.APPS_URL || 'https://apps.trendingbulk.top';
+const APPS_URL  = process.env.APPS_URL || 'https://teatersaphalta.com';
 
 async function apiRequest(method, path, body = null) {
   const options = {

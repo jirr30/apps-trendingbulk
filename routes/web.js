@@ -653,7 +653,7 @@ router.get('/sitemap.xml', async (req, res) => {
             return res.send(_sitemapCache);
         }
 
-        const base = 'https://apps.trendingbulk.top';
+        const base = process.env.APPS_URL || 'https://teatersaphalta.com';
         const Template     = require('../models/Template');
         const MateriTeater = require('../models/MateriTeater');
 
@@ -764,7 +764,7 @@ router.get('/robots.txt', (req, res) => {
     res.send(`User-agent: *
 Allow: /
 
-Sitemap: https://apps.trendingbulk.top/sitemap.xml
+Sitemap: ${process.env.APPS_URL || 'https://teatersaphalta.com'}/sitemap.xml
 `);
 });
 

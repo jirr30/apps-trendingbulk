@@ -8,13 +8,13 @@
     <% if (typeof item !== 'undefined') { %>
         <meta property="og:title" content="<%= item.title %>">
         <meta property="og:description" content="<%= item.description ? item.description.substring(0, 150) : (item.content ? item.content.replace(/<[^>]*>?/gm, '').substring(0, 150) : 'Lihat detail lengkap di Teater Saphalta.') %>...">
-        <meta property="og:image" content="https://apps.trendingbulk.top<%= item.imageUrl || item.thumbnail || '/images/og-default.jpg' %>">
-        <meta property="og:url" content="https://apps.trendingbulk.top<%= typeof articles !== 'undefined' || (typeof page !== 'undefined' && page === 'articles') ? '/article/' + item._id : '/detail/' + item._id %>">
+        <meta property="og:image" content="<%= appUrl %><%= item.imageUrl || item.thumbnail || '/images/og-default.jpg' %>">
+        <meta property="og:url" content="<%= appUrl %><%= typeof articles !== 'undefined' || (typeof page !== 'undefined' && page === 'articles') ? '/article/' + item._id : '/detail/' + item._id %>">
         <meta property="og:type" content="article">
     <% } else { %>
         <meta property="og:title" content="Teater Saphalta">
         <meta property="og:description" content="Teater Saphalta — Panggung kami adalah ruang bagi para seniman untuk bercerita dan berekspresi.">
-        <meta property="og:image" content="https://apps.trendingbulk.top/images/og-default.jpg">
+        <meta property="og:image" content="<%= appUrl %>/images/og-default.jpg">
         <meta property="og:type" content="website">
     <% } %>
 

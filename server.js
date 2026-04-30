@@ -115,6 +115,7 @@ app.use((req, res, next) => {
     res.locals.sessionRole = req.session.role || null;
     res.locals.sessionUserId = req.session.userId || null;
     res.locals.sessionUserName = req.session.userName || null;
+    res.locals.appUrl = process.env.APPS_URL || 'https://teatersaphalta.com';
     next();
 });
 
@@ -181,7 +182,7 @@ app.listen(PORT, () => {
     console.log(`
 ==============================================
 🚀 SERVER STATUS: ONLINE
-🌐 DOMAIN : apps.trendingbulk.top
+🌐 DOMAIN : teatersaphalta.com
 📡 PORT   : ${PORT}
 📁 PATH   : /var/www/html/apps
 ==============================================

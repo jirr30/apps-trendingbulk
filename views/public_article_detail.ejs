@@ -73,7 +73,7 @@
                     <h4 class="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-2">Share to Infrastructure Team</h4>
                     <p class="text-slate-500 text-xs font-medium">Bagikan dokumentasi teknis ini melalui jalur koordinasi.</p>
                 </div>
-                <a href="https://api.whatsapp.com/send?text=📢 *DOKUMENTASI NOC BARU*: <%= encodeURIComponent(item.title) %>%0A%0ACek di sini: https://apps.trendingbulk.top/article/<%= item._id %>"
+                <a href="https://api.whatsapp.com/send?text=📢 *DOKUMENTASI NOC BARU*: <%= encodeURIComponent(item.title) %>%0A%0ACek di sini: <%= appUrl %>/article/<%= item._id %>"
                    target="_blank"
                    class="flex items-center gap-3 bg-[#25D366]/10 hover:bg-[#25D366] text-[#25D366] hover:text-white px-6 py-3 rounded-2xl border border-[#25D366]/20 transition-all duration-300 group shadow-lg shadow-[#25D366]/5 active:scale-95">
                     <svg class="w-5 h-5 fill-current transition-transform group-hover:scale-110" viewBox="0 0 24 24">

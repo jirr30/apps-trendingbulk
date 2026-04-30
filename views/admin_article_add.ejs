@@ -145,7 +145,7 @@
                 <!-- Google Preview -->
                 <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
                     <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Preview Google</p>
-                    <p id="prev-url" class="text-[11px] text-emerald-600 font-mono mb-0.5">apps.trendingbulk.top/article/judul-artikel</p>
+                    <p id="prev-url" class="text-[11px] text-emerald-600 font-mono mb-0.5">teatersaphalta.com/article/judul-artikel</p>
                     <p id="prev-title" class="text-sm font-bold text-blue-400 mb-0.5 line-clamp-1">Judul artikel</p>
                     <p id="prev-desc" class="text-xs text-slate-400 line-clamp-2">Deskripsi meta akan tampil di sini...</p>
                 </div>
@@ -315,7 +315,7 @@ document.getElementById('thumb-input').addEventListener('change', function() {
 
     function toSlug(v) { return v.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,80); }
     function updatePreview() {
-        if (prevUrl)   prevUrl.textContent   = 'apps.trendingbulk.top/article/' + (slugEl.value || 'slug-artikel');
+        if (prevUrl)   prevUrl.textContent   = 'teatersaphalta.com/article/' + (slugEl.value || 'slug-artikel');
         if (prevTitle) prevTitle.textContent = mtEl.value || (titleEl ? titleEl.value : '') || 'Judul artikel';
         if (prevDesc)  prevDesc.textContent  = mdEl.value || 'Deskripsi meta akan tampil di sini...';
     }
