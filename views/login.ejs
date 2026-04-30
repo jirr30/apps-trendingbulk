@@ -10,10 +10,30 @@
                 </svg>
             </div>
             <h2 class="mt-6 text-center text-3xl font-black text-white tracking-tighter uppercase">Login Access</h2>
-            <p class="mt-2 text-center text-[10px] text-slate-500 uppercase tracking-[0.3em] font-mono">Trending Bulk APPS</p>
+            <p class="mt-2 text-center text-[10px] text-slate-500 uppercase tracking-[0.3em] font-mono">Teater Saphalta</p>
+            <p class="text-center text-[9px] text-slate-600 font-mono mt-1">Berkarya melalui seni pertunjukan</p>
+            <p class="text-center text-[9px] text-slate-700 font-mono">we are part of <span class="text-slate-600">Teater Sapta</span></p>
         </div>
 
+        <% if (locals.flash_error && flash_error.length > 0) { %>
+            <div class="bg-red-900/40 border border-red-500/40 text-red-300 text-xs rounded-xl px-4 py-3 text-center">
+                <%= flash_error[0] %>
+            </div>
+        <% } %>
+        <% if (locals.flash_success && flash_success.length > 0) { %>
+            <div class="bg-green-900/40 border border-green-500/40 text-green-300 text-xs rounded-xl px-4 py-3 text-center">
+                <%= flash_success[0] %>
+            </div>
+        <% } %>
+
+        <% if (locals.flash_error && flash_error.some(m => m === 'Sesi login Anda berakhir karena password diubah.')) { %>
+        <div class="bg-amber-900/40 border border-amber-500/40 text-amber-300 text-xs rounded-xl px-4 py-3 text-center">
+            Sesi Anda berakhir karena password diubah dari perangkat lain. Silakan login ulang.
+        </div>
+        <% } %>
+
         <form class="mt-8 space-y-6" action="/login" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="space-y-4">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Username or Email</label>

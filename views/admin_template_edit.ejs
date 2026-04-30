@@ -1,6 +1,6 @@
-<%- include('partials/header') %>
+<%- include('partials/admin_header') %>
 
-<div class="min-h-screen bg-slate-950 py-12 px-6">
+<div class="min-h-screen bg-slate-950 py-10 px-4 md:px-6">
     <div class="max-w-4xl mx-auto">
         
         <div class="mb-8 flex justify-between items-end">
@@ -28,6 +28,21 @@
                         class="w-full p-4 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-1 focus:ring-blue-600 transition font-sans text-sm leading-relaxed"><%= item.description %></textarea>
                 </div>
 
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Label Karya</label>
+                        <input type="text" name="labelKarya" value="<%= item.labelKarya || '' %>" placeholder="cth: Drama, Komedi, Tragedi..."
+                            class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-1 focus:ring-blue-600 transition text-sm font-mono">
+                        <p class="text-[10px] text-slate-600 font-mono">Ditampilkan sebagai badge genre/jenis karya</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Label Produksi</label>
+                        <input type="text" name="labelProduksi" value="<%= item.labelProduksi || '' %>" placeholder="cth: Produksi 2024, Pentas Perdana..."
+                            class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-1 focus:ring-blue-600 transition text-sm font-mono">
+                        <p class="text-[10px] text-slate-600 font-mono">Ditampilkan sebagai badge tahun/seri produksi</p>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                     <div>
                         <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] block mb-3">Current Image</label>
@@ -46,6 +61,39 @@
                             <p class="text-[9px] text-slate-600 mt-4 italic text-center">Leave blank to keep current image</p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- SEO -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-5 shadow-2xl mt-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="h-7 w-1 bg-emerald-500 rounded-full"></div>
+                    <h3 class="text-sm font-black text-white tracking-tight">SEO Settings</h3>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Meta Title <span class="text-slate-700">(maks 60 karakter)</span></label>
+                    <input type="text" name="metaTitle" value="<%= item.metaTitle || '' %>" maxlength="60"
+                        placeholder="Kosongkan untuk pakai judul otomatis"
+                        class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-1 focus:ring-emerald-500 transition text-sm">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Meta Description <span class="text-slate-700">(120–160 karakter)</span></label>
+                    <textarea name="metaDescription" rows="2" maxlength="160"
+                        placeholder="Kosongkan untuk pakai deskripsi otomatis"
+                        class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-1 focus:ring-emerald-500 transition text-sm"><%= item.metaDescription || '' %></textarea>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Meta Keywords <span class="text-slate-700">(pisah koma)</span></label>
+                    <input type="text" name="metaKeywords" value="<%= item.metaKeywords || '' %>"
+                        placeholder="teater, pementasan, saphalta"
+                        class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-1 focus:ring-emerald-500 transition text-sm">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Slug URL <span class="text-slate-700">(opsional)</span></label>
+                    <input type="text" name="slug" value="<%= item.slug || '' %>"
+                        placeholder="judul-pementasan-ini"
+                        class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-1 focus:ring-emerald-500 transition text-sm font-mono">
+                    <p class="text-[10px] text-slate-600 font-mono">Kosongkan untuk generate otomatis dari judul</p>
                 </div>
             </div>
 

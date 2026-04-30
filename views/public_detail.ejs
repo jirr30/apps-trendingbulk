@@ -1,36 +1,86 @@
 <%- include('partials/header') %>
+
 <div class="min-h-screen bg-slate-950 text-slate-200">
-    <div class="max-w-5xl mx-auto p-6">
-        <a href="/" class="text-blue-400 hover:text-blue-300 flex items-center gap-2 transition group">
-            <svg class="w-5 h-5 group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Kembali ke Katalog
-        </a>
+
+    <!-- ── HERO IMAGE ─────────────────────────────────────────────── -->
+    <div class="relative w-full overflow-hidden" style="height: clamp(320px, 55vw, 560px);">
+        <img src="<%= item.imageUrl %>" alt="<%= item.title %>"
+             class="w-full h-full object-cover object-center"
+             style="filter: brightness(0.45);">
+        <!-- Gradient overlay bottom -->
+        <div class="absolute inset-0" style="background: linear-gradient(to bottom, rgba(2,8,23,0.1) 0%, rgba(2,8,23,0.5) 60%, rgba(2,8,23,1) 100%);"></div>
+
+        <!-- Back button -->
+        <div class="absolute top-5 left-5 sm:top-8 sm:left-8 z-10">
+            <a href="/profile"
+               class="inline-flex items-center gap-2 px-4 py-2 bg-slate-950/70 backdrop-blur-sm border border-slate-700/60 text-slate-300 hover:text-white hover:border-slate-500 text-xs font-bold rounded-xl transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Kembali
+            </a>
+        </div>
+
+        <!-- Title overlay di bagian bawah hero -->
+        <div class="absolute bottom-0 left-0 right-0 px-5 pb-8 sm:px-10 sm:pb-10 md:px-16 md:pb-12 z-10 max-w-5xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 mb-4">
+                <span class="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Riwayat Pementasan</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight drop-shadow-lg">
+                <%= item.title %>
+            </h1>
+        </div>
     </div>
-    <main class="max-w-5xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <div class="rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900">
-            <img src="<%= item.imageUrl %>" alt="<%= item.title %>" class="w-full h-auto object-cover">
+
+    <!-- ── KONTEN UTAMA ───────────────────────────────────────────── -->
+    <div class="max-w-5xl mx-auto px-5 sm:px-8 md:px-10 pb-20">
+
+        <!-- Meta bar: label + tanggal -->
+        <div class="flex flex-wrap items-center gap-3 py-6 border-b border-slate-800">
+            <% if (item.labelKarya) { %>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/20">
+                <%= item.labelKarya %>
+            </span>
+            <% } %>
+            <% if (item.labelProduksi) { %>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-violet-500/15 text-violet-400 border border-violet-500/20">
+                <%= item.labelProduksi %>
+            </span>
+            <% } %>
+            <span class="ml-auto flex items-center gap-1.5 text-[11px] font-mono text-slate-500">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <%= item.createdAt.toLocaleDateString('id-ID', { dateStyle: 'full' }) %>
+            </span>
         </div>
-        <div class="space-y-6">
-            <div class="border-b border-slate-800 pb-6">
-                <span class="text-blue-500 font-mono text-xs uppercase tracking-widest">Template Detail</span>
-                <h1 class="text-4xl font-extrabold text-white mt-2 leading-tight"><%= item.title %></h1>
-                <p class="text-slate-500 text-sm mt-4 italic">Diunggah pada: <%= item.createdAt.toLocaleDateString('id-ID', { dateStyle: 'full' }) %></p>
+
+        <!-- Deskripsi -->
+        <% if (item.description) { %>
+        <div class="py-10 border-b border-slate-800/60">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-5 w-1 bg-blue-500 rounded-full"></div>
+                <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Deskripsi Projek</h2>
             </div>
-            <div class="prose prose-invert max-w-none">
-                <h3 class="text-lg font-semibold text-slate-300 mb-2 underline decoration-blue-500 underline-offset-8">Deskripsi Projek:</h3>
-                <p class="text-slate-400 leading-relaxed text-lg"><%= item.description %></p>
-            </div>
-            <div class="pt-8 flex flex-col sm:flex-row gap-4">
-                <button onclick="window.print()" class="flex-1 px-6 py-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 border border-slate-700 shadow-lg">
-                    Simpan PDF
-                </button>
-                <a href="https://api.whatsapp.com/send?text=Halo, cek template *<%= item.title %>* ini: https://apps.trendingbulk.top/detail/<%= item._id %>" 
-                   target="_blank"
-                   class="flex-1 px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
-                    Share WhatsApp
-                </a>
-            </div>
+            <p class="text-slate-300 leading-loose text-base sm:text-lg whitespace-pre-wrap max-w-3xl">
+                <%= item.description %>
+            </p>
         </div>
-    </main>
+        <% } %>
+
+        <!-- Navigasi bawah -->
+        <div class="pt-10">
+            <a href="/profile"
+               class="inline-flex items-center gap-2 text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest transition group">
+                <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Semua Pementasan
+            </a>
+        </div>
+    </div>
+
 </div>
+
 <%- include('partials/footer') %>

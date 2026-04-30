@@ -1,0 +1,586 @@
+<%- include('partials/admin_header', { pageTitle: 'Galeri' }) %>
+
+<main class="min-h-screen bg-slate-950 py-10 pb-24 px-4 md:px-6">
+<div class="max-w-7xl mx-auto">
+
+    <!-- ── PAGE HEADER ────────────────────────────────────────── -->
+    <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <div class="h-3 w-3 rounded-full bg-pink-500 shadow-[0_0_12px_rgba(236,72,153,0.8)] animate-pulse"></div>
+                <h1 class="text-4xl font-black text-white tracking-tighter uppercase italic">Media Gallery</h1>
+            </div>
+            <p class="text-slate-500 font-mono text-xs uppercase tracking-[0.3em]">
+                Operator: <span class="text-pink-400 font-bold"><%= sessionUserName %></span>
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <a href="/galeri" target="_blank"
+               class="bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest px-5 py-3 rounded-xl border border-slate-800 transition-all flex items-center gap-2">
+                <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+                Lihat Publik
+            </a>
+        </div>
+    </div>
+
+    <!-- ── ALERT ──────────────────────────────────────────────── -->
+    <% if (typeof success !== 'undefined' && success) { %>
+    <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <p class="text-emerald-400 text-xs font-bold"><%= success %></p>
+    </div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+    <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+        <svg class="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <p class="text-red-400 text-xs font-bold"><%= error %></p>
+    </div>
+    <% } %>
+    <div id="toast" class="hidden fixed top-5 right-5 z-50 px-5 py-3 rounded-xl border text-xs font-bold shadow-2xl transition-all duration-300"></div>
+
+    <!-- ── STAT CARDS ─────────────────────────────────────────── -->
+    <%
+        var totalFoto    = galleries.filter(function(g){ return g.type === 'foto'; }).length;
+        var totalVideo   = galleries.filter(function(g){ return g.type === 'video' && g.source !== 'youtube'; }).length;
+        var totalYoutube = galleries.filter(function(g){ return g.source === 'youtube'; }).length;
+    %>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+        <div class="bg-slate-900/40 border border-slate-800 p-5 rounded-[2rem]">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Media</p>
+            <h3 class="text-3xl font-black text-white"><%= galleries.length %> <span class="text-pink-400 text-sm italic font-medium tracking-normal">Item</span></h3>
+        </div>
+        <div class="bg-slate-900/40 border border-slate-800 p-5 rounded-[2rem]">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Foto</p>
+            <h3 class="text-3xl font-black text-white"><%= totalFoto %> <span class="text-blue-400 text-sm italic font-medium tracking-normal">File</span></h3>
+        </div>
+        <div class="bg-slate-900/40 border border-slate-800 p-5 rounded-[2rem]">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Video Upload</p>
+            <h3 class="text-3xl font-black text-white"><%= totalVideo %> <span class="text-purple-400 text-sm italic font-medium tracking-normal">File</span></h3>
+        </div>
+        <div class="bg-slate-900/40 border border-slate-800 p-5 rounded-[2rem]">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">YouTube</p>
+            <h3 class="text-3xl font-black text-white"><%= totalYoutube %> <span class="text-red-400 text-sm italic font-medium tracking-normal">Link</span></h3>
+        </div>
+    </div>
+
+    <!-- ── UPLOAD SECTION ─────────────────────────────────────── -->
+    <section class="mb-14">
+        <div class="flex items-center gap-4 mb-6">
+            <h2 class="text-xl font-black text-white uppercase tracking-tighter italic">Upload Media</h2>
+            <div class="h-[1px] flex-1 bg-slate-900"></div>
+        </div>
+
+        <div class="bg-slate-900/40 border border-slate-800 rounded-[2rem] p-6 md:p-8">
+
+            <!-- Tipe toggle -->
+            <div class="flex flex-wrap gap-3 mb-6">
+                <label class="flex-1 min-w-[120px] max-w-[160px] cursor-pointer">
+                    <input type="radio" name="media-type" value="foto" id="type-foto" class="peer hidden" checked>
+                    <div class="peer-checked:bg-blue-500/20 peer-checked:border-blue-500/60 peer-checked:text-blue-400
+                                bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-center transition
+                                text-slate-400 text-xs font-bold uppercase tracking-wider hover:border-slate-600">
+                        📷 Foto
+                    </div>
+                </label>
+                <label class="flex-1 min-w-[120px] max-w-[160px] cursor-pointer">
+                    <input type="radio" name="media-type" value="video" id="type-video" class="peer hidden">
+                    <div class="peer-checked:bg-pink-500/20 peer-checked:border-pink-500/60 peer-checked:text-pink-400
+                                bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-center transition
+                                text-slate-400 text-xs font-bold uppercase tracking-wider hover:border-slate-600">
+                        🎬 Video
+                    </div>
+                </label>
+                <label class="flex-1 min-w-[120px] max-w-[160px] cursor-pointer">
+                    <input type="radio" name="media-type" value="youtube" id="type-youtube" class="peer hidden">
+                    <div class="peer-checked:bg-red-500/20 peer-checked:border-red-500/60 peer-checked:text-red-400
+                                bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-center transition
+                                text-slate-400 text-xs font-bold uppercase tracking-wider hover:border-slate-600">
+                        🎥 YouTube
+                    </div>
+                </label>
+            </div>
+
+            <!-- PANEL FOTO -->
+            <div id="panel-foto" class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">
+                        Deskripsi <span class="text-slate-600 normal-case tracking-normal">(opsional · foto dengan deskripsi sama dikelompokkan jadi album)</span>
+                    </label>
+                    <textarea id="foto-description" rows="2" placeholder="Contoh: Latihan Rutin Maret 2025 — isi sama untuk buat album..."
+                        class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-200
+                               placeholder-slate-600 focus:outline-none focus:border-blue-500/60 transition resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">
+                        File Foto <span class="text-blue-400 normal-case tracking-normal">(pilih banyak sekaligus)</span>
+                    </label>
+                    <label id="foto-drop-zone"
+                        class="flex flex-col items-center justify-center w-full min-h-[140px] border-2 border-dashed border-slate-700
+                               rounded-2xl cursor-pointer hover:border-blue-500/60 hover:bg-blue-500/5 transition group">
+                        <input type="file" id="foto-input" multiple accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="hidden">
+                        <div id="foto-placeholder" class="text-center py-6 px-4">
+                            <svg class="w-10 h-10 text-slate-600 mx-auto mb-2 group-hover:text-blue-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <p class="text-xs text-slate-500">Klik atau drag &amp; drop foto di sini</p>
+                            <p class="text-[10px] text-slate-600 mt-1 font-mono">JPG · PNG · WEBP · GIF · Maks 100MB total</p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Preview grid -->
+                <div id="foto-preview-grid" class="hidden">
+                    <div class="flex items-center justify-between mb-3">
+                        <span id="foto-count-label" class="text-[10px] font-mono text-blue-400"></span>
+                        <button type="button" id="btn-clear-foto" class="text-[10px] font-mono text-red-400 hover:text-red-300 transition">Hapus Semua</button>
+                    </div>
+                    <div id="foto-thumbs" class="grid grid-cols-5 sm:grid-cols-8 gap-2 max-h-48 overflow-y-auto pr-1"></div>
+                </div>
+
+                <!-- Progress -->
+                <div id="upload-progress-wrap" class="hidden space-y-2">
+                    <div class="flex justify-between text-[10px] font-mono text-slate-500">
+                        <span id="progress-label">Mengupload...</span>
+                        <span id="progress-pct">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5">
+                        <div id="progress-bar" class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <button type="button" id="btn-upload-foto" disabled
+                    class="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white
+                           text-xs font-black uppercase tracking-widest rounded-2xl transition shadow-lg shadow-blue-900/20
+                           flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    <span id="btn-upload-foto-label">Upload Foto</span>
+                </button>
+            </div>
+
+            <!-- PANEL VIDEO (Upload File) -->
+            <div id="panel-video" class="hidden">
+                <form action="/admin/galeri/upload" method="POST" enctype="multipart/form-data" class="space-y-5">
+                    <input type="hidden" name="type" value="video">
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Judul <span class="text-red-500">*</span></label>
+                        <input type="text" name="title" required placeholder="Masukkan judul video..."
+                            class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-200
+                                   placeholder-slate-600 focus:outline-none focus:border-pink-500/60 transition">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Deskripsi</label>
+                        <textarea name="description" rows="2" placeholder="Deskripsi singkat (opsional)..."
+                            class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-200
+                                   placeholder-slate-600 focus:outline-none focus:border-pink-500/60 transition resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">File Video <span class="text-red-500">*</span></label>
+                        <label id="video-drop-zone"
+                            class="block w-full border-2 border-dashed border-slate-700 rounded-2xl p-8 text-center
+                                   cursor-pointer hover:border-pink-500/50 hover:bg-pink-500/5 transition group">
+                            <input type="file" name="file" id="video-input" required class="hidden"
+                                   accept="video/mp4,video/webm,video/ogg,video/quicktime">
+                            <div id="video-drop-label">
+                                <svg class="w-10 h-10 text-slate-600 mx-auto mb-3 group-hover:text-pink-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.069A1 1 0 0121 8.871v6.258a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+                                </svg>
+                                <p class="text-xs text-slate-500">Klik atau drag &amp; drop video di sini</p>
+                                <p class="text-[10px] text-slate-600 mt-1 font-mono">MP4 · WEBM · MOV (maks 100MB)</p>
+                            </div>
+                            <div id="video-file-preview" class="hidden">
+                                <p id="video-file-name" class="text-xs text-pink-400 font-mono break-all"></p>
+                                <p id="video-file-size" class="text-[10px] text-slate-500 mt-1"></p>
+                            </div>
+                        </label>
+                    </div>
+                    <button type="submit"
+                        class="w-full py-3 bg-pink-600 hover:bg-pink-700 text-white text-xs font-black uppercase tracking-widest
+                               rounded-2xl transition shadow-lg shadow-pink-900/20 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                        </svg>
+                        Upload Video
+                    </button>
+                </form>
+            </div>
+
+            <!-- PANEL YOUTUBE -->
+            <div id="panel-youtube" class="hidden">
+                <form action="/admin/galeri/youtube" method="POST" class="space-y-5">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">
+                            URL YouTube <span class="text-red-500">*</span>
+                        </label>
+                        <input type="url" name="youtubeUrl" required
+                            placeholder="https://www.youtube.com/watch?v=... atau https://youtu.be/..."
+                            class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-200
+                                   placeholder-slate-600 focus:outline-none focus:border-red-500/60 transition">
+                        <p class="text-[10px] text-slate-600 font-mono mt-1.5">
+                            Format yang didukung: youtube.com/watch?v=ID &bull; youtu.be/ID &bull; youtube.com/embed/ID
+                        </p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">
+                            Judul <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="title" required placeholder="Masukkan judul video..."
+                            class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-200
+                                   placeholder-slate-600 focus:outline-none focus:border-red-500/60 transition">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Deskripsi</label>
+                        <textarea name="description" rows="2" placeholder="Deskripsi singkat (opsional)..."
+                            class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-200
+                                   placeholder-slate-600 focus:outline-none focus:border-red-500/60 transition resize-none"></textarea>
+                    </div>
+                    <!-- Preview area -->
+                    <div id="yt-preview-wrap" class="hidden bg-slate-800/50 border border-slate-700 rounded-2xl p-4 flex items-center gap-4">
+                        <img id="yt-preview-thumb" src="" alt="thumbnail" class="w-24 h-16 object-cover rounded-xl shrink-0">
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-mono text-slate-500 mb-0.5">Preview Thumbnail</p>
+                            <p id="yt-preview-id" class="text-xs text-red-400 font-mono truncate"></p>
+                        </div>
+                    </div>
+                    <button type="submit"
+                        class="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-widest
+                               rounded-2xl transition shadow-lg shadow-red-900/20 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                        Tambah Video YouTube
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ── MEDIA CATALOG ──────────────────────────────────────── -->
+    <section>
+        <div class="flex items-center gap-4 mb-6">
+            <h2 class="text-xl font-black text-white uppercase tracking-tighter italic">Media Catalog</h2>
+            <div class="h-[1px] flex-1 bg-slate-900"></div>
+            <!-- Filter tab -->
+            <div class="flex gap-2 shrink-0">
+                <button data-filter="all"
+                    class="filter-btn active-filter text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border transition">
+                    Semua
+                </button>
+                <button data-filter="foto"
+                    class="filter-btn text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border transition">
+                    📷 Foto
+                </button>
+                <button data-filter="video"
+                    class="filter-btn text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border transition">
+                    🎬 Video
+                </button>
+                <button data-filter="youtube"
+                    class="filter-btn text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border transition">
+                    🎥 YT
+                </button>
+            </div>
+        </div>
+
+        <% if (typeof galleries !== 'undefined' && galleries.length > 0) { %>
+        <div id="gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <% galleries.forEach(function(item) { %>
+            <div class="gallery-card group relative bg-slate-900/40 border border-slate-800 rounded-[1.5rem] overflow-hidden
+                        hover:border-slate-600 transition-all duration-300"
+                 data-type="<%= item.type %>" data-source="<%= item.source || 'upload' %>">
+
+                <!-- Thumbnail -->
+                <div class="aspect-square relative overflow-hidden bg-slate-800">
+                    <% if (item.type === 'foto') { %>
+                        <img src="<%= item.fileUrl %>" alt="<%= item.title %>"
+                             class="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                             onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-full text-3xl\'>📷</div>'">
+                    <% } else { %>
+                        <% if (item.thumbnail) { %>
+                            <img src="<%= item.thumbnail %>" alt="<%= item.title %>"
+                                 class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                        <% } else { %>
+                            <div class="flex items-center justify-center h-full bg-slate-800 text-4xl">🎬</div>
+                        <% } %>
+                        <!-- Play overlay -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20">
+                                <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <!-- Type badge -->
+                    <div class="absolute top-2 left-2 flex gap-1">
+                        <span class="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md
+                            <%= item.type === 'foto' ? 'bg-blue-500/80 text-white' : (item.source === 'youtube' ? 'bg-red-600/90 text-white' : 'bg-pink-500/80 text-white') %>">
+                            <%= item.source === 'youtube' ? 'YT' : item.type %>
+                        </span>
+                    </div>
+
+                    <!-- Hover overlay dengan tombol hapus + lihat (YouTube) -->
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
+                        <% if (item.source === 'youtube') { %>
+                        <a href="<%= item.fileUrl.replace('/embed/', '/watch?v=') %>" target="_blank"
+                            class="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-wider px-3 py-2 rounded-xl transition">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            Lihat
+                        </a>
+                        <% } %>
+                        <form action="/admin/galeri/delete/<%= item._id %>" method="POST"
+                              onsubmit="return confirm('Hapus media ini?')">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button type="submit"
+                                class="flex items-center gap-1.5 bg-slate-700 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-wider px-3 py-2 rounded-xl transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Hapus
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="p-3">
+                    <p class="text-xs font-bold text-slate-200 truncate leading-tight"><%= item.title %></p>
+                    <% if (item.description) { %>
+                    <p class="text-[10px] text-slate-500 truncate mt-0.5"><%= item.description %></p>
+                    <% } %>
+                    <p class="text-[9px] text-slate-600 font-mono mt-1">
+                        <%= new Date(item.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) %>
+                    </p>
+                </div>
+
+            </div>
+            <% }) %>
+        </div>
+        <% } else { %>
+        <div class="bg-slate-900/20 border border-slate-800 rounded-[2rem] py-20 text-center">
+            <p class="text-5xl mb-4">📂</p>
+            <p class="text-slate-600 text-xs font-mono uppercase tracking-widest">Belum ada media yang diupload</p>
+        </div>
+        <% } %>
+    </section>
+
+</div>
+</main>
+
+<script>
+(function () {
+    // ── Toggle Panel ──────────────────────────────────────────────
+    const radioFoto    = document.getElementById('type-foto');
+    const radioVideo   = document.getElementById('type-video');
+    const radioYoutube = document.getElementById('type-youtube');
+    const panelFoto    = document.getElementById('panel-foto');
+    const panelVideo   = document.getElementById('panel-video');
+    const panelYoutube = document.getElementById('panel-youtube');
+
+    function switchPanel() {
+        const val = document.querySelector('input[name="media-type"]:checked').value;
+        panelFoto.classList.toggle('hidden', val !== 'foto');
+        panelVideo.classList.toggle('hidden', val !== 'video');
+        panelYoutube.classList.toggle('hidden', val !== 'youtube');
+    }
+    radioFoto.addEventListener('change', switchPanel);
+    radioVideo.addEventListener('change', switchPanel);
+    radioYoutube.addEventListener('change', switchPanel);
+
+    // ── YouTube URL preview ───────────────────────────────────────
+    const ytUrlInput   = document.querySelector('input[name="youtubeUrl"]');
+    const ytPreviewWrap = document.getElementById('yt-preview-wrap');
+    const ytPreviewThumb = document.getElementById('yt-preview-thumb');
+    const ytPreviewId    = document.getElementById('yt-preview-id');
+    if (ytUrlInput) {
+        ytUrlInput.addEventListener('input', function () {
+            const match = this.value.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?\/ \s]+)/);
+            if (match) {
+                const vid = match[1];
+                ytPreviewThumb.src = 'https://img.youtube.com/vi/' + vid + '/hqdefault.jpg';
+                ytPreviewId.textContent = 'Video ID: ' + vid;
+                ytPreviewWrap.classList.remove('hidden');
+            } else {
+                ytPreviewWrap.classList.add('hidden');
+            }
+        });
+    }
+
+    // ── Video single preview ──────────────────────────────────────
+    document.getElementById('video-input').addEventListener('change', function () {
+        const f = this.files[0];
+        if (!f) return;
+        document.getElementById('video-drop-label').classList.add('hidden');
+        document.getElementById('video-file-preview').classList.remove('hidden');
+        document.getElementById('video-file-name').textContent = f.name;
+        document.getElementById('video-file-size').textContent = (f.size / (1024 * 1024)).toFixed(2) + ' MB';
+    });
+
+    // ── Foto multiple ─────────────────────────────────────────────
+    const fotoInput       = document.getElementById('foto-input');
+    const fotoDropZone    = document.getElementById('foto-drop-zone');
+    const fotoPlaceholder = document.getElementById('foto-placeholder');
+    const fotoPreviewGrid = document.getElementById('foto-preview-grid');
+    const fotoThumbs      = document.getElementById('foto-thumbs');
+    const fotoCountLabel  = document.getElementById('foto-count-label');
+    const btnUpload       = document.getElementById('btn-upload-foto');
+    const btnUploadLabel  = document.getElementById('btn-upload-foto-label');
+    const btnClear        = document.getElementById('btn-clear-foto');
+    const progressWrap    = document.getElementById('upload-progress-wrap');
+    const progressBar     = document.getElementById('progress-bar');
+    const progressPct     = document.getElementById('progress-pct');
+    const progressLabel   = document.getElementById('progress-label');
+
+    let selectedFiles = [];
+
+    fotoDropZone.addEventListener('dragover', e => { e.preventDefault(); fotoDropZone.classList.add('border-blue-500/60', 'bg-blue-500/5'); });
+    fotoDropZone.addEventListener('dragleave', () => { fotoDropZone.classList.remove('border-blue-500/60', 'bg-blue-500/5'); });
+    fotoDropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        fotoDropZone.classList.remove('border-blue-500/60', 'bg-blue-500/5');
+        addFiles([...e.dataTransfer.files].filter(f => f.type.startsWith('image/')));
+    });
+    fotoInput.addEventListener('change', function () { addFiles([...this.files]); this.value = ''; });
+
+    function addFiles(files) {
+        files.forEach(f => {
+            if (!selectedFiles.find(x => x.name === f.name && x.size === f.size)) selectedFiles.push(f);
+        });
+        renderPreviews();
+    }
+
+    function renderPreviews() {
+        fotoThumbs.innerHTML = '';
+        if (selectedFiles.length === 0) {
+            fotoPreviewGrid.classList.add('hidden');
+            fotoPlaceholder.classList.remove('hidden');
+            btnUpload.disabled = true;
+            btnUploadLabel.textContent = 'Upload Foto';
+            return;
+        }
+        fotoPlaceholder.classList.add('hidden');
+        fotoPreviewGrid.classList.remove('hidden');
+        fotoCountLabel.textContent = selectedFiles.length + ' foto dipilih';
+        btnUpload.disabled = false;
+        btnUploadLabel.textContent = 'Upload ' + selectedFiles.length + ' Foto';
+
+        selectedFiles.forEach((f, idx) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'relative aspect-square rounded-xl overflow-hidden bg-slate-800 border border-slate-700 group/thumb';
+            const img = document.createElement('img');
+            img.className = 'w-full h-full object-cover';
+            const reader = new FileReader();
+            reader.onload = e => { img.src = e.target.result; };
+            reader.readAsDataURL(f);
+            const del = document.createElement('button');
+            del.type = 'button';
+            del.className = 'absolute top-1 right-1 h-5 w-5 bg-red-600/90 rounded-full flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition';
+            del.innerHTML = '<svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>';
+            del.addEventListener('click', () => { selectedFiles.splice(idx, 1); renderPreviews(); });
+            wrap.appendChild(img);
+            wrap.appendChild(del);
+            fotoThumbs.appendChild(wrap);
+        });
+    }
+
+    btnClear.addEventListener('click', () => { selectedFiles = []; renderPreviews(); });
+
+    btnUpload.addEventListener('click', async () => {
+        if (selectedFiles.length === 0) return;
+        btnUpload.disabled = true;
+        progressWrap.classList.remove('hidden');
+        progressBar.style.width = '0%';
+        progressPct.textContent = '0%';
+        progressLabel.textContent = 'Mengupload ' + selectedFiles.length + ' foto...';
+
+        const formData = new FormData();
+        selectedFiles.forEach(f => formData.append('files', f));
+        formData.append('description', document.getElementById('foto-description').value || '');
+
+        try {
+            await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/admin/galeri/upload-multiple');
+                xhr.upload.onprogress = e => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = pct + '%';
+                        progressPct.textContent = pct + '%';
+                    }
+                };
+                xhr.onload = () => xhr.status === 200 ? resolve(JSON.parse(xhr.responseText)) : reject(new Error('Upload gagal (status ' + xhr.status + ')'));
+                xhr.onerror = () => reject(new Error('Koneksi gagal'));
+                xhr.send(formData);
+            }).then(data => {
+                if (!data.success) throw new Error(data.message || 'Gagal');
+                progressBar.style.width = '100%';
+                progressPct.textContent = '100%';
+                progressLabel.textContent = '✓ ' + data.count + ' foto berhasil diupload';
+                showToast('✓ ' + data.count + ' foto berhasil diupload', 'emerald');
+                selectedFiles = [];
+                renderPreviews();
+                setTimeout(() => { progressWrap.classList.add('hidden'); location.reload(); }, 1200);
+            });
+        } catch (err) {
+            progressLabel.textContent = '✗ ' + err.message;
+            progressBar.classList.replace('bg-blue-500', 'bg-red-500');
+            showToast('✗ ' + err.message, 'red');
+            btnUpload.disabled = false;
+        }
+    });
+
+    // ── Filter Tab ────────────────────────────────────────────────
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            filterBtns.forEach(b => {
+                b.classList.remove('bg-slate-700', 'border-slate-600', 'text-white');
+                b.classList.add('border-slate-800', 'text-slate-500');
+            });
+            this.classList.add('bg-slate-700', 'border-slate-600', 'text-white');
+            this.classList.remove('border-slate-800', 'text-slate-500');
+
+            const filter = this.dataset.filter;
+            document.querySelectorAll('.gallery-card').forEach(card => {
+                let show = false;
+                if (filter === 'all') {
+                    show = true;
+                } else if (filter === 'youtube') {
+                    show = card.dataset.source === 'youtube';
+                } else if (filter === 'video') {
+                    show = card.dataset.type === 'video' && card.dataset.source !== 'youtube';
+                } else {
+                    show = card.dataset.type === filter;
+                }
+                card.style.display = show ? '' : 'none';
+            });
+        });
+        // init style
+        if (btn.classList.contains('active-filter')) {
+            btn.classList.add('bg-slate-700', 'border-slate-600', 'text-white');
+        } else {
+            btn.classList.add('border-slate-800', 'text-slate-500');
+        }
+    });
+
+    // ── Toast ─────────────────────────────────────────────────────
+    function showToast(msg, color) {
+        const toast = document.getElementById('toast');
+        toast.className = 'fixed top-5 right-5 z-50 px-5 py-3 rounded-xl border text-xs font-bold shadow-2xl transition-all duration-300';
+        if (color === 'emerald') toast.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400');
+        else toast.classList.add('bg-red-500/10', 'border-red-500/30', 'text-red-400');
+        toast.textContent = msg;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 4000);
+    }
+})();
+</script>
+
+</body>
+</html>

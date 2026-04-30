@@ -1,0 +1,152 @@
+<%- include('partials/header') %>
+
+<%
+  const getEmbedUrl = (url) => {
+    if (!url) return null;
+    if (url.includes('youtube.com/embed/')) return url;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : url;
+  };
+  const embedUrl = getEmbedUrl(item.videoUrl);
+%>
+
+<div class="min-h-screen bg-slate-950 text-slate-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 md:py-16 sidebar-grid">
+      <div class="min-w-0">
+        <div class="mb-8">
+        <a href="/articles#materi-teater" class="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 group transition-all">
+            <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            <span class="text-[10px] font-black uppercase tracking-[0.2em]">Kembali ke Materi Teater</span>
+        </a>
+    </div>
+
+        <article class="bg-slate-900/50 border border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden">
+        <header class="p-8 md:p-12 bg-gradient-to-b from-slate-800/30 to-transparent border-b border-slate-800">
+            <div class="mb-4">
+                <span class="bg-blue-600 text-[9px] text-white px-3 py-1 rounded-full uppercase font-black tracking-widest">Materi Teater</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black text-white mb-6 leading-[1.1] uppercase italic tracking-tighter">
+                <%= item.title %>
+            </h1>
+            <div class="flex flex-wrap items-center gap-4 text-slate-500 font-mono text-[10px] uppercase tracking-widest">
+                <div class="flex items-center gap-2">
+                    <div class="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+                    <span>Diterbitkan: <%= item.createdAt.toLocaleDateString('id-ID', { dateStyle: 'full' }) %></span>
+                </div>
+                <% if (item.author) { %>
+                <div class="hidden md:block h-4 w-[1px] bg-slate-800"></div>
+                <div class="text-blue-400/80 italic">Oleh: <%= item.author.username %></div>
+                <% } %>
+            </div>
+        </header>
+
+        <div class="px-8 md:px-12 pt-10 pb-12">
+            <% if (item.videoUrl && embedUrl) { %>
+            <div class="aspect-video rounded-3xl overflow-hidden border border-slate-800 bg-black shadow-2xl mb-10">
+                <iframe class="w-full h-full" src="<%= embedUrl %>" title="<%= item.title %>"
+                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+            <% } else if (item.thumbnail) { %>
+            <div class="rounded-3xl overflow-hidden mb-10 border border-slate-800 shadow-xl">
+                <img src="<%= item.thumbnail %>" alt="<%= item.title %>" class="w-full h-auto object-cover max-h-[500px]">
+            </div>
+            <% } %>
+
+            <div class="ck-content prose prose-invert max-w-none text-slate-300 leading-relaxed text-lg">
+                <%- item.content %>
+            </div>
+
+            <div class="mt-16 pt-8 border-t border-slate-800 flex items-center justify-between gap-6">
+                <a href="/articles#materi-teater" class="flex items-center gap-2 text-slate-400 hover:text-white text-xs font-bold border border-slate-800 hover:border-slate-600 px-4 py-2.5 rounded-xl transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Materi Lainnya
+                </a>
+                <a href="https://api.whatsapp.com/send?text=🎭 *<%= encodeURIComponent(item.title) %>*%0A%0Ahttps://apps.trendingbulk.top/materi-teater/<%= item._id %>"
+                   target="_blank"
+                   class="flex items-center gap-2 bg-[#25D366]/10 hover:bg-[#25D366] text-[#25D366] hover:text-white px-5 py-2.5 rounded-xl border border-[#25D366]/20 transition text-xs font-black uppercase tracking-widest">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.435 5.621 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    Bagikan
+                </a>
+            </div>
+        </div>
+        </article>
+      </div><!-- end main -->
+
+      <aside class="hidden lg:block">
+        <div class="sticky top-24 py-10 flex flex-col gap-2">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="h-7 w-1 bg-emerald-500 rounded-full shrink-0"></div>
+            <div>
+              <h2 class="text-sm font-black text-white tracking-tight">Jelajahi Lebih Lanjut</h2>
+              <p class="text-slate-500 text-[10px] font-mono mt-0.5">Temukan lebih banyak</p>
+            </div>
+          </div>
+          <a href="/" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition">
+              <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-blue-300 transition truncate">Tentang Kami</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Sejarah & pencapaian kami</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-blue-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/berita" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-amber-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:bg-amber-500/20 transition">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 4v6h-6"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-amber-300 transition truncate">Berita Terkini</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Info terbaru kegiatan kami</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-amber-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/galeri" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition">
+              <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-blue-300 transition truncate">Galeri Foto & Video</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Dokumentasi kegiatan kami</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-blue-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/sekretariat" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-violet-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 group-hover:bg-violet-500/20 transition">
+              <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-violet-300 transition truncate">Sekretariat</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Kontak & info organisasi</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-violet-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        <%- include("partials/sidebar_extras") %>
+        </div>
+      </aside>
+    </div><!-- end grid -->
+</div>
+
+<style>
+    .ck-content img { max-width: 100%; height: auto; border-radius: 1.5rem; margin: 2rem auto; border: 1px solid #334155; display: block; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+    .ck-content table { width: 100% !important; border-collapse: collapse; margin: 2.5rem 0; overflow-x: auto; display: block; background: rgba(15,23,42,0.5); border-radius: 1rem; box-shadow: 0 0 0 1px #1e293b; }
+    .ck-content table td, .ck-content table th { border: 1px solid #1e293b; padding: 1.25rem; min-width: 140px; color: #94a3b8; }
+    .ck-content table th { background: #1e293b; color: #fff; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.15em; font-weight: 900; }
+    .ck-content h1 { font-size: 2.25rem; font-weight: 900; color: #fff; margin-top: 3.5rem; margin-bottom: 1.5rem; border-left: 4px solid #3b82f6; padding-left: 1rem; }
+    .ck-content h2 { font-size: 1.85rem; font-weight: 900; color: #fff; margin-top: 3rem; margin-bottom: 1.25rem; border-left: 4px solid #3b82f6; padding-left: 1rem; }
+    .ck-content h3 { font-size: 1.45rem; font-weight: 700; color: #e2e8f0; margin-top: 2.5rem; margin-bottom: 1rem; }
+    .ck-content h4 { font-size: 1.15rem; font-weight: 700; color: #e2e8f0; margin-top: 2rem; margin-bottom: 0.75rem; }
+    .ck-content p { margin-bottom: 1.25rem; }
+    .ck-content strong { color: #f1f5f9; font-weight: 700; }
+    .ck-content a { color: #3b82f6; text-decoration: underline; }
+    .ck-content a:hover { color: #60a5fa; }
+    .ck-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .ck-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .ck-content li { margin-bottom: 0.4rem; }
+    .ck-content blockquote { border-left: 4px solid #3b82f6; background: rgba(59,130,246,0.05); padding: 1.5rem 2rem; font-style: italic; border-radius: 0.75rem; margin: 3rem 0; }
+</style>
+
+<%- include('partials/footer') %>

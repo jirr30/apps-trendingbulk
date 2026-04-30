@@ -1,0 +1,722 @@
+<%- include('partials/header', { page: 'galeri' }) %>
+
+<div class="min-h-screen bg-slate-950 text-slate-200">
+
+    <!-- ── HERO ───────────────────────────────────────────────────── -->
+    <section class="relative overflow-hidden border-b border-slate-800/60 min-h-[500px]">
+
+        <% if (typeof heroPhotos !== 'undefined' && heroPhotos.length > 0) { %>
+        <div id="hero-slideshow" class="absolute inset-0 z-0">
+            <% heroPhotos.forEach(function(photo, i) { %>
+            <div class="hero-slide absolute inset-0" style="opacity:<%= i===0?1:0 %>;transition:opacity 1.4s ease;">
+                <img src="<%= photo.fileUrl %>" alt="<%= photo.title %>"
+                     loading="<%= i===0?'eager':'lazy' %>"
+                     class="w-full h-full object-cover block">
+            </div>
+            <% }) %>
+            <div class="absolute inset-0 z-[1]" style="background:linear-gradient(to bottom,rgba(2,8,23,0.55) 0%,rgba(2,8,23,0.82) 60%,rgba(2,8,23,1) 100%);"></div>
+        </div>
+        <% } else { %>
+        <div class="absolute inset-0 z-0" style="background:linear-gradient(135deg,#0f172a 0%,#020817 50%,#0f172a 100%);"></div>
+        <% } %>
+
+        <div class="max-w-4xl mx-auto relative px-5 py-16 sm:py-20 md:py-24 text-center z-[2]">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 mb-5">
+                <span class="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Dokumentasi</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 leading-tight tracking-tight">
+                Galeri <span class="text-blue-500">Foto & Video</span>
+            </h1>
+            <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed px-2">
+                Kumpulan dokumentasi foto dan video dari setiap kegiatan dan pementasan kami.
+            </p>
+            <%
+                var totalFotoPublik = fotoGroups.reduce(function(s,g){ return s+g.photos.length; }, 0);
+                var albumCount      = fotoGroups.filter(function(g){ return g.photos.length > 1; }).length;
+                var videoUpload     = videos.filter(function(v){ return v.source !== 'youtube'; });
+                var videoYoutube    = videos.filter(function(v){ return v.source === 'youtube'; });
+            %>
+            <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
+                <% if (albumCount > 0) { %>
+                <a href="#album" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-blue-900/30">
+                    <%= albumCount %> Album
+                </a>
+                <% } %>
+                <% if (totalFotoPublik > 0) { %>
+                <a href="#foto" class="px-5 py-2.5 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white text-sm font-bold rounded-xl transition">
+                    <%= totalFotoPublik %> Foto
+                </a>
+                <% } %>
+                <% if (videoUpload.length > 0) { %>
+                <a href="#video" class="px-5 py-2.5 border border-slate-700 hover:border-amber-500/50 text-slate-300 hover:text-amber-300 text-sm font-bold rounded-xl transition">
+                    <%= videoUpload.length %> Video
+                </a>
+                <% } %>
+                <% if (videoYoutube.length > 0) { %>
+                <a href="#youtube" class="px-5 py-2.5 border border-red-800/40 hover:border-red-500/60 bg-red-900/10 text-red-400 hover:text-red-300 text-sm font-bold rounded-xl transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    <%= videoYoutube.length %> YouTube
+                </a>
+                <% } %>
+            </div>
+        </div>
+
+        <% if (typeof heroPhotos !== 'undefined' && heroPhotos.length > 1) { %>
+        <div id="hero-dots" class="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-[2]">
+            <% heroPhotos.forEach(function(_, i) { %>
+            <span class="hero-dot" data-index="<%= i %>"
+                  style="width:<%= i===0?'20px':'7px' %>;height:7px;border-radius:9999px;cursor:pointer;transition:all 0.3s;background:<%= i===0?'#3b82f6':'rgba(255,255,255,0.25)' %>;"></span>
+            <% }) %>
+        </div>
+        <% } %>
+    </section>
+
+    <script>
+    (function() {
+        var slides = document.querySelectorAll('.hero-slide');
+        var dots   = document.querySelectorAll('.hero-dot');
+        if (slides.length < 2) return;
+        var current = 0;
+        function goTo(n) {
+            dots[current].style.width = '7px';
+            dots[current].style.background = 'rgba(255,255,255,0.25)';
+            slides[current].style.opacity = 0;
+            current = n % slides.length;
+            slides[current].style.opacity = 1;
+            dots[current].style.width = '20px';
+            dots[current].style.background = '#3b82f6';
+        }
+        dots.forEach(function(d) { d.addEventListener('click', function() { goTo(parseInt(this.dataset.index)); }); });
+        setInterval(function() { goTo(current + 1); }, 4500);
+    })();
+    </script>
+
+    <%
+        var albumGroups  = fotoGroups.filter(function(g){ return g.photos.length > 1; });
+        var singleGroups = fotoGroups.filter(function(g){ return g.photos.length === 1; });
+    %>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 sidebar-grid">
+      <div class="min-w-0">
+
+    <!-- ====== SECTION ALBUM ====== -->
+    <% if (albumGroups.length > 0) { %>
+    <section id="album" class="py-10 sm:py-12 border-b border-slate-900">
+        <div>
+            <div class="flex items-center gap-3 mb-8 sm:mb-10">
+                <div class="h-9 w-1 bg-violet-500 rounded-full shrink-0"></div>
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-white tracking-tight">Album Foto</h2>
+                    <p class="text-slate-500 text-xs font-mono mt-0.5">
+                        <%= albumGroups.length %> album &bull; <%= albumGroups.reduce(function(s,g){ return s+g.photos.length; },0) %> foto
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4">
+                <% albumGroups.forEach(function(group, idx) {
+                    var gi = fotoGroups.indexOf(group);
+                    var cover = group.photos[0];
+                %>
+                <div class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden hover:border-violet-500/50 hover:bg-slate-900 transition-all duration-300 flex flex-col sm:flex-row cursor-pointer btn-buka-album"
+                     data-group="<%= gi %>" data-title="<%= group.description %>">
+
+                    <!-- Cover kiri -->
+                    <div class="relative sm:w-52 md:w-60 shrink-0 aspect-video sm:aspect-auto overflow-hidden bg-slate-800 min-h-0">
+                        <img src="<%= cover.fileUrl %>" alt="<%= cover.title %>"
+                             loading="lazy"
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 sm:absolute sm:inset-0">
+                        <!-- Nomor urut -->
+                        <div class="absolute top-3 left-3 h-7 w-7 rounded-lg bg-slate-950/80 border border-slate-700 flex items-center justify-center">
+                            <span class="text-[10px] font-black text-slate-400 font-mono"><%= String(idx+1).padStart(2,'0') %></span>
+                        </div>
+                        <!-- Badge jumlah foto -->
+                        <div class="absolute top-3 right-3">
+                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white">
+                                📷 <%= group.photos.length %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Info kanan -->
+                    <div class="flex flex-col justify-between p-4 sm:p-5 flex-1 min-w-0">
+                        <div>
+                            <h3 class="text-sm sm:text-base font-bold text-white mb-1.5 group-hover:text-violet-400 transition leading-snug line-clamp-2">
+                                <%= group.description %>
+                            </h3>
+                            <!-- Preview thumbnail strip -->
+                            <div class="flex gap-1.5 mt-3 flex-wrap">
+                                <% group.photos.slice(1, 5).forEach(function(p) { %>
+                                <div class="w-10 h-10 rounded-lg overflow-hidden border border-slate-700 bg-slate-800 shrink-0">
+                                    <img src="<%= p.fileUrl %>" alt="" loading="lazy" class="w-full h-full object-cover">
+                                </div>
+                                <% }) %>
+                                <% if (group.photos.length > 5) { %>
+                                <div class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                                    <span class="text-[10px] font-black text-slate-400">+<%= group.photos.length - 5 %></span>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-800/60">
+                            <span class="text-[11px] text-slate-600 font-mono">
+                                <%= new Date(group.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) %>
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-800 group-hover:bg-violet-600 text-white text-xs font-bold rounded-lg transition duration-300 border border-slate-700 group-hover:border-violet-500">
+                                Lihat Album
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- ====== SECTION FOTO SINGLE ====== -->
+    <% if (singleGroups.length > 0) { %>
+    <section id="foto" class="py-10 sm:py-12 border-b border-slate-900">
+        <div>
+            <div class="flex items-center gap-3 mb-8 sm:mb-10">
+                <div class="h-9 w-1 bg-blue-500 rounded-full shrink-0"></div>
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-white tracking-tight">Foto</h2>
+                    <p class="text-slate-500 text-xs font-mono mt-0.5"><%= singleGroups.length %> foto</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                <% singleGroups.forEach(function(group, idx) {
+                    var gi = fotoGroups.indexOf(group);
+                    var foto = group.photos[0];
+                %>
+                <div class="relative group bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-2xl overflow-hidden transition-all duration-300">
+                    <!-- Glow on hover -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none"></div>
+
+                    <div class="relative aspect-square overflow-hidden bg-slate-800">
+                        <img src="<%= foto.fileUrl %>" alt="<%= foto.title %>"
+                             loading="lazy"
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-2 left-2 h-6 w-6 rounded-md bg-slate-950/80 border border-slate-700 flex items-center justify-center">
+                            <span class="text-[9px] font-black text-slate-500 font-mono"><%= String(idx+1).padStart(2,'0') %></span>
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        <h3 class="text-xs font-bold text-white truncate mb-0.5 group-hover:text-blue-400 transition"><%= foto.title %></h3>
+                        <p class="text-[9px] font-mono text-slate-600 mb-3">
+                            <%= new Date(foto.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) %>
+                        </p>
+                        <button class="btn-lihat-foto w-full py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest
+                                       bg-slate-800 border border-slate-700/60 text-slate-400
+                                       hover:bg-blue-600 hover:border-blue-500 hover:text-white transition"
+                                data-url="<%= foto.fileUrl %>"
+                                data-title="<%= foto.title %>"
+                                data-desc="<%= foto.description || '' %>">
+                            Lihat Foto
+                        </button>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- ====== EMPTY STATE ====== -->
+    <% if (fotoGroups.length === 0 && videoUpload.length === 0 && videoYoutube.length === 0) { %>
+    <section class="py-24">
+        <div>
+            <div class="text-center py-16 sm:py-24 border border-dashed border-slate-800 rounded-2xl">
+                <div class="h-14 w-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-7 h-7 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <p class="text-slate-500 font-medium text-sm">Belum ada media yang dipublikasikan.</p>
+                <p class="text-slate-700 text-xs font-mono mt-1">Segera hadir</p>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- ====== SECTION VIDEO UPLOAD ====== -->
+    <% if (videoUpload.length > 0) { %>
+    <section id="video" class="py-10 sm:py-12 border-b border-slate-900">
+        <div>
+            <div class="flex items-center gap-3 mb-8 sm:mb-10">
+                <div class="h-9 w-1 bg-amber-500 rounded-full shrink-0"></div>
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-white tracking-tight">Video</h2>
+                    <p class="text-slate-500 text-xs font-mono mt-0.5"><%= videoUpload.length %> video dokumentasi</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <% videoUpload.forEach(function(item, idx) { %>
+                <div class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden hover:border-amber-500/50 hover:bg-slate-900 transition-all duration-300">
+                    <div class="relative aspect-video overflow-hidden bg-slate-900">
+                        <% if (item.thumbnail) { %>
+                        <img src="<%= item.thumbnail %>" alt="<%= item.title %>"
+                             loading="lazy"
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 absolute inset-0">
+                        <% } else { %>
+                        <video preload="none" muted class="w-full h-full object-cover absolute inset-0">
+                            <source src="<%= item.fileUrl %>">
+                        </video>
+                        <% } %>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                        <div class="absolute top-3 left-3 h-7 w-7 rounded-lg bg-slate-950/80 border border-slate-700 flex items-center justify-center">
+                            <span class="text-[10px] font-black text-slate-400 font-mono"><%= String(idx+1).padStart(2,'0') %></span>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-14 h-14 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/15
+                                        group-hover:bg-amber-600/80 group-hover:border-amber-400/50 transition-all duration-300 shadow-xl">
+                                <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-between p-4 sm:p-5">
+                        <div>
+                            <h3 class="text-sm font-bold text-white mb-1 group-hover:text-amber-400 transition leading-snug line-clamp-1"><%= item.title %></h3>
+                            <% if (item.description) { %>
+                            <p class="text-xs text-slate-500 leading-relaxed line-clamp-2"><%= item.description %></p>
+                            <% } %>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-800/60">
+                            <span class="text-[11px] text-slate-600 font-mono">
+                                <%= new Date(item.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) %>
+                            </span>
+                            <button class="btn-lihat-video inline-flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition duration-300 border border-slate-700 hover:border-amber-500"
+                                    data-url="<%= item.fileUrl %>"
+                                    data-title="<%= item.title %>"
+                                    data-desc="<%= item.description || '' %>"
+                                    data-source="upload">
+                                Putar Video
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- ====== SECTION YOUTUBE ====== -->
+    <% if (videoYoutube.length > 0) { %>
+    <section id="youtube" class="py-10 sm:py-12">
+        <div>
+            <div class="flex items-center gap-3 mb-8 sm:mb-10">
+                <div class="h-9 w-1 bg-red-500 rounded-full shrink-0"></div>
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2">
+                        <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        YouTube
+                    </h2>
+                    <p class="text-slate-500 text-xs font-mono mt-0.5"><%= videoYoutube.length %> video dari YouTube</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <% videoYoutube.forEach(function(item, idx) {
+                    var ytId = item.fileUrl.indexOf('/embed/') > -1
+                        ? item.fileUrl.split('/embed/')[1].split('?')[0]
+                        : '';
+                    var ytWatch = 'https://www.youtube.com/watch?v=' + ytId;
+                %>
+                <div class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden hover:border-red-500/40 hover:bg-slate-900 transition-all duration-300">
+                    <!-- Thumbnail — klik buka popup -->
+                    <div class="yt-thumb-wrap relative aspect-video overflow-hidden bg-slate-900 cursor-pointer"
+                         data-vid="<%= ytId %>"
+                         data-title="<%= item.title %>"
+                         data-desc="<%= item.description || '' %>">
+                        <img src="<%= item.thumbnail %>" alt="<%= item.title %>"
+                             loading="lazy"
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 absolute inset-0"
+                             onerror="this.style.display='none'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                        <div class="absolute top-3 left-3">
+                            <span class="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-lg bg-red-600/90 backdrop-blur-sm text-white border border-red-400/20">
+                                <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                YouTube
+                            </span>
+                        </div>
+                        <div class="absolute top-3 right-3 h-7 w-7 rounded-lg bg-slate-950/80 border border-slate-700 flex items-center justify-center">
+                            <span class="text-[10px] font-black text-slate-400 font-mono"><%= String(idx+1).padStart(2,'0') %></span>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-red-600/80 backdrop-blur-sm rounded-full flex items-center justify-center border border-red-400/30
+                                        group-hover:bg-red-600 group-hover:scale-110 transition-all duration-300 shadow-xl shadow-red-900/40">
+                                <svg class="w-7 h-7 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col justify-between p-4 sm:p-5">
+                        <div>
+                            <h3 class="text-sm font-bold text-white mb-1 group-hover:text-red-400 transition leading-snug line-clamp-1"><%= item.title %></h3>
+                            <% if (item.description) { %>
+                            <p class="text-xs text-slate-500 leading-relaxed line-clamp-2"><%= item.description %></p>
+                            <% } %>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-800/60">
+                            <span class="text-[11px] text-slate-600 font-mono">
+                                <%= new Date(item.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) %>
+                            </span>
+                            <!-- Tombol Tonton = link langsung ke YouTube (selalu berhasil) -->
+                            <a href="<%= ytWatch %>" target="_blank" rel="noopener"
+                               class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg transition duration-300 shadow-md shadow-red-900/30">
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                Tonton di YouTube
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- SECTION: JELAJAHI (mobile only) -->
+    <section class="lg:hidden py-10 sm:py-12 border-b border-slate-900">
+        <div>
+            <div class="flex items-center gap-3 mb-8"><div class="h-9 w-1 bg-emerald-500 rounded-full shrink-0"></div><div><h2 class="text-lg sm:text-xl font-black text-white tracking-tight">Jelajahi Lebih Lanjut</h2><p class="text-slate-500 text-xs font-mono mt-0.5">Temukan lebih banyak dari Teater Saphalta</p></div></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a href="/" class="group relative bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col gap-3"><div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"></div><div class="h-11 w-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/20 transition"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></div><div><h3 class="text-sm font-black text-white group-hover:text-blue-300 transition mb-1">Tentang Kami</h3><p class="text-slate-500 text-xs leading-relaxed">Sejarah, pencapaian dan pementasan kami</p></div><div class="mt-auto flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-blue-500 group-hover:gap-2 transition-all">Lihat Profil <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></div></a>
+                <a href="/berita" class="group relative bg-slate-900/60 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col gap-3"><div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"></div><div class="h-11 w-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center group-hover:bg-amber-500/20 transition"><svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 4v6h-6"/></svg></div><div><h3 class="text-sm font-black text-white group-hover:text-amber-300 transition mb-1">Berita Terkini</h3><p class="text-slate-500 text-xs leading-relaxed">Informasi dan kabar terbaru kegiatan kami</p></div><div class="mt-auto flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-amber-500 group-hover:gap-2 transition-all">Lihat Berita <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></div></a>
+                <a href="/articles" class="group relative bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col gap-3"><div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"></div><div class="h-11 w-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/20 transition"><svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div><div><h3 class="text-sm font-black text-white group-hover:text-emerald-300 transition mb-1">Artikel & Materi</h3><p class="text-slate-500 text-xs leading-relaxed">Naskah, materi teater dan jadwal latihan</p></div><div class="mt-auto flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-emerald-500 group-hover:gap-2 transition-all">Lihat Artikel <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></div></a>
+                <a href="/sekretariat" class="group relative bg-slate-900/60 border border-slate-800 hover:border-violet-500/50 rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col gap-3"><div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"></div><div class="h-11 w-11 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center group-hover:bg-violet-500/20 transition"><svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div><div><h3 class="text-sm font-black text-white group-hover:text-violet-300 transition mb-1">Sekretariat</h3><p class="text-slate-500 text-xs leading-relaxed">Struktur organisasi dan kontak kami</p></div><div class="mt-auto flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-violet-500 group-hover:gap-2 transition-all">Lihat Info <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></div></a>
+            </div>
+        </div>
+    </section>
+
+      </div><!-- end main column -->
+
+      <aside class="hidden lg:block">
+        <div class="sticky top-24 py-10 flex flex-col gap-2">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="h-7 w-1 bg-emerald-500 rounded-full shrink-0"></div>
+            <div>
+              <h2 class="text-sm font-black text-white tracking-tight">Jelajahi Lebih Lanjut</h2>
+              <p class="text-slate-500 text-[10px] font-mono mt-0.5">Temukan lebih banyak</p>
+            </div>
+          </div>
+          <a href="/" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition">
+              <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-blue-300 transition truncate">Tentang Kami</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Sejarah & pencapaian kami</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-blue-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/berita" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-amber-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:bg-amber-500/20 transition">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 4v6h-6"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-amber-300 transition truncate">Berita Terkini</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Info terbaru kegiatan kami</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-amber-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/articles" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/20 transition">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-emerald-300 transition truncate">Artikel & Materi</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Naskah, materi & jadwal latihan</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-emerald-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/sekretariat" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-violet-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 group-hover:bg-violet-500/20 transition">
+              <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-violet-300 transition truncate">Sekretariat</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Struktur organisasi & kontak</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-violet-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        <%- include("partials/sidebar_extras") %>
+        </div>
+      </aside>
+    </div><!-- end grid wrapper -->
+
+    <!-- SECTION: CTA PENUTUP -->
+    <section class="px-4 sm:px-6 py-16 sm:py-20">
+        <div class="max-w-3xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 mb-6">
+                <span class="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Dokumentasi Kami</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 leading-tight tracking-tight">
+                Setiap Momen Berharga<br><span class="text-blue-400">Kami Abadikan</span>
+            </h2>
+            <p class="text-slate-400 text-sm sm:text-base leading-relaxed max-w-xl mx-auto mb-8">
+                Saksikan perjalanan kreatif Teater Saphalta melalui koleksi foto dan video dari setiap pementasan dan kegiatan.
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <a href="/berita" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-blue-900/30">
+                    Baca Berita Terbaru
+                </a>
+                <a href="/sekretariat" class="px-6 py-3 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white text-sm font-bold rounded-xl transition">
+                    Hubungi Kami
+                </a>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- ── DIALOG FOTO SINGLE ─────────────────────────────────────── -->
+<dialog id="dlg-foto" class="bg-transparent border-none p-0 rounded-2xl max-w-[95vw] w-[900px]">
+    <div class="bg-slate-900 border border-slate-700/60 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+            <h2 id="dlg-foto-title" class="text-sm font-bold text-white truncate mr-4">-</h2>
+            <button id="dlg-foto-close"
+                class="shrink-0 w-8 h-8 bg-slate-800 hover:bg-red-600 border border-slate-700 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition text-base leading-none">✕</button>
+        </div>
+        <div class="p-4 bg-black/40">
+            <img id="dlg-foto-img" src="" alt="" class="w-full object-contain rounded-xl max-h-[75vh]">
+            <p id="dlg-foto-desc" class="text-slate-500 text-xs mt-3"></p>
+        </div>
+    </div>
+</dialog>
+
+<!-- ── DIALOG ALBUM ───────────────────────────────────────────── -->
+<dialog id="dlg-album" class="bg-transparent border-none p-0 rounded-2xl max-w-[98vw] w-[1100px]">
+    <div class="bg-slate-900 border border-slate-700/60 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800 gap-4">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <h2 id="dlg-album-title" class="text-sm font-bold text-white truncate">-</h2>
+                <span id="dlg-album-counter" class="text-[11px] font-mono text-slate-500 shrink-0"></span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="dlg-album-prev"
+                    class="w-8 h-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg flex items-center justify-center text-slate-300 text-lg leading-none transition">&#8249;</button>
+                <button id="dlg-album-next"
+                    class="w-8 h-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg flex items-center justify-center text-slate-300 text-lg leading-none transition">&#8250;</button>
+                <button id="dlg-album-close"
+                    class="w-8 h-8 bg-slate-800 hover:bg-red-600 border border-slate-700 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition text-base leading-none">✕</button>
+            </div>
+        </div>
+        <div class="bg-black flex items-center justify-center min-h-[300px]">
+            <img id="dlg-album-img" src="" alt="" class="w-full object-contain max-h-[65vh]">
+        </div>
+        <div id="dlg-album-thumbs"
+             class="flex gap-2 p-3 overflow-x-auto bg-slate-900/80 border-t border-slate-800"
+             style="scrollbar-width:thin;scrollbar-color:#334155 transparent;"></div>
+        <div id="dlg-album-desc-section" class="px-5 py-4 border-t border-slate-800 bg-slate-950/60" style="display:none;">
+            <div class="flex items-start gap-3">
+                <div class="mt-0.5 shrink-0 h-4 w-1 rounded-full bg-violet-500"></div>
+                <div>
+                    <p class="text-[10px] font-mono text-violet-400 uppercase tracking-widest mb-1">Deskripsi Album</p>
+                    <p id="dlg-album-desc" class="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</dialog>
+
+<!-- ── DIALOG VIDEO (upload) ──────────────────────────────────── -->
+<dialog id="dlg-video" class="bg-transparent border-none p-0 rounded-2xl max-w-[95vw] w-[960px]">
+    <div class="bg-slate-900 border border-slate-700/60 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+            <h2 id="dlg-video-title" class="text-sm font-bold text-white truncate mr-4">-</h2>
+            <button id="dlg-video-close"
+                class="shrink-0 w-8 h-8 bg-slate-800 hover:bg-red-600 border border-slate-700 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition text-base leading-none">✕</button>
+        </div>
+        <div class="p-4 bg-black/50">
+            <video id="dlg-video-player" controls playsinline preload="metadata" class="w-full rounded-xl bg-black max-h-[70vh]"></video>
+            <p id="dlg-video-desc" class="text-slate-500 text-xs mt-3"></p>
+        </div>
+    </div>
+</dialog>
+
+<!-- ── POPUP YOUTUBE (div overlay, bukan dialog) ───────────────── -->
+<div id="yt-popup" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.92);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px;">
+    <div style="width:100%;max-width:960px;background:#0f172a;border:1px solid #334155;border-radius:16px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.8);">
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #1e293b;">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0;margin-right:12px;">
+                <svg style="width:16px;height:16px;color:#ef4444;flex-shrink:0;" fill="#ef4444" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <span id="yt-popup-title" style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+            </div>
+            <button id="yt-popup-close" style="flex-shrink:0;width:32px;height:32px;background:#1e293b;border:1px solid #334155;border-radius:8px;cursor:pointer;color:#94a3b8;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background 0.2s;" onmouseover="this.style.background='#dc2626';this.style.color='#fff'" onmouseout="this.style.background='#1e293b';this.style.color='#94a3b8'">✕</button>
+        </div>
+        <!-- Video container -->
+        <div style="background:#000;position:relative;width:100%;padding-top:56.25%;">
+            <iframe id="yt-popup-frame" src="" title="YouTube video player"
+                style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+        </div>
+        <!-- Footer -->
+        <div id="yt-popup-footer" style="padding:12px 20px;border-top:1px solid #1e293b;display:block;">
+            <p id="yt-popup-desc" style="font-size:12px;color:#94a3b8;line-height:1.6;margin-bottom:10px;white-space:pre-wrap;word-break:break-word;"></p>
+            <div style="display:flex;justify-content:flex-end;">
+            <a id="yt-popup-watchlink" href="#" target="_blank" rel="noopener"
+               style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#ef4444;text-decoration:none;"
+               onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='#ef4444'">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                Tonton di YouTube
+            </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data album dari server -->
+<script>
+var ALBUM_DATA = <%- JSON.stringify(fotoGroups.map(function(g){
+    return { title: g.description || g.photos[0].title, description: g.description || '', photos: g.photos.map(function(p){ return { url: p.fileUrl, title: p.title }; }) };
+})) %>;
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    var dlgFoto  = document.getElementById('dlg-foto');
+    var dlgAlbum = document.getElementById('dlg-album');
+    var dlgVideo = document.getElementById('dlg-video');
+    var vid      = document.getElementById('dlg-video-player');
+
+    // ── SINGLE FOTO ──
+    document.querySelectorAll('.btn-lihat-foto').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.getElementById('dlg-foto-title').textContent = this.dataset.title;
+            document.getElementById('dlg-foto-desc').textContent  = this.dataset.desc;
+            document.getElementById('dlg-foto-img').src           = this.dataset.url;
+            dlgFoto.showModal();
+        });
+    });
+    document.getElementById('dlg-foto-close').addEventListener('click', function() { dlgFoto.close(); });
+    dlgFoto.addEventListener('click', function(e) { if (e.target === dlgFoto) dlgFoto.close(); });
+
+    // ── ALBUM ──
+    var albumIdx = 0, albumData = [];
+
+    function albumRender(i) {
+        albumIdx = (i + albumData.length) % albumData.length;
+        document.getElementById('dlg-album-img').src = albumData[albumIdx].url;
+        document.getElementById('dlg-album-counter').textContent = (albumIdx + 1) + ' / ' + albumData.length;
+        document.querySelectorAll('.album-thumb').forEach(function(t, ti) {
+            t.style.outline = ti === albumIdx ? '2px solid #7c3aed' : '2px solid transparent';
+            t.style.opacity = ti === albumIdx ? '1' : '0.45';
+        });
+        var thumbEl = document.querySelectorAll('.album-thumb')[albumIdx];
+        if (thumbEl) thumbEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+
+    function albumOpen(gi) {
+        var group = ALBUM_DATA[gi];
+        albumData = group.photos;
+        document.getElementById('dlg-album-title').textContent = group.title;
+
+        // deskripsi album
+        var descSection = document.getElementById('dlg-album-desc-section');
+        var descEl      = document.getElementById('dlg-album-desc');
+        if (group.description && group.description.trim()) {
+            descEl.textContent       = group.description;
+            descSection.style.display = 'block';
+        } else {
+            descSection.style.display = 'none';
+        }
+
+        var strip = document.getElementById('dlg-album-thumbs');
+        strip.innerHTML = '';
+        albumData.forEach(function(p, i) {
+            var img = document.createElement('img');
+            img.src = p.url; img.alt = p.title; img.className = 'album-thumb';
+            img.style.cssText = 'width:72px;height:54px;object-fit:cover;border-radius:8px;cursor:pointer;flex-shrink:0;transition:opacity 0.2s;';
+            img.addEventListener('click', function() { albumRender(i); });
+            strip.appendChild(img);
+        });
+        albumRender(0);
+        dlgAlbum.showModal();
+    }
+
+    document.querySelectorAll('.btn-buka-album').forEach(function(btn) {
+        btn.addEventListener('click', function() { albumOpen(parseInt(this.dataset.group)); });
+    });
+    document.getElementById('dlg-album-prev').addEventListener('click', function() { albumRender(albumIdx - 1); });
+    document.getElementById('dlg-album-next').addEventListener('click', function() { albumRender(albumIdx + 1); });
+    document.getElementById('dlg-album-close').addEventListener('click', function() { dlgAlbum.close(); });
+    dlgAlbum.addEventListener('click', function(e) { if (e.target === dlgAlbum) dlgAlbum.close(); });
+    document.addEventListener('keydown', function(e) {
+        if (!dlgAlbum.open) return;
+        if (e.key === 'ArrowLeft')  albumRender(albumIdx - 1);
+        if (e.key === 'ArrowRight') albumRender(albumIdx + 1);
+    });
+
+    // ── VIDEO UPLOAD ──
+    document.querySelectorAll('.btn-lihat-video').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.getElementById('dlg-video-title').textContent = this.dataset.title;
+            document.getElementById('dlg-video-desc').textContent  = this.dataset.desc;
+            vid.src = this.dataset.url; vid.load();
+            dlgVideo.showModal();
+            vid.play().catch(function(){});
+        });
+    });
+    document.getElementById('dlg-video-close').addEventListener('click', function() { vid.pause(); vid.src = ''; dlgVideo.close(); });
+    dlgVideo.addEventListener('click', function(e) { if (e.target === dlgVideo) { vid.pause(); vid.src = ''; dlgVideo.close(); } });
+    dlgVideo.addEventListener('close', function() { vid.pause(); vid.src = ''; });
+
+    // ── YOUTUBE POPUP ──
+    var ytPopup      = document.getElementById('yt-popup');
+    var ytPopupFrame = document.getElementById('yt-popup-frame');
+
+    function openYtPopup(vid, title, desc) {
+        var embedUrl = 'https://www.youtube.com/embed/' + vid + '?rel=0&modestbranding=1';
+        var watchUrl = 'https://www.youtube.com/watch?v=' + vid;
+        document.getElementById('yt-popup-title').textContent = title || '';
+        document.getElementById('yt-popup-watchlink').href    = watchUrl;
+        var descEl = document.getElementById('yt-popup-desc');
+        descEl.textContent     = desc || '';
+        descEl.style.display   = desc ? 'block' : 'none';
+        descEl.style.marginBottom = desc ? '10px' : '0';
+        ytPopupFrame.src = embedUrl;
+        ytPopup.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeYtPopup() {
+        ytPopupFrame.src = '';
+        ytPopup.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.yt-thumb-wrap').forEach(function(el) {
+        el.addEventListener('click', function() {
+            openYtPopup(this.dataset.vid, this.dataset.title, this.dataset.desc);
+        });
+    });
+
+    document.getElementById('yt-popup-close').addEventListener('click', closeYtPopup);
+    ytPopup.addEventListener('click', function(e) {
+        if (e.target === ytPopup) closeYtPopup();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && ytPopup.style.display === 'flex') closeYtPopup();
+    });
+});
+</script>
+
+<%- include('partials/footer') %>

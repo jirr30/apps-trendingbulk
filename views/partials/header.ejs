@@ -3,18 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= typeof item !== 'undefined' ? item.title + ' | Trending Bulk' : 'Trending Bulk | Library & Docs' %></title>
-    <% if (typeof item !== 'undefined') { %>
-        <meta property="og:title" content="<%= item.title %>">
-        <meta property="og:description" content="<%= item.description ? item.description.substring(0, 150) : (item.content ? item.content.replace(/<[^>]*>?/gm, '').substring(0, 150) : 'Lihat detail lengkap di Trending Bulk.') %>...">
-        <meta property="og:image" content="https://apps.trendingbulk.top<%= item.imageUrl || item.thumbnail || '/images/og-default.jpg' %>">
-        <meta property="og:url" content="https://apps.trendingbulk.top<%= (typeof page !== 'undefined' && page === 'articles') ? '/article/' + item._id : '/detail/' + item._id %>">
-        <meta property="og:type" content="article">
-    <% } else { %>
-        <meta property="og:title" content="Trending Bulk Library">
-        <meta property="og:description" content="Koleksi template dan resource terbaik dari NOC Trending Bulk.">
-        <meta property="og:image" content="https://apps.trendingbulk.top/images/og-default.jpg">
-        <meta property="og:type" content="website">
+    <%
+        const _base      = 'https://apps.trendingbulk.top';
+        const _ss        = (typeof siteSetting !== 'undefined' && siteSetting) ? siteSetting : {};
+        const _siteName  = _ss.siteTitle || 'Teater Saphalta';
+        const _siteDesc  = _ss.siteDescription || 'Panggung kami adalah ruang bagi para seniman untuk bercerita dan berekspresi.';
+        const _siteKw    = _ss.siteKeywords || 'teater, seni pertunjukan, saphalta';
+        const _gaId      = _ss.gaTrackingId || '';
+        const _scVerify  = _ss.searchConsoleVerification || '';
+        const _adsAcctVerify = _ss.adsenseAccountVerification || '';
+        const _adsense   = _ss.adsensePublisherId || '';
+        const _adsAuto   = _ss.adsenseAutoCode || '';
+    %>
+    <%
+        let _pageTitle, _desc, _keywords, _ogImage, _canonical, _ogType, _jsonld;
+        const _pageSlug = typeof page !== 'undefined' ? page : '';
+
+        const _logoUrl = _base + ((_ss && _ss.logoUrl) ? _ss.logoUrl : '/images/og-default.jpg');
+        let _author = '', _breadcrumbJsonld = '';
+
+        if (typeof item !== 'undefined' && item) {
+            const _contentText = (item.content || '').replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
+            _pageTitle  = (item.metaTitle || item.title) + ' | ' + _siteName;
+            _desc       = item.metaDescription || item.description || _contentText.substring(0, 160) || _siteDesc;
+            _keywords   = item.metaKeywords || _siteKw;
+            const _rawImg = item.imageUrl || item.thumbnail || '';
+            _ogImage    = _rawImg ? (_rawImg.startsWith('http') ? _rawImg : _base + _rawImg) : _logoUrl;
+            const _itemSlugOrId = (_pageSlug === 'berita') ? (item.slug || item._id) : item._id;
+            const _itemPath = (_pageSlug === 'articles') ? '/article/' + item._id : (_pageSlug === 'berita' ? '/berita/' + _itemSlugOrId : '/detail/' + item._id);
+            _canonical  = _base + _itemPath;
+            _ogType     = 'article';
+            _author     = (item.author && item.author.username) ? item.author.username : _siteName;
+
+            // Breadcrumb label per tipe konten
+            const _sectionLabel = _pageSlug === 'articles' ? 'Blog & Naskah' : (_pageSlug === 'berita' ? 'Berita' : 'Riwayat Pementasan');
+            const _sectionPath  = _pageSlug === 'articles' ? '/articles' : (_pageSlug === 'berita' ? '/berita' : '/profile');
+
+            _jsonld = JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": item.metaTitle || item.title,
+                "description": _desc,
+                "image": { "@type": "ImageObject", "url": _ogImage, "alt": item.metaTitle || item.title },
+                "url": _canonical,
+                "datePublished": item.createdAt ? item.createdAt.toISOString() : '',
+                "dateModified": item.updatedAt ? item.updatedAt.toISOString() : '',
+                "author": { "@type": "Person", "name": _author },
+                "publisher": { "@type": "Organization", "name": _siteName, "logo": { "@type": "ImageObject", "url": _logoUrl } },
+                "mainEntityOfPage": { "@type": "WebPage", "@id": _canonical }
+            });
+
+            _breadcrumbJsonld = JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    { "@type": "ListItem", "position": 1, "name": "Beranda", "item": _base + "/" },
+                    { "@type": "ListItem", "position": 2, "name": _sectionLabel, "item": _base + _sectionPath },
+                    { "@type": "ListItem", "position": 3, "name": item.metaTitle || item.title, "item": _canonical }
+                ]
+            });
+        } else {
+            const _pathMap = { home: '/', templates: '/profile', articles: '/articles', berita: '/berita', galeri: '/galeri', sekretariat: '/sekretariat' };
+            _pageTitle  = _siteName;
+            _desc       = _siteDesc;
+            _keywords   = _siteKw;
+            _ogImage    = _logoUrl;
+            _canonical  = _base + (_pathMap[_pageSlug] || '/');
+            _ogType     = 'website';
+            _jsonld     = JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": _siteName,
+                "url": _base,
+                "description": _siteDesc,
+                "logo": { "@type": "ImageObject", "url": _logoUrl }
+            });
+        }
+    %>
+    <title><%= _pageTitle %></title>
+    <meta name="description" content="<%= _desc %>">
+    <meta name="keywords" content="<%= _keywords %>">
+    <meta name="robots" content="index, follow">
+    <% if (_author) { %><meta name="author" content="<%= _author %>"><% } %>
+    <link rel="canonical" href="<%= _canonical %>">
+    <% if (_scVerify) { %><meta name="google-site-verification" content="<%= _scVerify %>"><% } %>
+    <% if (_adsAcctVerify) { %><meta name="google-adsense-account" content="<%= _adsAcctVerify %>"><% } %>
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="<%= _siteName %>">
+    <meta property="og:title" content="<%= _pageTitle %>">
+    <meta property="og:description" content="<%= _desc %>">
+    <meta property="og:image" content="<%= _ogImage %>">
+    <meta property="og:image:alt" content="<%= _pageTitle %>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="<%= _canonical %>">
+    <meta property="og:type" content="<%= _ogType %>">
+    <meta property="og:locale" content="id_ID">
+    <% if (_ogType === 'article' && item) { %>
+    <meta property="article:published_time" content="<%= item.createdAt ? item.createdAt.toISOString() : '' %>">
+    <meta property="article:modified_time" content="<%= item.updatedAt ? item.updatedAt.toISOString() : '' %>">
+    <% if (item.category) { %><meta property="article:section" content="<%= item.category %>"><% } %>
+    <% } %>
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= _pageTitle %>">
+    <meta name="twitter:description" content="<%= _desc %>">
+    <meta name="twitter:image" content="<%= _ogImage %>">
+    <meta name="twitter:image:alt" content="<%= _pageTitle %>">
+    <meta name="twitter:site" content="@TeaterSaphalta">
+    <% if (_author && _author !== _siteName) { %><meta name="twitter:creator" content="@<%= _author %>"><% } %>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json"><%- _jsonld.replace(/</g, '\\u003c').replace(/>/g, '\\u003e') %></script>
+    <% if (_breadcrumbJsonld) { %>
+    <script type="application/ld+json"><%- _breadcrumbJsonld.replace(/</g, '\\u003c').replace(/>/g, '\\u003e') %></script>
+    <% } %>
+
+    <!-- Google Analytics -->
+    <% if (_gaId) { %>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= _gaId %>"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '<%= _gaId %>');
+    </script>
+    <% } %>
+
+    <!-- Google AdSense -->
+    <% if (_adsense) { %>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<%= _adsense %>" crossorigin="anonymous"></script>
+    <% } %>
+    <% if (_adsAuto) { %>
+    <%- _adsAuto %>
     <% } %>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -22,82 +145,238 @@
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         #mobile-menu { transition: all 0.3s ease-in-out; transform-origin: top; }
+        /* ── SIDEBAR GRID LAYOUT ── */
+        .sidebar-grid > .min-w-0 { min-width: 0; }
+
+        @media (min-width: 1024px) {
+            .sidebar-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 268px;
+                gap: 2.5rem;
+                align-items: start;
+                width: 100% !important;
+                max-width: none !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding-left: 2.5rem !important;
+                padding-right: 2.5rem !important;
+            }
+            /* Sidebar panel */
+            .sidebar-grid > aside > div {
+                padding: 1.25rem !important;
+                margin-top: 2rem;
+                background: rgba(2, 8, 28, 0.7);
+                border: 1px solid rgba(30, 41, 59, 0.8);
+                border-radius: 1rem;
+                backdrop-filter: blur(12px);
+            }
+        }
+        @media (min-width: 1280px) {
+            .sidebar-grid {
+                grid-template-columns: minmax(0, 1fr) 292px;
+                gap: 3rem;
+                padding-left: 4rem !important;
+                padding-right: 4rem !important;
+            }
+        }
+        @media (min-width: 1536px) {
+            .sidebar-grid {
+                padding-left: 6rem !important;
+                padding-right: 6rem !important;
+            }
+        }
+
+        /* ===== TEMA DEFAULT: Hitam / Orange ===== */
+        html[data-theme="default"] body,
+        html[data-theme="default"] .bg-slate-950 { background-color: #050505 !important; }
+        html[data-theme="default"] .bg-slate-900 { background-color: #0d0d0d !important; }
+        html[data-theme="default"] .bg-slate-800 { background-color: #1c1c1c !important; }
+        html[data-theme="default"] .bg-slate-950\/80 { background-color: rgba(5,5,5,0.8) !important; }
+        html[data-theme="default"] .bg-slate-900\/80 { background-color: rgba(13,13,13,0.8) !important; }
+        html[data-theme="default"] .bg-slate-900\/50 { background-color: rgba(13,13,13,0.5) !important; }
+        html[data-theme="default"] .bg-slate-800\/30 { background-color: rgba(28,28,28,0.3) !important; }
+        html[data-theme="default"] .bg-slate-800\/60 { background-color: rgba(28,28,28,0.6) !important; }
+        html[data-theme="default"] .border-slate-900 { border-color: #151515 !important; }
+        html[data-theme="default"] .border-slate-800 { border-color: #282828 !important; }
+        html[data-theme="default"] .border-slate-700 { border-color: #333333 !important; }
+        html[data-theme="default"] .border-slate-700\/50 { border-color: rgba(51,51,51,0.5) !important; }
+        /* Blue → Orange */
+        html[data-theme="default"] .text-blue-500 { color: #f97316 !important; }
+        html[data-theme="default"] .text-blue-400 { color: #fb923c !important; }
+        html[data-theme="default"] .text-blue-600 { color: #ea580c !important; }
+        html[data-theme="default"] .bg-blue-600 { background-color: #ea580c !important; }
+        html[data-theme="default"] .bg-blue-500\/10 { background-color: rgba(249,115,22,0.1) !important; }
+        html[data-theme="default"] .border-blue-500\/20 { border-color: rgba(249,115,22,0.2) !important; }
+        html[data-theme="default"] .border-blue-500\/50 { border-color: rgba(249,115,22,0.5) !important; }
+        html[data-theme="default"] .hover\:bg-blue-700:hover { background-color: #c2410c !important; }
+        html[data-theme="default"] .hover\:text-blue-400:hover { color: #fb923c !important; }
+        html[data-theme="default"] .hover\:border-blue-500\/50:hover { border-color: rgba(249,115,22,0.5) !important; }
+        html[data-theme="default"] .focus\:border-blue-500:focus { border-color: #f97316 !important; }
+
+        /* ===== TEMA DARK: Deep Blue-Black / Biru ===== */
+        html[data-theme="dark"] body,
+        html[data-theme="dark"] .bg-slate-950 { background-color: #010409 !important; }
+        html[data-theme="dark"] .bg-slate-900 { background-color: #080f1e !important; }
+        html[data-theme="dark"] .bg-slate-800 { background-color: #0f1a2e !important; }
+        html[data-theme="dark"] .bg-slate-950\/80 { background-color: rgba(1,4,9,0.85) !important; }
+        html[data-theme="dark"] .bg-slate-900\/80 { background-color: rgba(8,15,30,0.8) !important; }
+        html[data-theme="dark"] .bg-slate-900\/50 { background-color: rgba(8,15,30,0.5) !important; }
+        html[data-theme="dark"] .bg-slate-800\/30 { background-color: rgba(15,26,46,0.3) !important; }
+        html[data-theme="dark"] .bg-slate-800\/60 { background-color: rgba(15,26,46,0.6) !important; }
+        html[data-theme="dark"] .border-slate-900 { border-color: #0d1828 !important; }
+        html[data-theme="dark"] .border-slate-800 { border-color: #162035 !important; }
+        html[data-theme="dark"] .border-slate-700 { border-color: #1e3050 !important; }
+        html[data-theme="dark"] .border-slate-700\/50 { border-color: rgba(30,48,80,0.5) !important; }
+        /* Blue accents lebih vivid */
+        html[data-theme="dark"] .text-blue-500 { color: #60a5fa !important; }
+        html[data-theme="dark"] .text-blue-400 { color: #93c5fd !important; }
+        html[data-theme="dark"] .bg-blue-600 { background-color: #2563eb !important; }
+        html[data-theme="dark"] .hover\:bg-blue-700:hover { background-color: #1d4ed8 !important; }
+        html[data-theme="dark"] .bg-blue-500\/10 { background-color: rgba(96,165,250,0.12) !important; }
+        html[data-theme="dark"] .border-blue-500\/20 { border-color: rgba(96,165,250,0.25) !important; }
+        html[data-theme="dark"] .border-blue-500\/50 { border-color: rgba(96,165,250,0.5) !important; }
+        html[data-theme="dark"] .hover\:text-blue-400:hover { color: #93c5fd !important; }
+        html[data-theme="dark"] .hover\:border-blue-500\/50:hover { border-color: rgba(96,165,250,0.5) !important; }
+        /* Text lebih terang untuk kontras */
+        html[data-theme="dark"] .text-slate-400 { color: #94a3b8 !important; }
+        html[data-theme="dark"] .text-slate-500 { color: #64748b !important; }
+        html[data-theme="dark"] .text-slate-600 { color: #475569 !important; }
+
+        /* ===== TEMA LIGHT ===== */
+        html[data-theme="light"] { filter: invert(1) hue-rotate(180deg); }
+        html[data-theme="light"] img,
+        html[data-theme="light"] video,
+        html[data-theme="light"] iframe { filter: invert(1) hue-rotate(180deg); }
+
+        /* ===== SCROLL NAVBAR ===== */
+        html { scroll-padding-top: 80px; }
+        #main-nav {
+            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1),
+                        background 0.35s ease,
+                        border-color 0.35s ease,
+                        box-shadow 0.35s ease;
+        }
     </style>
+    <script>
+        (function() {
+            const t = localStorage.getItem('theme') || 'default';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
 </head>
 <body class="bg-slate-950 text-slate-200">
-<nav class="bg-slate-950/80 backdrop-blur-xl border-b border-slate-900 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-6 py-4">
-        <div class="flex justify-between items-center h-12">
-            <a href="/" class="group flex items-center gap-3">
-                <div class="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/20 group-hover:rotate-6 transition-transform">
-                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
+<%
+    const _navLinks = [
+        { href: '/',            label: 'Beranda',     key: 'home' },
+        { href: '/profile',     label: 'Tentang',     key: 'templates' },
+        { href: '/articles',    label: 'Artikel',     key: 'articles' },
+        { href: '/berita',      label: 'Berita',      key: 'berita' },
+        { href: '/galeri',      label: 'Galeri',      key: 'galeri' },
+        { href: '/sekretariat', label: 'Sekretariat', key: 'sekretariat' },
+    ];
+    const _activePage = typeof page !== 'undefined' ? page : '';
+%>
+<nav id="main-nav" class="bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/60 sticky top-0 z-50">
+    <div class="w-full px-5 lg:px-10">
+        <div class="flex items-center justify-between h-16">
+
+            <!-- Logo -->
+            <a href="/" class="group flex items-center gap-3 shrink-0 min-w-0">
+                <!-- Icon -->
+                <div class="h-9 w-9 shrink-0 rounded-xl overflow-hidden flex items-center justify-center transition-transform duration-300 group-hover:scale-105
+                    <%= typeof siteSetting !== 'undefined' && siteSetting && siteSetting.logoUrl ? 'bg-transparent' : 'bg-blue-600 shadow-lg shadow-blue-900/40' %>">
+                    <% if (typeof siteSetting !== 'undefined' && siteSetting && siteSetting.logoUrl) { %>
+                        <img src="<%= siteSetting.logoUrl %>" alt="Logo <%= _siteName %>" class="w-full h-full object-contain">
+                    <% } else { %>
+                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    <% } %>
                 </div>
-                <h1 class="text-white font-black tracking-tighter text-xl uppercase italic">
-                    TRENDING<span class="text-blue-500 group-hover:text-blue-400 transition">BULK</span>
-                </h1>
+                <!-- Wordmark -->
+                <div class="shrink-0 flex flex-col items-center text-center" style="max-width:max-content">
+                    <p class="text-white font-black text-xl tracking-tight leading-none whitespace-nowrap">
+                        Teater <span class="text-blue-400">Saphalta</span>
+                    </p>
+                    <p class="hidden sm:block text-[9px] text-slate-400 leading-tight mt-1 w-full text-center">
+                        Berkarya melalui seni pertunjukan
+                    </p>
+                    <p class="hidden md:block text-[9px] font-mono text-slate-600 mt-0.5 w-full text-center">
+                        we are part of Teater Sapta
+                    </p>
+                </div>
             </a>
 
-            <div class="hidden md:flex gap-10 items-center">
-                <a href="/" class="flex flex-col items-center group">
-                    <span class="text-[10px] font-mono uppercase tracking-[0.3em] transition
-                        <%= typeof page !== 'undefined' && page === 'templates' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300' %>">
-                        Templates
-                    </span>
-                    <% if (typeof page !== 'undefined' && page === 'templates') { %>
-                        <div class="h-[2px] w-4 bg-blue-500 mt-1 shadow-[0_0_10px_rgba(59,130,246,0.6)]"></div>
+            <!-- Nav links desktop -->
+            <div class="hidden md:flex items-center gap-1">
+                <% _navLinks.forEach(function(link) { %>
+                <a href="<%= link.href %>"
+                   class="relative px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200
+                       <%= _activePage === link.key ? 'text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' %>">
+                    <%= link.label %>
+                    <% if (_activePage === link.key) { %>
+                    <span class="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4 bg-blue-500 rounded-full"></span>
                     <% } %>
                 </a>
-                <a href="/articles" class="flex flex-col items-center group">
-                    <span class="text-[10px] font-mono uppercase tracking-[0.3em] transition
-                        <%= typeof page !== 'undefined' && page === 'articles' ? 'text-emerald-400' : 'text-slate-500 group-hover:text-slate-300' %>">
-                        Knowledge Base
-                    </span>
-                    <% if (typeof page !== 'undefined' && page === 'articles') { %>
-                        <div class="h-[2px] w-4 bg-emerald-500 mt-1 shadow-[0_0_10px_rgba(16,185,129,0.6)]"></div>
-                    <% } %>
-                </a>
+                <% }); %>
+            </div>
 
-                <% if (typeof userId !== 'undefined' && userId) { %>
-                    <div class="flex items-center gap-4">
-                        <a href="/dashboard" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-white transition">My Panel</a>
-                        <a href="/logout" class="px-4 py-2 bg-red-600/10 border border-red-600/50 rounded-lg text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-600 hover:text-white transition shadow-[0_0_15px_rgba(220,38,38,0.1)]">
-                            Logout
-                        </a>
-                    </div>
-                <% } else { %>
-                    <a href="/login" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-white transition">
-                        Login
-                    </a>
+            <!-- Kanan: theme + auth -->
+            <div class="hidden md:flex items-center gap-2">
+                <!-- Theme toggle -->
+                <button id="theme-toggle" title="Ganti tema"
+                    class="p-2 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition">
+                    <svg id="icon-theme-default" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+                    </svg>
+                    <svg id="icon-moon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                    </svg>
+                    <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+                    </svg>
+                </button>
+
+                <% if (typeof userId !== 'undefined' && userId && (sessionRole === 'admin' || sessionRole === 'superadmin')) { %>
+                <div class="w-px h-5 bg-slate-800 mx-1"></div>
+                <a href="/dashboard"
+                   class="px-3 py-2 text-xs font-semibold text-slate-400 hover:text-white transition">
+                    Panel
+                </a>
                 <% } %>
             </div>
 
-            <button id="menu-toggle" class="md:hidden text-slate-400 hover:text-white focus:outline-none p-2">
-                <svg id="icon-open" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <!-- Hamburger mobile -->
+            <button id="menu-toggle" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" aria-label="Menu">
+                <svg id="icon-open" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
-                <svg id="icon-close" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                <svg id="icon-close" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
     </div>
 
-    <div id="mobile-menu" class="hidden md:hidden absolute w-full bg-slate-950 border-b border-slate-900 shadow-2xl overflow-hidden">
-        <div class="px-6 py-8 flex flex-col gap-6">
-            <a href="/" class="flex justify-between items-center group">
-                <span class="text-xs font-mono uppercase tracking-[0.3em] <%= typeof page !== 'undefined' && page === 'templates' ? 'text-blue-400' : 'text-slate-500' %>">Templates</span>
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800/60 bg-slate-950">
+        <div class="w-full px-5 py-4 flex flex-col gap-1">
+            <% _navLinks.forEach(function(link) { %>
+            <a href="<%= link.href %>"
+               class="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition
+                   <%= _activePage === link.key ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' %>">
+                <%= link.label %>
+                <% if (_activePage === link.key) { %>
+                <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>
+                <% } %>
             </a>
-            <a href="/articles" class="flex justify-between items-center group">
-                <span class="text-xs font-mono uppercase tracking-[0.3em] <%= typeof page !== 'undefined' && page === 'articles' ? 'text-emerald-400' : 'text-slate-500' %>">Knowledge Base</span>
-            </a>
-            <hr class="border-slate-900">
-            <% if (typeof userId !== 'undefined' && userId) { %>
-                <a href="/dashboard" class="w-full py-4 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">Dashboard Panel</a>
-                <a href="/logout" class="w-full py-4 bg-red-600 text-center rounded-xl text-xs font-black uppercase tracking-widest text-white">Logout System</a>
-            <% } else { %>
-                <a href="/login" class="w-full py-4 bg-slate-900 text-center rounded-xl text-xs font-black uppercase tracking-widest text-white border border-slate-800">Administrator Login</a>
+            <% }); %>
+            <% if (typeof userId !== 'undefined' && userId && (sessionRole === 'admin' || sessionRole === 'superadmin')) { %>
+            <div class="border-t border-slate-800/60 mt-2 pt-3 flex flex-col gap-2">
+                <a href="/dashboard" class="px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition">
+                    Panel Admin
+                </a>
+            </div>
             <% } %>
         </div>
     </div>
@@ -129,4 +408,68 @@
             iconClose.classList.add('hidden');
         }
     });
+
+    // Theme toggle (3 mode: default → dark → light)
+    const themeToggle    = document.getElementById('theme-toggle');
+    const iconThemeDef   = document.getElementById('icon-theme-default');
+    const iconSun        = document.getElementById('icon-sun');
+    const iconMoon       = document.getElementById('icon-moon');
+    const themes         = ['default', 'dark', 'light'];
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        iconThemeDef.classList.toggle('hidden', theme !== 'default');
+        iconMoon.classList.toggle('hidden', theme !== 'dark');
+        iconSun.classList.toggle('hidden', theme !== 'light');
+    }
+
+    applyTheme(localStorage.getItem('theme') || 'default');
+
+    themeToggle.addEventListener('click', () => {
+        const current = localStorage.getItem('theme') || 'default';
+        const next = themes[(themes.indexOf(current) + 1) % themes.length];
+        localStorage.setItem('theme', next);
+        applyTheme(next);
+    });
+
+    // Scroll: transparent at top, solid + hide-on-down / show-on-up when scrolled
+    (function() {
+        var nav = document.getElementById('main-nav');
+        var lastY = window.scrollY;
+        var ticking = false;
+
+        function updateNav() {
+            var y = window.scrollY;
+            if (y < 60) {
+                // At top: transparent
+                nav.style.background = 'transparent';
+                nav.style.borderBottomColor = 'transparent';
+                nav.style.boxShadow = 'none';
+                nav.style.transform = 'translateY(0)';
+            } else {
+                // Scrolled: restore solid bg
+                nav.style.background = '';
+                nav.style.borderBottomColor = '';
+                nav.style.boxShadow = '';
+                if (y > lastY + 8) {
+                    // Scrolling down → hide
+                    nav.style.transform = 'translateY(-100%)';
+                } else if (y < lastY - 8) {
+                    // Scrolling up → show
+                    nav.style.transform = 'translateY(0)';
+                }
+            }
+            lastY = y;
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                requestAnimationFrame(updateNav);
+                ticking = true;
+            }
+        }, { passive: true });
+
+        updateNav();
+    })();
 </script>

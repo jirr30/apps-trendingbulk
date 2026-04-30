@@ -1,0 +1,252 @@
+<%- include('partials/admin_header', { pageTitle: 'Sekretariat - Struktur Organisasi' }) %>
+
+<div class="min-h-screen bg-slate-950 py-10 px-4 md:px-6">
+<div class="max-w-3xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="h-9 w-9 bg-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-900/30">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-black text-white uppercase tracking-tight">Struktur Organisasi</h1>
+                <p class="text-slate-500 text-[10px] font-mono mt-0.5">Kelola kepengurusan sekretariat</p>
+            </div>
+        </div>
+        <a href="/dashboard" class="flex items-center gap-2 text-slate-400 hover:text-white text-xs font-bold border border-slate-800 hover:border-slate-600 px-4 py-2 rounded-xl bg-slate-900/50 uppercase tracking-wider transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Kembali
+        </a>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+    <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <p class="text-emerald-400 text-xs font-bold">Struktur organisasi berhasil disimpan.</p>
+    </div>
+    <% } %>
+
+    <form action="/admin/sekretariat/struktur/save" method="POST" enctype="multipart/form-data" class="space-y-6">
+
+        <!-- Daftar Pengurus -->
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500">Daftar Pengurus</label>
+                    <p class="text-[10px] text-slate-600 mt-0.5">Urutan dari atas = hierarki tertinggi</p>
+                </div>
+                <button type="button" id="btn-tambah"
+                    class="flex items-center gap-1.5 px-3 py-1.5 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/30 text-violet-400 text-[10px] font-bold uppercase tracking-widest rounded-lg transition">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Tambah Pengurus
+                </button>
+            </div>
+
+            <div id="struktur-list" class="space-y-4">
+                <% if (typeof sekretariat !== 'undefined' && sekretariat && sekretariat.strukturOrganisasi && sekretariat.strukturOrganisasi.length > 0) { %>
+                    <% sekretariat.strukturOrganisasi.forEach(function(item, idx) { %>
+                    <div class="struktur-row bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
+                        <!-- Row header -->
+                        <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-800/80 bg-slate-900/40">
+                            <span class="text-[10px] font-mono text-slate-500 row-num">#<%= idx + 1 %></span>
+                            <span class="flex-1 text-[10px] font-mono text-slate-600 uppercase tracking-widest">Pengurus</span>
+                            <button type="button" class="btn-hapus flex items-center gap-1 text-slate-600 hover:text-red-400 text-[10px] font-mono transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Hapus
+                            </button>
+                        </div>
+                        <!-- Row body -->
+                        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Foto -->
+                            <div class="sm:col-span-2 flex items-start gap-4">
+                                <% if (item.foto) { %>
+                                <div class="relative shrink-0">
+                                    <img src="<%= item.foto %>" class="h-16 w-16 rounded-xl object-cover border border-slate-700" alt="foto">
+                                    <span class="absolute -top-1.5 -right-1.5 h-4 w-4 bg-emerald-500 rounded-full border-2 border-slate-900"></span>
+                                </div>
+                                <% } else { %>
+                                <div class="h-16 w-16 shrink-0 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                </div>
+                                <% } %>
+                                <div class="flex-1 min-w-0">
+                                    <label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5"><%= item.foto ? 'Ganti Foto' : 'Upload Foto' %> <span class="text-slate-700 normal-case">(opsional, maks 5MB)</span></label>
+                                    <input type="file" name="foto_<%= idx %>" accept="image/*"
+                                        class="w-full text-xs text-slate-500 file:bg-slate-800 file:text-slate-300 file:border-0 file:rounded-lg file:px-3 file:py-1.5 file:mr-3 file:hover:bg-slate-700 file:text-xs cursor-pointer">
+                                    <input type="hidden" name="fotoExisting" value="<%= item.foto || '' %>">
+                                </div>
+                            </div>
+                            <!-- Jabatan -->
+                            <div>
+                                <label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Jabatan</label>
+                                <input type="text" name="jabatan" value="<%= item.jabatan %>" placeholder="cth: Ketua Umum"
+                                    class="w-full bg-slate-800 border border-slate-700 focus:border-violet-500 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none transition placeholder-slate-600">
+                            </div>
+                            <!-- Nama -->
+                            <div>
+                                <label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Nama Lengkap</label>
+                                <input type="text" name="nama" value="<%= item.nama %>" placeholder="Nama lengkap pengurus"
+                                    class="w-full bg-slate-800 border border-slate-700 focus:border-violet-500 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none transition placeholder-slate-600">
+                            </div>
+                            <!-- Divisi -->
+                            <div>
+                                <label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Divisi <span class="text-slate-700 normal-case">(opsional)</span></label>
+                                <input type="text" name="divisi" value="<%= item.divisi || '' %>" placeholder="cth: Artistik, Produksi"
+                                    class="w-full bg-slate-800 border border-slate-700 focus:border-violet-500 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none transition placeholder-slate-600">
+                            </div>
+                            <!-- Periode -->
+                            <div>
+                                <label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Periode <span class="text-slate-700 normal-case">(opsional)</span></label>
+                                <input type="text" name="periode" value="<%= item.periode || '' %>" placeholder="cth: 2024 – 2025"
+                                    class="w-full bg-slate-800 border border-slate-700 focus:border-violet-500 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none transition placeholder-slate-600">
+                            </div>
+                            <!-- Deskripsi -->
+                            <div class="sm:col-span-2">
+                                <label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Deskripsi / Bio <span class="text-slate-700 normal-case">(opsional)</span></label>
+                                <textarea name="deskripsi" rows="2" placeholder="Deskripsi singkat atau bio pengurus..."
+                                    class="w-full bg-slate-800 border border-slate-700 focus:border-violet-500 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none transition placeholder-slate-600 resize-none"><%= item.deskripsi || '' %></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+                <% } %>
+            </div>
+
+            <div id="empty-state" class="<%= typeof sekretariat !== 'undefined' && sekretariat && sekretariat.strukturOrganisasi && sekretariat.strukturOrganisasi.length > 0 ? 'hidden' : '' %> text-center py-10 border border-dashed border-slate-800 rounded-xl mt-3">
+                <p class="text-slate-600 font-mono text-xs uppercase tracking-widest">Belum ada pengurus. Klik "Tambah Pengurus".</p>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="flex items-start gap-3 px-4 py-3 bg-slate-900/50 border border-slate-800 rounded-xl">
+            <svg class="w-4 h-4 text-slate-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-slate-500 text-xs font-mono">Data ini tampil di <span class="text-violet-400">/sekretariat</span>. Urutan baris = hierarki jabatan. Foto format JPG/PNG/WebP maks 5MB.</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-4 pt-2">
+            <a href="/dashboard" class="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 text-xs font-bold uppercase tracking-widest rounded-xl transition text-center">
+                Batal
+            </a>
+            <button type="submit" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-lg shadow-violet-900/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Simpan Struktur
+            </button>
+        </div>
+    </form>
+
+</div>
+</div>
+
+<script>
+(function() {
+    var list = document.getElementById('struktur-list');
+    var emptyState = document.getElementById('empty-state');
+
+    function rowCount() { return list.querySelectorAll('.struktur-row').length; }
+
+    function makeRowHTML(idx) {
+        return '<div class="struktur-row bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">' +
+            '<div class="flex items-center gap-3 px-4 py-3 border-b border-slate-800/80 bg-slate-900/40">' +
+            '<span class="text-[10px] font-mono text-slate-500 row-num">#' + (idx+1) + '</span>' +
+            '<span class="flex-1 text-[10px] font-mono text-slate-600 uppercase tracking-widest">Pengurus</span>' +
+            '<button type="button" class="btn-hapus flex items-center gap-1 text-slate-600 hover:text-red-400 text-[10px] font-mono transition">' +
+            '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>' +
+            'Hapus</button></div>' +
+            '<div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">' +
+            '<div class="sm:col-span-2 flex items-start gap-4">' +
+            '<div class="h-16 w-16 shrink-0 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-600 foto-preview">' +
+            '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>' +
+            '</div>' +
+            '<div class="flex-1 min-w-0"><label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Upload Foto <span class="text-slate-700 normal-case">(opsional, maks 5MB)</span></label>' +
+            '<input type="file" name="foto_' + idx + '" accept="image/*" class="foto-input w-full text-xs text-slate-500 file:bg-slate-800 file:text-slate-300 file:border-0 file:rounded-lg file:px-3 file:py-1.5 file:mr-3 file:hover:bg-slate-700 file:text-xs cursor-pointer">' +
+            '<input type="hidden" name="fotoExisting" value=""></div></div>' +
+            '<div><label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Jabatan</label>' +
+            '<input type="text" name="jabatan" placeholder="cth: Ketua Umum" class="w-full bg-slate-800 border border-slate-700 focus:border-violet-500 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none transition placeholder-slate-600"></div>' +
+            '<div><label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Nama Lengkap</label>' +
+            '<input type="text" name="nama" placeholder="Nama lengkap pengurus" class="w-full bg-slate-800 border border-slate-700 focus:border-violet-500 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none transition placeholder-slate-600"></div>' +
+            '<div><label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Divisi <span class="text-slate-700 normal-case">(opsional)</span></label>' +
+            '<input type="text" name="divisi" placeholder="cth: Artistik, Produksi" class="w-full bg-slate-800 border border-slate-700 focus:border-violet-500 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none transition placeholder-slate-600"></div>' +
+            '<div><label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Periode <span class="text-slate-700 normal-case">(opsional)</span></label>' +
+            '<input type="text" name="periode" placeholder="cth: 2024 – 2025" class="w-full bg-slate-800 border border-slate-700 focus:border-violet-500 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none transition placeholder-slate-600"></div>' +
+            '<div class="sm:col-span-2"><label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest block mb-1.5">Deskripsi / Bio <span class="text-slate-700 normal-case">(opsional)</span></label>' +
+            '<textarea name="deskripsi" rows="2" placeholder="Deskripsi singkat atau bio pengurus..." class="w-full bg-slate-800 border border-slate-700 focus:border-violet-500 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none transition placeholder-slate-600 resize-none"></textarea></div>' +
+            '</div></div>';
+    }
+
+    function reindex() {
+        var rows = list.querySelectorAll('.struktur-row');
+        rows.forEach(function(row, i) {
+            var numEl = row.querySelector('.row-num');
+            if (numEl) numEl.textContent = '#' + (i + 1);
+            // Reindex foto input name
+            var fotoInput = row.querySelector('input[type="file"]');
+            if (fotoInput) fotoInput.name = 'foto_' + i;
+        });
+        emptyState.classList.toggle('hidden', rows.length > 0);
+    }
+
+    // Preview foto on file select
+    function attachPreview(row) {
+        var input = row.querySelector('.foto-input');
+        if (!input) return;
+        input.addEventListener('change', function() {
+            var file = this.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var preview = row.querySelector('.foto-preview');
+                if (preview) {
+                    preview.innerHTML = '<img src="' + e.target.result + '" class="h-full w-full object-cover rounded-xl">';
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Attach preview to existing rows
+    list.querySelectorAll('.struktur-row').forEach(function(row) {
+        attachPreview(row);
+    });
+
+    document.getElementById('btn-tambah').addEventListener('click', function() {
+        var idx = rowCount();
+        var row = document.createElement('div');
+        row.innerHTML = makeRowHTML(idx);
+        var rowEl = row.firstChild;
+        list.appendChild(rowEl);
+        rowEl.querySelector('.btn-hapus').addEventListener('click', function() {
+            rowEl.remove(); reindex();
+        });
+        attachPreview(rowEl);
+        rowEl.querySelector('input[name="jabatan"]').focus();
+        reindex();
+    });
+
+    list.querySelectorAll('.btn-hapus').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            btn.closest('.struktur-row').remove();
+            reindex();
+        });
+    });
+
+    reindex();
+})();
+</script>
+
+<%- include('partials/footer') %>

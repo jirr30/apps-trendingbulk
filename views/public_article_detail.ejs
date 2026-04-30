@@ -19,8 +19,10 @@
   const embedUrl = getYouTubeEmbedUrl(item.videoUrl);
 %>
 
-<div class="min-h-screen bg-slate-950 text-slate-200 py-10 md:py-16 px-4">
-    <div class="max-w-4xl mx-auto mb-8">
+<div class="min-h-screen bg-slate-950 text-slate-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 md:py-16 sidebar-grid">
+      <div class="min-w-0">
+        <div class="mb-8">
         <a href="/articles" class="inline-flex items-center gap-2 text-emerald-500 hover:text-emerald-400 group transition-all">
             <svg class="w-5 h-5 group-hover:-translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -29,7 +31,7 @@
         </a>
     </div>
 
-    <article class="max-w-4xl mx-auto bg-slate-900/50 border border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden">
+        <article class="bg-slate-900/50 border border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden">
         <header class="p-8 md:p-12 bg-gradient-to-b from-slate-800/30 to-transparent border-b border-slate-800">
             <h1 class="text-3xl md:text-5xl font-black text-white mb-6 leading-[1.1] uppercase italic tracking-tighter">
                 <%= item.title %>
@@ -81,7 +83,62 @@
                 </a>
             </div>
         </div>
-    </article>
+        </article>
+      </div><!-- end main -->
+
+      <aside class="hidden lg:block">
+        <div class="sticky top-24 py-10 flex flex-col gap-2">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="h-7 w-1 bg-emerald-500 rounded-full shrink-0"></div>
+            <div>
+              <h2 class="text-sm font-black text-white tracking-tight">Jelajahi Lebih Lanjut</h2>
+              <p class="text-slate-500 text-[10px] font-mono mt-0.5">Temukan lebih banyak</p>
+            </div>
+          </div>
+          <a href="/" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition">
+              <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-blue-300 transition truncate">Tentang Kami</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Sejarah & pencapaian kami</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-blue-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/berita" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-amber-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:bg-amber-500/20 transition">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 4v6h-6"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-amber-300 transition truncate">Berita Terkini</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Info terbaru kegiatan kami</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-amber-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/galeri" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition">
+              <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-blue-300 transition truncate">Galeri Foto & Video</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Dokumentasi kegiatan kami</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-blue-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/sekretariat" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-violet-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 group-hover:bg-violet-500/20 transition">
+              <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-violet-300 transition truncate">Sekretariat</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Kontak & info organisasi</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-violet-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        <%- include("partials/sidebar_extras") %>
+        </div>
+      </aside>
+    </div><!-- end grid -->
 </div>
 
 <style>
@@ -119,7 +176,17 @@
         letter-spacing: 0.15em;
         font-weight: 900;
     }
-    .ck-content h2 { font-size: 2rem; font-weight: 900; color: #fff; margin-top: 3.5rem; margin-bottom: 1.5rem; border-left: 4px solid #10b981; padding-left: 1rem; }
+    .ck-content h1 { font-size: 2.25rem; font-weight: 900; color: #fff; margin-top: 3.5rem; margin-bottom: 1.5rem; border-left: 4px solid #10b981; padding-left: 1rem; }
+    .ck-content h2 { font-size: 1.85rem; font-weight: 900; color: #fff; margin-top: 3rem; margin-bottom: 1.25rem; border-left: 4px solid #10b981; padding-left: 1rem; }
+    .ck-content h3 { font-size: 1.45rem; font-weight: 700; color: #e2e8f0; margin-top: 2.5rem; margin-bottom: 1rem; }
+    .ck-content h4 { font-size: 1.15rem; font-weight: 700; color: #e2e8f0; margin-top: 2rem; margin-bottom: 0.75rem; }
+    .ck-content p { margin-bottom: 1.25rem; }
+    .ck-content strong { color: #f1f5f9; font-weight: 700; }
+    .ck-content a { color: #10b981; text-decoration: underline; }
+    .ck-content a:hover { color: #34d399; }
+    .ck-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .ck-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .ck-content li { margin-bottom: 0.4rem; }
     .ck-content blockquote {
         border-left: 4px solid #3b82f6;
         background: rgba(59, 130, 246, 0.05);

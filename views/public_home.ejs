@@ -1,54 +1,412 @@
 <%- include('partials/header') %>
 
 <div class="min-h-screen bg-slate-950 text-slate-200">
-    <header class="py-16 px-6 text-center bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">
-            Trending <span class="text-blue-500">Bulk</span> Library
-        </h1>
-        <p class="text-slate-400 max-w-2xl mx-auto">
-            Koleksi template dan resource terbaik yang telah dikurasi oleh tim NOC kami.
-        </p>
-    </header>
 
-    <main class="max-w-7xl mx-auto p-8">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <% if (templates && templates.length > 0) { %>
-                <% templates.forEach(item => { %>
-                    <div class="group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-blue-500 transition-all duration-300 shadow-xl">
-                        <div class="relative overflow-hidden aspect-video">
-                            <img src="<%= item.imageUrl %>" alt="<%= item.title %>" 
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+    <!-- HERO -->
+    <section class="relative overflow-hidden border-b border-slate-800/60 min-h-[500px]">
+
+        <!-- Slideshow Background -->
+        <% if (typeof heroPhotos !== 'undefined' && heroPhotos.length > 0) { %>
+        <div id="hero-slideshow" class="absolute inset-0 z-0">
+            <% heroPhotos.forEach(function(photo, i) { %>
+            <div class="hero-slide absolute inset-0" style="opacity:<%= i === 0 ? 1 : 0 %>;transition:opacity 1.4s ease;">
+                <img src="<%= photo.fileUrl %>" alt="<%= photo.title %>" class="w-full h-full object-cover block">
+            </div>
+            <% }) %>
+            <div class="absolute inset-0 z-[1]" style="background:linear-gradient(to bottom,rgba(2,8,23,0.55) 0%,rgba(2,8,23,0.8) 60%,rgba(2,8,23,1) 100%);"></div>
+        </div>
+        <% } else { %>
+        <div class="absolute inset-0 z-0" style="background:linear-gradient(135deg,#0f172a 0%,#020817 50%,#0f172a 100%);"></div>
+        <% } %>
+
+        <div class="max-w-4xl mx-auto relative px-5 py-16 sm:py-20 md:py-24 text-center z-[2]">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 mb-5">
+                <span class="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Teater Saphalta</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 leading-tight tracking-tight">
+                Mari Mengenal Kami<br><span class="text-blue-500">Lebih Dekat</span>
+            </h1>
+            <p class="text-slate-400 text-sm sm:text-base md:text-lg max-w-xl mx-auto leading-relaxed px-2">
+                Merawat tradisi, mengeksplorasi kreasi, dan berkarya sepenuh hati melalui seni pertunjukan.
+            </p>
+            <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
+                <a href="#sejarah" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-blue-900/30">
+                    Tentang Kami
+                </a>
+                <a href="#pencapaian" class="px-5 py-2.5 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white text-sm font-bold rounded-xl transition">
+                    Pencapaian
+                </a>
+                <a href="#pementasan" class="px-5 py-2.5 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white text-sm font-bold rounded-xl transition">
+                    Riwayat Pementasan
+                </a>
+            </div>
+        </div>
+
+        <!-- Dots indicator -->
+        <% if (typeof heroPhotos !== 'undefined' && heroPhotos.length > 1) { %>
+        <div id="hero-dots" class="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-[2]">
+            <% heroPhotos.forEach(function(_, i) { %>
+            <span class="hero-dot" data-index="<%= i %>"
+                  style="width:<%= i === 0 ? '20px' : '7px' %>;height:7px;border-radius:9999px;cursor:pointer;transition:all 0.3s;background:<%= i === 0 ? '#3b82f6' : 'rgba(255,255,255,0.25)' %>;"></span>
+            <% }) %>
+        </div>
+        <% } %>
+    </section>
+
+    <script>
+    (function() {
+        var slides = document.querySelectorAll('.hero-slide');
+        var dots   = document.querySelectorAll('.hero-dot');
+        if (slides.length < 2) return;
+        var current = 0;
+        function goTo(n) {
+            dots[current].style.width = '7px';
+            dots[current].style.background = 'rgba(255,255,255,0.25)';
+            slides[current].style.opacity = 0;
+            current = n % slides.length;
+            slides[current].style.opacity = 1;
+            dots[current].style.width = '20px';
+            dots[current].style.background = '#3b82f6';
+        }
+        dots.forEach(function(dot) {
+            dot.addEventListener('click', function() { goTo(parseInt(this.dataset.index)); });
+        });
+        setInterval(function() { goTo(current + 1); }, 4500);
+    })();
+    </script>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 sidebar-grid">
+      <div class="min-w-0">
+
+    <!-- SECTION: SEJARAH KAMI -->
+    <% if (typeof sejarah !== 'undefined' && sejarah && sejarah.konten) { %>
+    <section id="sejarah" class="py-10 sm:py-12 border-b border-slate-900">
+        <div>
+            <div class="flex items-center gap-3 mb-8 sm:mb-10">
+                <div class="h-9 w-1 bg-violet-500 rounded-full shrink-0"></div>
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-white tracking-tight">Sejarah Kami</h2>
+                    <p class="text-slate-500 text-xs font-mono mt-0.5">Perjalanan dan jejak langkah kami</p>
+                </div>
+            </div>
+            <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
+                <!-- Foto 2x2 -->
+                <% if (typeof heroPhotos !== 'undefined' && heroPhotos.length > 0) { %>
+                <div class="w-full lg:w-72 xl:w-80 shrink-0">
+                    <div class="grid grid-cols-2 gap-2">
+                        <% heroPhotos.slice(0, 4).forEach(function(photo) { %>
+                        <div class="aspect-square overflow-hidden rounded-xl border border-slate-800">
+                            <img src="<%= photo.fileUrl %>" alt="<%= photo.title %>"
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
                         </div>
-                        
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition">
-                                <%= item.title %>
-                            </h3>
-                            <p class="text-slate-400 text-sm leading-relaxed line-clamp-2 mb-4">
-                                <%= item.description %>
-                            </p>
-                            <div class="flex items-center justify-between pt-4 border-t border-slate-800">
-                                <span class="text-xs text-slate-500 font-mono">
-                                    Released: <%= item.createdAt.toLocaleDateString('id-ID') %>
-                                </span>
-                                <button class="px-4 py-2 bg-slate-800 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition">
-                                    <a href="/detail/<%= item._id %>" class="block w-full text-center px-4 py-2 bg-slate-800 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition duration-300">
-    					View Detail
-				    </a>
+                        <% }) %>
+                    </div>
+                </div>
+                <% } %>
+                <!-- Konten -->
+                <div class="flex-1 min-w-0 text-slate-300 leading-relaxed sejarah-konten">
+                    <%- sejarah.konten %>
+                </div>
+            </div>
+        </div>
+    </section>
+    <style>
+        .sejarah-konten h1 { font-size: clamp(1.3em, 4vw, 1.9em); font-weight: 700; color: #f1f5f9; margin: 0.75em 0 0.4em; line-height: 1.3; }
+        .sejarah-konten h2 { font-size: clamp(1.15em, 3vw, 1.5em); font-weight: 700; color: #f1f5f9; margin: 0.75em 0 0.4em; line-height: 1.35; }
+        .sejarah-konten h3 { font-size: clamp(1.05em, 2.5vw, 1.25em); font-weight: 600; color: #e2e8f0; margin: 0.75em 0 0.4em; line-height: 1.4; }
+        .sejarah-konten h4 { font-size: 1.05em; font-weight: 600; color: #e2e8f0; margin: 0.75em 0 0.4em; line-height: 1.45; }
+        .sejarah-konten p { margin-bottom: 0.75em; }
+        .sejarah-konten strong { color: #f1f5f9; font-weight: 700; }
+        .sejarah-konten ul { list-style: disc; padding-left: 1.5em; margin-bottom: 0.75em; }
+        .sejarah-konten ol { list-style: decimal; padding-left: 1.5em; margin-bottom: 0.75em; }
+        .sejarah-konten li { margin-bottom: 0.25em; }
+        .sejarah-konten blockquote { border-left: 3px solid #7c3aed; padding-left: 1em; color: #94a3b8; margin: 1em 0; font-style: italic; }
+        .sejarah-konten a { color: #a78bfa; text-decoration: underline; }
+        .sejarah-konten img { max-width: 100%; height: auto; border-radius: 0.75rem; }
+    </style>
+    <% } %>
 
-                                </button>
+    <!-- SECTION: PENCAPAIAN KAMI -->
+    <section id="pencapaian" class="py-10 sm:py-12 border-b border-slate-900">
+        <div>
+            <div class="flex items-center gap-3 mb-8 sm:mb-10">
+                <div class="h-9 w-1 bg-amber-500 rounded-full shrink-0"></div>
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-white tracking-tight">Pencapaian Kami</h2>
+                    <p class="text-slate-500 text-xs font-mono mt-0.5">Penghargaan dan prestasi Teater Saphalta</p>
+                </div>
+                <% if (typeof pencapaianList !== 'undefined' && pencapaianList && pencapaianList.length > 0) { %>
+                <span class="ml-auto text-[10px] font-mono bg-slate-900 text-slate-500 px-3 py-1 rounded-full border border-slate-800 shrink-0"><%= pencapaianList.length %> pencapaian</span>
+                <% } %>
+            </div>
+
+            <% if (typeof pencapaianList !== 'undefined' && pencapaianList && pencapaianList.length > 0) { %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <% pencapaianList.forEach(function(item, idx) { %>
+                <div class="relative bg-slate-900/60 border border-slate-800 hover:border-amber-500/40 rounded-2xl p-5 transition group flex flex-col items-center text-center overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none"></div>
+                    <div class="relative mb-4">
+                        <div class="h-16 w-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center group-hover:bg-amber-500/15 group-hover:border-amber-500/40 transition-all duration-300">
+                            <svg class="w-8 h-8 text-amber-400 group-hover:text-amber-300 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"/>
+                            </svg>
+                        </div>
+                        <div class="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center">
+                            <span class="text-[9px] font-black text-slate-400 font-mono"><%= String(idx + 1).padStart(2, '0') %></span>
+                        </div>
+                    </div>
+                    <h3 class="text-sm font-bold text-white leading-snug group-hover:text-amber-300 transition mb-3 line-clamp-2"><%= item.namaEvent %></h3>
+                    <div class="flex flex-wrap justify-center gap-1.5 mt-auto">
+                        <% if (item.kategori) { %>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><%= item.kategori %></span>
+                        <% } %>
+                        <% if (item.karya) { %>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium text-slate-400 border border-slate-700 bg-slate-800/50"><%= item.karya %></span>
+                        <% } %>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20">
+                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <%= item.tahun %>
+                        </span>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+            <% } else { %>
+            <div class="text-center py-16 sm:py-24 border border-dashed border-slate-800 rounded-2xl">
+                <div class="h-12 w-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497"/>
+                    </svg>
+                </div>
+                <p class="text-slate-500 font-medium text-sm">Belum ada pencapaian yang dipublikasikan.</p>
+                <p class="text-slate-700 text-xs font-mono mt-1">Segera hadir</p>
+            </div>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- SECTION: RIWAYAT PEMENTASAN -->
+    <section id="pementasan" class="py-10 sm:py-12 border-b border-slate-900">
+        <div>
+            <div class="flex items-center gap-3 mb-8 sm:mb-10">
+                <div class="h-9 w-1 bg-blue-500 rounded-full shrink-0"></div>
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-white tracking-tight">Riwayat Pementasan</h2>
+                    <p class="text-slate-500 text-xs font-mono mt-0.5">Koleksi produksi dan pementasan karya Teater Saphalta</p>
+                </div>
+                <% if (templates && templates.length > 0) { %>
+                <span class="ml-auto text-[10px] font-mono bg-slate-900 text-slate-500 px-3 py-1 rounded-full border border-slate-800 shrink-0"><%= templates.length %> pementasan</span>
+                <% } %>
+            </div>
+
+            <div class="flex flex-col gap-4">
+                <% if (templates && templates.length > 0) { %>
+                    <% templates.forEach(function(item, idx) { %>
+                    <div class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden hover:border-blue-500/60 hover:bg-slate-900 transition-all duration-300 flex flex-col sm:flex-row">
+                        <!-- Foto kiri -->
+                        <div class="relative sm:w-48 md:w-52 shrink-0 aspect-video sm:aspect-auto min-h-0">
+                            <img src="<%= item.imageUrl %>" alt="<%= item.title %>"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 sm:absolute sm:inset-0">
+                            <div class="absolute top-3 left-3 h-7 w-7 rounded-lg bg-slate-950/80 border border-slate-700 flex items-center justify-center">
+                                <span class="text-[10px] font-black text-slate-400 font-mono"><%= String(idx + 1).padStart(2, '0') %></span>
+                            </div>
+                        </div>
+                        <!-- Teks kanan -->
+                        <div class="flex flex-col justify-between p-4 sm:p-5 flex-1 min-w-0">
+                            <div>
+                                <% if (item.labelKarya || item.labelProduksi) { %>
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <% if (item.labelKarya) { %>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/20">
+                                        <%= item.labelKarya %>
+                                    </span>
+                                    <% } %>
+                                    <% if (item.labelProduksi) { %>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-violet-500/15 text-violet-400 border border-violet-500/20">
+                                        <%= item.labelProduksi %>
+                                    </span>
+                                    <% } %>
+                                </div>
+                                <% } %>
+                                <h3 class="text-sm sm:text-base font-bold text-white mb-1.5 group-hover:text-blue-400 transition leading-snug line-clamp-2">
+                                    <%= item.title %>
+                                </h3>
+                                <p class="text-slate-500 text-xs sm:text-sm leading-relaxed line-clamp-2">
+                                    <%= item.description %>
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-800/60">
+                                <span class="text-[11px] text-slate-600 font-mono">
+                                    <%= item.createdAt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %>
+                                </span>
+                                <a href="/detail/<%= item._id %>" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-slate-800 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition duration-300 border border-slate-700 hover:border-blue-500 whitespace-nowrap">
+                                    Lihat Detail
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
                             </div>
                         </div>
                     </div>
-                <% }) %>
-            <% } else { %>
-                <div class="col-span-full text-center py-20">
-                    <p class="text-slate-500 italic text-lg">Belum ada konten publik tersedia.</p>
-                </div>
-            <% } %>
+                    <% }) %>
+                <% } else { %>
+                    <div class="text-center py-16 sm:py-24 border border-dashed border-slate-800 rounded-2xl">
+                        <div class="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
+                            </svg>
+                        </div>
+                        <p class="text-slate-500 font-medium text-sm">Belum ada pementasan yang dipublikasikan.</p>
+                        <p class="text-slate-700 text-xs font-mono mt-1">Segera hadir</p>
+                    </div>
+                <% } %>
+            </div>
         </div>
-    </main>
+    </section>
+
+    <!-- SECTION: JELAJAHI HALAMAN LAIN (mobile) -->
+    <section class="lg:hidden py-12 sm:py-16 border-b border-slate-900">
+        <div>
+            <div class="flex items-center gap-3 mb-8 sm:mb-10">
+                <div class="h-9 w-1 bg-emerald-500 rounded-full shrink-0"></div>
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-white tracking-tight">Jelajahi Lebih Lanjut</h2>
+                    <p class="text-slate-500 text-xs font-mono mt-0.5">Temukan lebih banyak dari Teater Saphalta</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a href="/berita" class="group relative bg-slate-900/60 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col gap-3">
+                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"></div>
+                    <div class="h-11 w-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center group-hover:bg-amber-500/20 transition">
+                        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 4v6h-6"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-white group-hover:text-amber-300 transition mb-1">Berita Terkini</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Informasi dan kabar terbaru kegiatan kami</p>
+                    </div>
+                    <div class="mt-auto flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-amber-500 group-hover:gap-2 transition-all">Lihat Berita <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></div>
+                </a>
+                <a href="/galeri" class="group relative bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col gap-3">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"></div>
+                    <div class="h-11 w-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/20 transition">
+                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-white group-hover:text-blue-300 transition mb-1">Galeri Foto & Video</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Dokumentasi kegiatan dan pementasan</p>
+                    </div>
+                    <div class="mt-auto flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-blue-500 group-hover:gap-2 transition-all">Lihat Galeri <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></div>
+                </a>
+                <a href="/articles" class="group relative bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col gap-3">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"></div>
+                    <div class="h-11 w-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/20 transition">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-white group-hover:text-emerald-300 transition mb-1">Artikel & Materi</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Naskah, materi teater dan jadwal latihan</p>
+                    </div>
+                    <div class="mt-auto flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-emerald-500 group-hover:gap-2 transition-all">Lihat Artikel <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></div>
+                </a>
+                <a href="/sekretariat" class="group relative bg-slate-900/60 border border-slate-800 hover:border-violet-500/50 rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col gap-3">
+                    <div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"></div>
+                    <div class="h-11 w-11 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center group-hover:bg-violet-500/20 transition">
+                        <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-white group-hover:text-violet-300 transition mb-1">Sekretariat</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed">Struktur organisasi dan kontak kami</p>
+                    </div>
+                    <div class="mt-auto flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-violet-500 group-hover:gap-2 transition-all">Lihat Info <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+      </div><!-- end main column -->
+
+      <aside class="hidden lg:block">
+        <div class="sticky top-24 py-10 flex flex-col gap-2">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="h-7 w-1 bg-emerald-500 rounded-full shrink-0"></div>
+            <div>
+              <h2 class="text-sm font-black text-white tracking-tight">Jelajahi Lebih Lanjut</h2>
+              <p class="text-slate-500 text-[10px] font-mono mt-0.5">Temukan lebih banyak</p>
+            </div>
+          </div>
+          <a href="/berita" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-amber-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:bg-amber-500/20 transition">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 4v6h-6"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-amber-300 transition truncate">Berita Terkini</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Info terbaru kegiatan kami</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-amber-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/galeri" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition">
+              <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-blue-300 transition truncate">Galeri Foto & Video</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Dokumentasi kegiatan kami</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-blue-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/articles" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/20 transition">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-emerald-300 transition truncate">Artikel & Materi</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Naskah, materi & jadwal latihan</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-emerald-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/sekretariat" class="group flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-800 hover:border-violet-500/50 rounded-xl transition-all duration-300 overflow-hidden">
+            <div class="h-9 w-9 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 group-hover:bg-violet-500/20 transition">
+              <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white group-hover:text-violet-300 transition truncate">Sekretariat</p>
+              <p class="text-[10px] text-slate-500 leading-snug">Struktur organisasi & kontak</p>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-violet-400 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        <%- include("partials/sidebar_extras") %>
+        </div>
+      </aside>
+    </div><!-- end grid wrapper -->
+
+    <!-- SECTION: CTA PENUTUP -->
+    <section class="px-4 sm:px-6 py-16 sm:py-20">
+        <div class="max-w-3xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 mb-6">
+                <span class="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Bergabung Bersama Kami</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 leading-tight tracking-tight">
+                Tertarik Menjadi Bagian dari<br><span class="text-blue-500">Teater Saphalta?</span>
+            </h2>
+            <p class="text-slate-400 text-sm sm:text-base leading-relaxed max-w-xl mx-auto mb-8">
+                Bergabunglah bersama kami dan ekspresikan kreativitasmu melalui seni pertunjukan teater yang penuh makna.
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <a href="/sekretariat" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-blue-900/30">
+                    Hubungi Kami
+                </a>
+                <a href="/galeri" class="px-6 py-3 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white text-sm font-bold rounded-xl transition">
+                    Lihat Karya Kami
+                </a>
+            </div>
+        </div>
+    </section>
+
 </div>
 
 <%- include('partials/footer') %>

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof pageTitle !== 'undefined' ? pageTitle + ' | Panel' : 'Admin Panel' %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        #admin-sidebar { transition: transform 0.3s ease; }
+        #sidebar-overlay { transition: opacity 0.3s ease; }
+
+        /* ===== TEMA DEFAULT: Hitam / Orange ===== */
+        html[data-theme="default"] body,
+        html[data-theme="default"] .bg-slate-950 { background-color: #050505 !important; }
+        html[data-theme="default"] .bg-slate-900 { background-color: #0d0d0d !important; }
+        html[data-theme="default"] .bg-slate-800 { background-color: #1c1c1c !important; }
+        html[data-theme="default"] .bg-slate-950\/90 { background-color: rgba(5,5,5,0.9) !important; }
+        html[data-theme="default"] .bg-slate-900\/90 { background-color: rgba(13,13,13,0.9) !important; }
+        html[data-theme="default"] .bg-slate-900\/50 { background-color: rgba(13,13,13,0.5) !important; }
+        html[data-theme="default"] .bg-slate-800\/30 { background-color: rgba(28,28,28,0.3) !important; }
+        html[data-theme="default"] .bg-slate-800\/60 { background-color: rgba(28,28,28,0.6) !important; }
+        html[data-theme="default"] .border-slate-900 { border-color: #151515 !important; }
+        html[data-theme="default"] .border-slate-800 { border-color: #282828 !important; }
+        html[data-theme="default"] .border-slate-700 { border-color: #333333 !important; }
+        html[data-theme="default"] .border-slate-700\/50 { border-color: rgba(51,51,51,0.5) !important; }
+        /* Blue → Orange */
+        html[data-theme="default"] .text-blue-500 { color: #f97316 !important; }
+        html[data-theme="default"] .text-blue-400 { color: #fb923c !important; }
+        html[data-theme="default"] .bg-blue-600 { background-color: #ea580c !important; }
+        html[data-theme="default"] .hover\:bg-blue-700:hover { background-color: #c2410c !important; }
+        html[data-theme="default"] .bg-blue-500\/10 { background-color: rgba(249,115,22,0.1) !important; }
+        html[data-theme="default"] .border-blue-500\/20 { border-color: rgba(249,115,22,0.2) !important; }
+        html[data-theme="default"] .border-blue-500\/50 { border-color: rgba(249,115,22,0.5) !important; }
+        html[data-theme="default"] .hover\:text-blue-400:hover { color: #fb923c !important; }
+
+        /* ===== TEMA DARK: Deep Blue-Black / Biru ===== */
+        html[data-theme="dark"] body,
+        html[data-theme="dark"] .bg-slate-950 { background-color: #010409 !important; }
+        html[data-theme="dark"] .bg-slate-900 { background-color: #080f1e !important; }
+        html[data-theme="dark"] .bg-slate-800 { background-color: #0f1a2e !important; }
+        html[data-theme="dark"] .bg-slate-950\/80 { background-color: rgba(1,4,9,0.85) !important; }
+        html[data-theme="dark"] .bg-slate-900\/80 { background-color: rgba(8,15,30,0.8) !important; }
+        html[data-theme="dark"] .bg-slate-900\/50 { background-color: rgba(8,15,30,0.5) !important; }
+        html[data-theme="dark"] .bg-slate-900\/90 { background-color: rgba(8,15,30,0.9) !important; }
+        html[data-theme="dark"] .bg-slate-800\/30 { background-color: rgba(15,26,46,0.3) !important; }
+        html[data-theme="dark"] .bg-slate-800\/60 { background-color: rgba(15,26,46,0.6) !important; }
+        html[data-theme="dark"] .border-slate-900 { border-color: #0d1828 !important; }
+        html[data-theme="dark"] .border-slate-800 { border-color: #162035 !important; }
+        html[data-theme="dark"] .border-slate-700 { border-color: #1e3050 !important; }
+        html[data-theme="dark"] .border-slate-700\/50 { border-color: rgba(30,48,80,0.5) !important; }
+        /* Blue accents lebih vivid */
+        html[data-theme="dark"] .text-blue-500 { color: #60a5fa !important; }
+        html[data-theme="dark"] .text-blue-400 { color: #93c5fd !important; }
+        html[data-theme="dark"] .bg-blue-600 { background-color: #2563eb !important; }
+        html[data-theme="dark"] .hover\:bg-blue-700:hover { background-color: #1d4ed8 !important; }
+        html[data-theme="dark"] .bg-blue-500\/10 { background-color: rgba(96,165,250,0.12) !important; }
+        html[data-theme="dark"] .border-blue-500\/20 { border-color: rgba(96,165,250,0.25) !important; }
+        html[data-theme="dark"] .hover\:text-blue-400:hover { color: #93c5fd !important; }
+        html[data-theme="dark"] .text-slate-400 { color: #94a3b8 !important; }
+        html[data-theme="dark"] .text-slate-500 { color: #64748b !important; }
+
+        /* ===== TEMA LIGHT ===== */
+        html[data-theme="light"] { filter: invert(1) hue-rotate(180deg); }
+        html[data-theme="light"] img,
+        html[data-theme="light"] video,
+        html[data-theme="light"] iframe { filter: invert(1) hue-rotate(180deg); }
+    </style>
+    <script>
+        (function() {
+            const t = localStorage.getItem('theme') || 'default';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-200">
+<span id="ck-sentinel" tabindex="-1" aria-hidden="true" style="position:fixed;opacity:0;top:0;left:0;width:0;height:0;overflow:hidden;pointer-events:none;"></span>
+
+<%
+    const isSuperAdmin = sessionRole === 'superadmin';
+    const isStaff = sessionRole === 'admin' || sessionRole === 'superadmin';
+    const isOperator = sessionRole === 'operator';
+    const accentColor = isSuperAdmin ? 'red' : 'blue';
+    const accentClasses = isSuperAdmin
+        ? { bg: 'bg-red-600', bgHover: 'hover:bg-red-700', text: 'text-red-500', border: 'border-red-500/20', bgLight: 'bg-red-500/10', shadow: 'shadow-red-900/20' }
+        : { bg: 'bg-blue-600', bgHover: 'hover:bg-blue-700', text: 'text-blue-500', border: 'border-blue-500/20', bgLight: 'bg-blue-500/10', shadow: 'shadow-blue-900/20' };
+    const panelLabel = isSuperAdmin ? 'Super Admin' : (isOperator ? 'Operator' : 'Admin');
+
+    // Active nav detection based on pageTitle
+    const _pt = typeof pageTitle !== 'undefined' ? (pageTitle || '') : '';
+    const _inBerita      = ['Manajemen Berita','Tambah Berita','Edit Berita'].includes(_pt);
+    const _inProfile     = ['Riwayat Pementasan','Sejarah Kami','Pencapaian Kami'].includes(_pt);
+    const _inBlog        = ['Tulis Naskah','Edit Naskah','Materi Teater','Tambah Materi Teater',
+                             'Edit Materi Teater','Jadwal Latihan','Tambah Jadwal Latihan',
+                             'Edit Jadwal Latihan','Materi Latihan','Tambah Materi Latihan',
+                             'Edit Materi Latihan'].includes(_pt);
+    const _inSekretariat = _pt.startsWith('Sekretariat');
+    const _inGaleri      = _pt === 'Galeri';
+    const _inSystem      = _pt === 'System Console';
+    const _inPayment     = _pt === 'Pembayaran' || _pt.includes('Payment');
+    const _inSEO         = _pt === 'SEO & Iklan';
+
+    // Sub-item detection
+    const _subProfile = {
+        riwayat:    _pt === 'Riwayat Pementasan',
+        sejarah:    _pt === 'Sejarah Kami',
+        pencapaian: _pt === 'Pencapaian Kami',
+    };
+    const _subBlog = {
+        naskah:  ['Tulis Naskah','Edit Naskah'].includes(_pt),
+        teater:  ['Materi Teater','Tambah Materi Teater','Edit Materi Teater'].includes(_pt),
+        jadwal:  ['Jadwal Latihan','Tambah Jadwal Latihan','Edit Jadwal Latihan'].includes(_pt),
+        materi:  ['Materi Latihan','Tambah Materi Latihan','Edit Materi Latihan'].includes(_pt),
+    };
+    const _subSek = {
+        kontak:   _pt === 'Sekretariat - Kontak',
+        visi:     _pt === 'Sekretariat - Visi & Misi',
+        struktur: _pt === 'Sekretariat - Struktur Organisasi',
+    };
+
+    // Shared class shortcuts
+    const _navActive   = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+    const _navDefault  = 'text-slate-400 hover:text-white hover:bg-slate-800 border border-transparent';
+    const _subActive   = 'text-slate-200 bg-slate-800/60';
+    const _subDefault  = 'text-slate-500 hover:text-white hover:bg-slate-800';
+%>
+
+<!-- OVERLAY -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden opacity-0"></div>
+
+<!-- SIDEBAR -->
+<div id="admin-sidebar" class="fixed top-0 left-0 h-full w-72 bg-slate-900 border-r border-slate-800 z-50 transform -translate-x-full flex flex-col shadow-2xl">
+    <!-- Sidebar Header -->
+    <div class="flex items-center justify-between px-6 py-5 border-b border-slate-800">
+        <div class="text-center">
+            <p class="text-white font-black text-sm uppercase tracking-tighter">
+                <%= panelLabel %> Panel
+            </p>
+            <p class="text-[10px] font-mono <%= accentClasses.text %> mt-0.5 uppercase tracking-wider">Teater Saphalta</p>
+            <p class="text-[9px] text-slate-600 font-mono mt-0.5 leading-tight">Berkarya melalui seni pertunjukan</p>
+            <p class="text-[9px] text-slate-700 font-mono leading-tight">we are part of <span class="text-slate-600">Teater Sapta</span></p>
+        </div>
+        <button id="btn-close-sidebar" class="text-slate-500 hover:text-white transition p-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Role Badge -->
+    <div class="px-6 py-4 border-b border-slate-800">
+        <span class="inline-flex items-center gap-2 text-[10px] font-mono font-bold px-3 py-1.5 rounded-lg border
+            <%= isSuperAdmin ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20' %>">
+            <span class="h-1.5 w-1.5 rounded-full <%= isSuperAdmin ? 'bg-red-500' : 'bg-blue-500' %> animate-pulse"></span>
+            <%= (sessionRole || 'user').toUpperCase() %>
+        </span>
+    </div>
+
+    <!-- Nav Menu -->
+    <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+
+        <!-- Overview - standalone link -->
+        <a href="/dashboard" class="flex items-center gap-3 px-3 py-3 rounded-xl transition <%= !_inBerita && !_inProfile && !_inBlog && !_inSekretariat && !_inGaleri && !_inSystem && !_inPayment && !_inSEO ? _navActive : _navDefault %>">
+            <svg class="w-4 h-4 <%= accentClasses.text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
+            <span class="text-xs font-bold uppercase tracking-wider">Overview</span>
+        </a>
+
+        <!-- Berita - standalone link -->
+        <a href="/admin/berita" class="flex items-center gap-3 px-3 py-3 rounded-xl transition <%= _inBerita ? _navActive : _navDefault %>">
+            <svg class="w-4 h-4 <%= accentClasses.text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 4v6h-6"/>
+            </svg>
+            <span class="text-xs font-bold uppercase tracking-wider">Berita</span>
+        </a>
+
+        <!-- Profile Dropdown -->
+        <div>
+            <button id="btn-profile-dropdown" class="w-full flex items-center justify-between px-3 py-3 rounded-xl transition border <%= _inProfile ? _navActive : _navDefault %>">
+                <div class="flex items-center gap-3">
+                    <svg class="w-4 h-4 <%= accentClasses.text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="text-xs font-bold uppercase tracking-wider">Profile</span>
+                </div>
+                <svg id="icon-profile-chevron" class="w-3.5 h-3.5 text-slate-600 transition-transform duration-200" style="<%= _inProfile ? 'transform:rotate(180deg)' : '' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div id="profile-submenu" class="<%= _inProfile ? '' : 'hidden' %> mt-1 ml-4 pl-4 border-l border-slate-800 space-y-1">
+                <% if (isStaff) { %>
+                <a href="/upload" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition <%= _subProfile.riwayat ? _subActive : _subDefault %>">
+                    <svg class="w-3.5 h-3.5 <%= accentClasses.text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Riwayat Pementasan</span>
+                </a>
+                <a href="/admin/sejarah" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition <%= _subProfile.sejarah ? _subActive : _subDefault %>">
+                    <svg class="w-3.5 h-3.5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Sejarah Kami</span>
+                </a>
+                <% } %>
+                <a href="/admin/pencapaian" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition <%= _subProfile.pencapaian ? _subActive : _subDefault %>">
+                    <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Pencapaian Kami</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Blog Dropdown -->
+        <div>
+            <button id="btn-blog-dropdown" class="w-full flex items-center justify-between px-3 py-3 rounded-xl transition border <%= _inBlog ? _navActive : _navDefault %>">
+                <div class="flex items-center gap-3">
+                    <svg class="w-4 h-4 <%= accentClasses.text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 4v6h-6"/>
+                    </svg>
+                    <span class="text-xs font-bold uppercase tracking-wider">Blog</span>
+                </div>
+                <svg id="icon-blog-chevron" class="w-3.5 h-3.5 text-slate-600 transition-transform duration-200" style="<%= _inBlog ? 'transform:rotate(180deg)' : '' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div id="blog-submenu" class="<%= _inBlog ? '' : 'hidden' %> mt-1 ml-4 pl-4 border-l border-slate-800 space-y-1">
+                <a href="/admin/article/add" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition <%= _subBlog.naskah ? _subActive : _subDefault %>">
+                    <svg class="w-3.5 h-3.5 <%= accentClasses.text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Tulis Naskah</span>
+                </a>
+                <a href="/admin/materi-teater" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition <%= _subBlog.teater ? _subActive : _subDefault %>">
+                    <svg class="w-3.5 h-3.5 <%= accentClasses.text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Materi Teater</span>
+                </a>
+                <a href="/admin/jadwal-latihan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition <%= _subBlog.jadwal ? _subActive : _subDefault %>">
+                    <svg class="w-3.5 h-3.5 <%= accentClasses.text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Jadwal Latihan</span>
+                </a>
+                <a href="/admin/materi-latihan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition <%= _subBlog.materi ? _subActive : _subDefault %>">
+                    <svg class="w-3.5 h-3.5 <%= accentClasses.text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    <span class="text-xs font-medium">Materi Latihan</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sekretariat Dropdown -->
+        <% if (isStaff) { %>
+        <div>
+            <button id="btn-sekretariat-dropdown" class="w-full flex items-center justify-between px-3 py-3 rounded-xl transition border <%= _inSekretariat ? 'bg-violet-500/10 text-violet-400 border-violet-500/20' : _navDefault %>">
+                <div class="flex items-center gap-3">
+                    <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span class="text-xs font-bold uppercase tracking-wider">Sekretariat</span>
+                </div>
+                <svg id="icon-sekretariat-chevron" class="w-3.5 h-3.5 text-slate-600 transition-transform duration-200" style="<%= _inSekretariat ? 'transform:rotate(180deg)' : '' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div id="sekretariat-submenu" class="<%= _inSekretariat ? '' : 'hidden' %> mt-1 ml-4 pl-4 border-l border-slate-800 space-y-1">
+                <a href="/admin/sekretariat/kontak" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition <%= _subSek.kontak ? _subActive : _subDefault %>">
+                    <svg class="w-3.5 h-3.5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Informasi Kontak</span>
+                </a>
+                <a href="/admin/sekretariat/visi-misi" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition <%= _subSek.visi ? _subActive : _subDefault %>">
+                    <svg class="w-3.5 h-3.5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Visi & Misi</span>
+                </a>
+                <a href="/admin/sekretariat/struktur" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition <%= _subSek.struktur ? _subActive : _subDefault %>">
+                    <svg class="w-3.5 h-3.5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Struktur Organisasi</span>
+                </a>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Pembayaran -->
+        <div class="pt-4">
+            <p class="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] px-3 mb-3">Keuangan</p>
+            <a href="/admin/payments" class="flex items-center gap-3 px-3 py-3 rounded-xl transition <%= _inPayment ? _navActive : _navDefault %>">
+                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                <span class="text-xs font-bold uppercase tracking-wider">Pembayaran</span>
+                <% if (_inPayment) { %>
+                <span class="ml-auto h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                <% } %>
+            </a>
+        </div>
+
+        <% if (isStaff) { %>
+        <div class="pt-4">
+            <p class="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] px-3 mb-3">Marketing</p>
+            <a href="/admin/seo-settings" class="flex items-center gap-3 px-3 py-3 rounded-xl transition <%= _inSEO ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : _navDefault %>">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-bold uppercase tracking-wider">SEO & Iklan</span>
+                <% if (_inSEO) { %>
+                <span class="ml-auto h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                <% } %>
+            </a>
+        </div>
+        <% } %>
+
+        <div class="pt-4">
+            <p class="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] px-3 mb-3">Dokumentasi</p>
+            <a href="/admin/galeri" class="flex items-center gap-3 px-3 py-3 rounded-xl transition <%= _inGaleri ? _navActive : _navDefault %>">
+                <svg class="w-4 h-4 <%= accentClasses.text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span class="text-xs font-bold uppercase tracking-wider">Galeri</span>
+            </a>
+        </div>
+
+        <% if (sessionRole === 'admin' || sessionRole === 'superadmin') { %>
+        <div class="pt-4">
+            <p class="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] px-3 mb-3">System</p>
+            <a href="/super-admin" class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition border border-transparent hover:border-red-500/20">
+                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                <span class="text-xs font-bold uppercase tracking-wider">System Console</span>
+            </a>
+        </div>
+        <% } %>
+
+        <div class="pt-4">
+            <p class="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] px-3 mb-3">Site</p>
+            <a href="/" target="_blank" class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+                <span class="text-xs font-bold uppercase tracking-wider">Lihat Website</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Security Settings -->
+    <div class="px-4 pb-2">
+        <a href="/admin/security" class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition w-full">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <span class="text-xs font-bold uppercase tracking-wider">Keamanan Akun</span>
+        </a>
+    </div>
+
+    <!-- Logout -->
+    <div class="px-4 py-5 border-t border-slate-800">
+        <a href="/logout" class="flex items-center gap-3 px-3 py-3 rounded-xl text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition w-full">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            <span class="text-xs font-bold uppercase tracking-wider">Logout</span>
+        </a>
+    </div>
+</div>
+
+<!-- TOP NAVBAR -->
+<nav class="<%= isSuperAdmin ? 'bg-slate-950/90 border-red-900/30' : 'bg-slate-950/80 border-slate-900' %> border-b backdrop-blur-xl sticky top-0 z-30">
+    <div class="px-4 md:px-6 lg:px-10 py-4">
+        <div class="flex items-center justify-between gap-4">
+
+            <!-- Kiri: Hamburger + Brand -->
+            <div class="flex items-center gap-4">
+                <button id="btn-toggle-sidebar" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition shrink-0" aria-label="Menu">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+
+                <a href="/dashboard" class="group flex items-center gap-3">
+                    <div class="h-8 w-8 rounded-lg overflow-hidden flex items-center justify-center shadow-lg <%= accentClasses.shadow %> group-hover:rotate-6 transition-transform
+                        <%= typeof siteSetting !== 'undefined' && siteSetting && siteSetting.logoUrl ? '' : accentClasses.bg %>">
+                        <% if (typeof siteSetting !== 'undefined' && siteSetting && siteSetting.logoUrl) { %>
+                            <img src="<%= siteSetting.logoUrl %>" alt="Logo" class="w-full h-full object-contain">
+                        <% } else { %>
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        <% } %>
+                    </div>
+                    <div class="text-center hidden sm:block">
+                        <h1 class="text-white font-black tracking-tighter text-xl uppercase italic leading-none">
+                            TEATER <span class="<%= accentClasses.text %> group-hover:opacity-80 transition">SAPHALTA</span>
+                        </h1>
+                        <p class="text-[9px] text-slate-500 font-mono tracking-wide mt-0.5 leading-tight">Berkarya melalui seni pertunjukan</p>
+                        <p class="text-[9px] font-mono tracking-wide leading-tight">
+                            <span class="<%= accentClasses.text %> font-bold uppercase tracking-widest text-[8px]"><%= isSuperAdmin ? 'superadmin' : 'admin' %></span>
+                            <span class="text-slate-700">·</span>
+                            <span class="text-slate-600">panel</span>
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Kanan: user info -->
+            <div class="flex items-center gap-2 md:gap-3">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="p-2 rounded-lg hover:bg-slate-800 transition" aria-label="Toggle theme">
+                    <svg id="icon-theme-default" class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 2a8 8 0 110 16A8 8 0 0112 4z"/>
+                        <path d="M12 7a5 5 0 100 10A5 5 0 0012 7z"/>
+                    </svg>
+                    <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+                    </svg>
+                    <svg id="icon-moon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                    </svg>
+                </button>
+
+                <!-- Page title - hanya di desktop -->
+                <% if (typeof pageTitle !== 'undefined' && pageTitle) { %>
+                <span class="hidden md:block text-[10px] font-mono text-slate-600 border-l border-slate-800 pl-3">
+                    <%= pageTitle %>
+                </span>
+                <% } %>
+
+                <!-- User badge -->
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-900 rounded-lg border border-slate-800">
+                    <span class="h-2 w-2 rounded-full <%= isSuperAdmin ? 'bg-red-500' : 'bg-blue-500' %> animate-pulse shrink-0"></span>
+                    <span class="text-[10px] font-mono text-slate-300 hidden sm:block"><%= sessionUserName || 'operator' %></span>
+                </div>
+
+                <!-- View Site -->
+                <a href="/" target="_blank" class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-600 text-slate-500 hover:text-white text-[10px] font-mono uppercase tracking-wider rounded-lg transition">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                    Site
+                </a>
+
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+    (function() {
+        const sidebar  = document.getElementById('admin-sidebar');
+        const overlay  = document.getElementById('sidebar-overlay');
+        const btnOpen  = document.getElementById('btn-toggle-sidebar');
+        const btnClose = document.getElementById('btn-close-sidebar');
+
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.replace('opacity-0', 'opacity-100'), 10);
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.contains('-translate-x-full') ? openSidebar() : closeSidebar();
+        }
+
+        btnOpen.addEventListener('click', toggleSidebar);
+        btnClose.addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
+
+        // Fix: tap di luar CKEditor → blur editor + cegah duplikasi teks Android IME
+        // Android IME men-"commit" composition saat editor blur → teks terduplikasi.
+        // Solusi: simpan data sebelum blur, restore via CKEditor API jika terjadi perubahan.
+        var ckSentinel = document.getElementById('ck-sentinel');
+        function moveFocusFromCK(e) {
+            if (e.target.closest('.ck')) return;
+            var active = document.activeElement;
+            if (!active || typeof active.getAttribute !== 'function') return;
+            if (active.getAttribute('contenteditable') !== 'true') return;
+
+            var ed = window._ckEditor;
+            var dataBefore = ed ? ed.getData() : null;
+
+            // Fokus sentinel agar browser handle transisi fokus secara natural
+            ckSentinel.focus();
+
+            // Setelah blur selesai (termasuk IME composition commit), cek & restore jika duplikasi
+            if (dataBefore !== null && ed) {
+                setTimeout(function() {
+                    try {
+                        if (ed.getData() !== dataBefore) {
+                            ed.setData(dataBefore);
+                        }
+                    } catch(ex) {}
+                }, 0);
+            }
+        }
+        document.addEventListener('pointerdown', moveFocusFromCK, true);
+        document.addEventListener('touchstart', moveFocusFromCK, { capture: true, passive: true });
+
+        // Theme toggle (3 mode: default → dark → light)
+        const themeToggle  = document.getElementById('theme-toggle');
+        const iconThemeDef = document.getElementById('icon-theme-default');
+        const iconSun      = document.getElementById('icon-sun');
+        const iconMoon     = document.getElementById('icon-moon');
+        const themes       = ['default', 'dark', 'light'];
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            iconThemeDef.classList.toggle('hidden', theme !== 'default');
+            iconMoon.classList.toggle('hidden', theme !== 'dark');
+            iconSun.classList.toggle('hidden', theme !== 'light');
+        }
+
+        applyTheme(localStorage.getItem('theme') || 'default');
+
+        themeToggle.addEventListener('click', () => {
+            const current = localStorage.getItem('theme') || 'default';
+            const next = themes[(themes.indexOf(current) + 1) % themes.length];
+            localStorage.setItem('theme', next);
+            applyTheme(next);
+        });
+
+        // Profile dropdown submenu
+        const btnProfileDropdown = document.getElementById('btn-profile-dropdown');
+        const profileSubmenu     = document.getElementById('profile-submenu');
+        const profileChevron     = document.getElementById('icon-profile-chevron');
+
+        btnProfileDropdown.addEventListener('click', () => {
+            const isOpen = !profileSubmenu.classList.contains('hidden');
+            profileSubmenu.classList.toggle('hidden', isOpen);
+            profileChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+
+        // Blog dropdown submenu
+        const btnBlogDropdown = document.getElementById('btn-blog-dropdown');
+        const blogSubmenu     = document.getElementById('blog-submenu');
+        const blogChevron     = document.getElementById('icon-blog-chevron');
+
+        btnBlogDropdown.addEventListener('click', () => {
+            const isOpen = !blogSubmenu.classList.contains('hidden');
+            blogSubmenu.classList.toggle('hidden', isOpen);
+            blogChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+
+        // Sekretariat dropdown submenu
+        const btnSekretariatDropdown = document.getElementById('btn-sekretariat-dropdown');
+        const sekretariatSubmenu     = document.getElementById('sekretariat-submenu');
+        const sekretariatChevron     = document.getElementById('icon-sekretariat-chevron');
+
+        btnSekretariatDropdown.addEventListener('click', () => {
+            const isOpen = !sekretariatSubmenu.classList.contains('hidden');
+            sekretariatSubmenu.classList.toggle('hidden', isOpen);
+            sekretariatChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+    })();
+</script>

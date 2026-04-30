@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>
+        <% if (type === 'finish') { %>Pembayaran Berhasil
+        <% } else if (type === 'error') { %>Pembayaran Gagal
+        <% } else { %>Menunggu Pembayaran<% } %>
+        | <%= (siteSetting && siteSetting.siteTitle) ? siteSetting.siteTitle : 'TrendingBulk' %>
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn .4s ease both; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+    </style>
+</head>
+<body class="bg-slate-950 min-h-screen flex items-center justify-center p-4">
+
+<%
+const companyName = (siteSetting && siteSetting.siteTitle) ? siteSetting.siteTitle : 'TrendingBulk';
+const companyLogo = (siteSetting && siteSetting.logoUrl)   ? siteSetting.logoUrl   : null;
+%>
+
+<% if (notLoggedIn) { %>
+<div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 w-full max-w-sm shadow-2xl fade-in">
+    <div class="flex items-center justify-center gap-2 mb-6">
+        <% if (companyLogo) { %>
+        <img src="<%= companyLogo %>" alt="Logo" class="h-7 w-auto object-contain">
+        <% } else { %>
+        <div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <% } %>
+        <span class="text-white font-bold text-sm"><%= companyName %></span>
+    </div>
+    <h2 class="text-xl font-black text-white text-center mb-1">Masuk untuk Melanjutkan</h2>
+    <p class="text-slate-500 text-xs text-center mb-6">Halaman ini memerlukan autentikasi.</p>
+    <% if (loginError) { %>
+    <div class="mb-4 flex items-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+        <svg class="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <p class="text-red-400 text-xs"><%= loginError %></p>
+    </div>
+    <% } %>
+    <form action="/login" method="POST" class="space-y-4">
+        <input type="hidden" name="redirect_to" value="<%= redirectTo %>">
+        <div>
+            <label class="block text-[11px] text-slate-500 uppercase tracking-wider mb-1.5">Username / Email</label>
+            <input type="text" name="identifier" required autocomplete="username"
+                class="w-full bg-slate-800 border border-slate-700 focus:border-blue-500 text-white text-sm rounded-xl px-4 py-3 outline-none transition placeholder-slate-600"
+                placeholder="Masukkan username atau email">
+        </div>
+        <div>
+            <label class="block text-[11px] text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
+            <input type="password" name="password" required autocomplete="current-password"
+                class="w-full bg-slate-800 border border-slate-700 focus:border-blue-500 text-white text-sm rounded-xl px-4 py-3 outline-none transition placeholder-slate-600"
+                placeholder="Masukkan password">
+        </div>
+        <button type="submit"
+            class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+            Masuk
+        </button>
+    </form>
+</div>
+
+<% } else { %>
+
+<div class="bg-slate-900 border border-slate-800 rounded-2xl p-10 text-center max-w-sm w-full shadow-2xl fade-in">
+
+    <!-- Logo -->
+    <div class="flex items-center justify-center gap-2 mb-8">
+        <% if (companyLogo) { %>
+        <img src="<%= companyLogo %>" alt="Logo" class="h-7 w-auto object-contain">
+        <% } else { %>
+        <div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+        </div>
+        <% } %>
+        <span class="text-white font-bold text-sm"><%= companyName %></span>
+    </div>
+
+    <% if (type === 'finish') { %>
+    <!-- SUCCESS -->
+    <div class="w-20 h-20 bg-emerald-500/10 border-2 border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+    </div>
+    <h2 class="text-2xl font-black text-white mb-2">Pembayaran Berhasil!</h2>
+    <p class="text-slate-400 text-sm mb-8 leading-relaxed">Terima kasih. Transaksi Anda telah berhasil diproses dan kami sedang mempersiapkan konfirmasi.</p>
+
+    <% } else if (type === 'error') { %>
+    <!-- ERROR -->
+    <div class="w-20 h-20 bg-red-500/10 border-2 border-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </div>
+    <h2 class="text-2xl font-black text-white mb-2">Pembayaran Gagal</h2>
+    <p class="text-slate-400 text-sm mb-8 leading-relaxed">Terjadi kesalahan saat memproses pembayaran. Silakan coba kembali atau gunakan metode pembayaran lain.</p>
+
+    <% } else { %>
+    <!-- PENDING -->
+    <div class="w-20 h-20 bg-amber-500/10 border-2 border-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+    </div>
+    <h2 class="text-2xl font-black text-white mb-2">Menunggu Konfirmasi</h2>
+    <p class="text-slate-400 text-sm mb-8 leading-relaxed">Pembayaran Anda sedang diproses. Kami akan mengirimkan konfirmasi setelah pembayaran diterima.</p>
+    <% } %>
+
+    <!-- Order ID box -->
+    <% if (query.order_id) { %>
+    <div class="bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 mb-6 text-left">
+        <p class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">Nomor Tagihan</p>
+        <code class="text-sm text-blue-400 font-bold"><%= query.order_id %></code>
+    </div>
+
+    <!-- Single action: lihat status -->
+    <a href="/tagihan/<%= query.order_id %>"
+        class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        Lihat Status Tagihan
+    </a>
+    <% } %>
+
+    <p class="text-[11px] text-slate-700 mt-8">
+        Diproses secara aman oleh <span class="text-slate-600">Midtrans</span>
+    </p>
+
+</div>
+<% } %>
+</body>
+</html>

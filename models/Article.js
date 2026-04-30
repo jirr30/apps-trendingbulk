@@ -13,19 +13,27 @@ const articleSchema = new mongoose.Schema({
     thumbnail: { 
         type: String 
     }, // Path gambar utama (/uploads/...)
-    videoUrl: { 
-        type: String 
+    videoUrl: {
+        type: String
     }, // Link YouTube Embed
-    
+    karya: {
+        type: String,
+        default: ''
+    }, // Nama penulis / karya
+
     // RELASI MULTI-USER
     author: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Merujuk ke Model User
+        ref: 'User',
         required: true
-    }
-}, { 
-    // Otomatis membuat field createdAt dan updatedAt
-    timestamps: true 
-});
+    },
+    // SEO Fields
+    slug:            { type: String, default: '' },
+    metaTitle:       { type: String, default: '' },
+    metaDescription: { type: String, default: '' },
+    metaKeywords:    { type: String, default: '' },
+    category:        { type: String, default: '' },
+    tags:            { type: String, default: '' }
+}, { timestamps: true });
 
 module.exports = mongoose.model('Article', articleSchema);

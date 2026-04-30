@@ -1,69 +1,221 @@
-<%- include('partials/header') %>
-<div class="min-h-screen bg-slate-950 text-slate-200 font-sans pb-12">
-    <div class="bg-slate-900/50 border-b border-slate-800 px-4 md:px-8 py-6">
-        <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+<%- include('partials/admin_header', { pageTitle: 'System Console' }) %>
+
+<div class="min-h-screen bg-slate-950 pb-16">
+
+    <!-- Page Header -->
+    <div class="bg-slate-900/40 border-b border-slate-800 px-4 md:px-8 lg:px-10 py-6">
+        <div class="max-w-[1400px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h1 class="text-xl md:text-2xl font-black tracking-tighter text-white uppercase italic">Global <span class="text-red-500">Command Center</span></h1>
-                <p class="text-slate-500 text-[9px] md:text-[10px] font-mono tracking-[0.3em] mt-1">SUPER_ADMIN_MODE // FULL_ACCESS_ENABLED</p>
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></div>
+                    <span class="text-[9px] font-mono text-red-500 uppercase tracking-[0.3em]">superadmin · full access</span>
+                </div>
+                <h1 class="text-2xl font-black tracking-tighter text-white uppercase italic">
+                    System <span class="text-red-500">Console</span>
+                </h1>
+                <p class="text-slate-500 text-[10px] font-mono mt-0.5">Manajemen pengguna, konten, dan keuangan sistem</p>
             </div>
-            
-            <div class="grid grid-cols-3 gap-4 md:gap-8 w-full lg:w-auto border-t border-slate-800 lg:border-none pt-6 lg:pt-0">
-                <div class="text-center">
-                    <p class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Users</p>
-                    <p class="text-lg md:text-2xl font-mono text-white"><%= users.length %></p>
-                </div>
-                <div class="text-center border-x border-slate-800 px-4">
-                    <p class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Articles</p>
-                    <p class="text-lg md:text-2xl font-mono text-emerald-500"><%= articles.length %></p>
-                </div>
-                <div class="text-center">
-                    <p class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Templates</p>
-                    <p class="text-lg md:text-2xl font-mono text-blue-500"><%= templates.length %></p>
-                </div>
-            </div>
+            <a href="/dashboard" class="flex items-center gap-2 text-slate-400 hover:text-white text-xs font-bold border border-slate-800 hover:border-slate-600 px-4 py-2 rounded-xl bg-slate-900/50 uppercase tracking-wider transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Dashboard
+            </a>
         </div>
     </div>
 
-    <div class="max-w-[1600px] mx-auto p-4 md:p-8 space-y-10">
-        
-        <section>
-            <div class="flex items-center gap-4 mb-6">
-                <div class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <h2 class="text-xs font-black uppercase tracking-[0.4em] text-white">Global Article Management</h2>
+    <div class="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-10 py-8 space-y-10">
+
+        <!-- ALERT -->
+        <% if (typeof query !== 'undefined') { %>
+        <% const err = query.error; const suc = query.success; %>
+        <% if (err) { %>
+        <div class="flex items-center gap-3 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <svg class="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <p class="text-red-400 text-xs font-bold"><%= decodeURIComponent(err) %></p>
+        </div>
+        <% } %>
+        <% if (suc) { %>
+        <div class="flex items-center gap-3 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <p class="text-emerald-400 text-xs font-bold"><%= decodeURIComponent(suc) %></p>
+        </div>
+        <% } %>
+        <% } %>
+
+        <!-- STATS -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-2">Total Users</p>
+                <p class="text-3xl font-black text-white font-mono"><%= stats.users %></p>
+                <p class="text-[9px] font-mono text-slate-600 mt-1"><%= stats.admins %> admin / superadmin</p>
             </div>
-            
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-2">Konten</p>
+                <p class="text-3xl font-black text-emerald-500 font-mono"><%= stats.articles + stats.berita %></p>
+                <p class="text-[9px] font-mono text-slate-600 mt-1"><%= stats.articles %> artikel · <%= stats.berita %> berita</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-2">Transaksi Pending</p>
+                <p class="text-3xl font-black font-mono <%= stats.txPending > 0 ? 'text-yellow-400' : 'text-slate-500' %>"><%= stats.txPending %></p>
+                <p class="text-[9px] font-mono text-slate-600 mt-1"><%= stats.txSuccess %> sukses · <%= stats.gallery %> galeri</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-2">Total Revenue</p>
+                <p class="text-xl font-black text-blue-400 font-mono leading-tight mt-1">
+                    Rp <%= stats.revenue.toLocaleString('id-ID') %>
+                </p>
+                <p class="text-[9px] font-mono text-slate-600 mt-1">dari transaksi sukses</p>
+            </div>
+        </div>
+
+        <!-- PENGATURAN REGISTRASI -->
+        <section>
+            <div class="flex items-center gap-3 mb-5">
+                <div class="h-1 w-6 bg-emerald-500 rounded-full"></div>
+                <h2 class="text-xs font-black uppercase tracking-[0.3em] text-white">Pengaturan Registrasi</h2>
+                <span class="text-[10px] font-mono ml-auto
+                    <%= regSetting.registrationOpen ? 'text-emerald-400' : 'text-red-400' %>">
+                    <%= regSetting.registrationOpen ? '● Registrasi Terbuka' : '● Registrasi Ditutup' %>
+                </span>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                <!-- Info saat ini -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6 pb-6 border-b border-slate-800">
+                    <div>
+                        <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-1">User Terdaftar</p>
+                        <p class="text-2xl font-black text-white font-mono"><%= stats.users %></p>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-1">Batas Maksimal</p>
+                        <p class="text-2xl font-black font-mono <%= regSetting.maxUsers > 0 ? 'text-yellow-400' : 'text-slate-500' %>">
+                            <%= regSetting.maxUsers > 0 ? regSetting.maxUsers : '∞' %>
+                        </p>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-1">Sisa Slot</p>
+                        <p class="text-2xl font-black font-mono text-slate-400">
+                            <% if (regSetting.maxUsers > 0) { %>
+                                <%= Math.max(0, regSetting.maxUsers - stats.users) %>
+                            <% } else { %>
+                                ∞
+                            <% } %>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Form pengaturan -->
+                <form action="/super-admin/settings/registration" method="POST">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <div>
+                            <label class="block text-[9px] font-mono uppercase tracking-widest text-slate-500 mb-2">Status Registrasi</label>
+                            <select name="registrationOpen"
+                                class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 text-white text-sm rounded-xl focus:outline-none focus:border-emerald-500 transition">
+                                <option value="true"  <%= regSetting.registrationOpen ? 'selected' : '' %>>Terbuka — siapa saja bisa daftar</option>
+                                <option value="false" <%= !regSetting.registrationOpen ? 'selected' : '' %>>Ditutup — tidak ada pendaftaran baru</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-mono uppercase tracking-widest text-slate-500 mb-2">
+                                Batas Maksimal User
+                                <span class="text-slate-600 normal-case ml-1">(0 = tidak dibatasi)</span>
+                            </label>
+                            <input type="number" name="maxUsers" min="0" value="<%= regSetting.maxUsers %>"
+                                class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 text-white text-sm rounded-xl focus:outline-none focus:border-emerald-500 transition placeholder-slate-600"
+                                placeholder="contoh: 50">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit"
+                                class="w-full px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition shadow-lg shadow-emerald-900/20">
+                                Simpan Pengaturan
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-[9px] font-mono text-slate-600 mt-4">
+                        Jika registrasi ditutup, halaman /register tetap bisa diakses tapi pendaftaran akan diblokir. Batas maksimal 0 berarti tidak ada pembatasan jumlah.
+                    </p>
+                </form>
+            </div>
+        </section>
+
+        <!-- USER MANAGEMENT -->
+        <section>
+            <div class="flex items-center gap-3 mb-5">
+                <div class="h-1 w-6 bg-red-500 rounded-full"></div>
+                <h2 class="text-xs font-black uppercase tracking-[0.3em] text-white">User Management</h2>
+                <span class="text-[10px] font-mono text-slate-600 ml-auto"><%= stats.users %> akun terdaftar</span>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[600px] md:min-w-full">
+                    <table class="w-full text-left min-w-[560px]">
                         <thead class="bg-slate-950 border-b border-slate-800">
                             <tr>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase">Author</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase">Title</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase hidden sm:table-cell">Date</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase text-right">Moderation</th>
+                                <th class="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-widest">Username</th>
+                                <th class="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-widest hidden sm:table-cell">Email</th>
+                                <th class="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-widest hidden md:table-cell">Bergabung</th>
+                                <th class="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Role</th>
+                                <th class="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-widest text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-800">
-                            <% articles.forEach(item => { %>
-                            <tr class="hover:bg-slate-800/30 transition group">
-                                <td class="px-6 py-4">
-                                    <span class="bg-emerald-500/10 text-emerald-500 text-[10px] font-mono px-2 py-1 rounded border border-emerald-500/20">
-                                        <%= item.author ? item.author.username : 'LEGACY_SYSTEM' %>
+                        <tbody class="divide-y divide-slate-800/60">
+                            <% users.forEach(user => { %>
+                            <tr class="hover:bg-slate-800/20 transition">
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="h-7 w-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                                            <span class="text-[10px] font-black text-slate-400 uppercase"><%= user.username.charAt(0) %></span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-white leading-none"><%= user.username %></p>
+                                            <% if (user._id.toString() === currentUserId.toString()) { %>
+                                            <span class="text-[8px] text-red-400 font-mono">● YOU</span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-xs font-mono text-slate-400 hidden sm:table-cell"><%= user.email %></td>
+                                <td class="px-5 py-4 text-[10px] font-mono text-slate-500 hidden md:table-cell">
+                                    <%= new Date(user.createdAt).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) %>
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg border
+                                        <%= user.role === 'superadmin' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                           user.role === 'admin'       ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                                                                         'bg-slate-700/40 text-slate-400 border-slate-700/60' %>">
+                                        <%= user.role %>
                                     </span>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <p class="text-sm font-medium text-white line-clamp-1"><%= item.title %></p>
-                                    <p class="sm:hidden text-[9px] font-mono text-slate-500 mt-1"><%= item.createdAt.toDateString() %></p>
-                                </td>
-                                <td class="px-6 py-4 text-xs font-mono text-slate-500 hidden sm:table-cell">
-                                    <%= item.createdAt.toLocaleDateString() %>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <form action="/admin/article/delete/<%= item._id %>" method="POST" onsubmit="return confirm('FORCE DELETE: Konfirmasi penghapusan?')">
-                                        <button class="text-red-500 hover:bg-red-500 hover:text-white text-[9px] font-black uppercase tracking-tighter border border-red-900/50 px-3 py-1.5 rounded-lg transition-all active:scale-95">
-                                            Delete
-                                        </button>
-                                    </form>
+                                <td class="px-5 py-4 text-right">
+                                    <% if (user._id.toString() !== currentUserId.toString()) { %>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <form action="/super-admin/user/role/<%= user._id %>" method="POST" class="flex items-center gap-1.5">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <select name="role" class="bg-slate-950 border border-slate-700 text-slate-300 text-[10px] font-mono rounded-lg px-2 py-1.5 focus:outline-none focus:border-blue-500 transition">
+                                                <option value="user"     <%= user.role === 'user'     ? 'selected' : '' %>>user</option>
+                                                <option value="operator" <%= user.role === 'operator' ? 'selected' : '' %>>operator</option>
+                                                <option value="admin"    <%= user.role === 'admin'    ? 'selected' : '' %>>admin</option>
+                                                <% if (isSuperAdmin) { %>
+                                                <option value="superadmin" <%= user.role === 'superadmin' ? 'selected' : '' %>>superadmin</option>
+                                                <% } %>
+                                            </select>
+                                            <button type="submit" class="px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600 border border-blue-600/30 text-blue-400 hover:text-white text-[9px] font-black uppercase tracking-wider rounded-lg transition">
+                                                Save
+                                            </button>
+                                        </form>
+                                        <% if (user.role !== 'superadmin' && (isSuperAdmin || user.role === 'user')) { %>
+                                        <form action="/super-admin/user/delete/<%= user._id %>" method="POST"
+                                            onsubmit="return confirm('Hapus akun <%= user.username %>? Tindakan ini tidak dapat dibatalkan.')">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <button type="submit" class="px-3 py-1.5 bg-red-500/10 hover:bg-red-600 border border-red-500/20 text-red-400 hover:text-white text-[9px] font-black uppercase tracking-wider rounded-lg transition">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                        <% } %>
+                                    </div>
+                                    <% } else { %>
+                                    <span class="text-[9px] font-mono text-slate-700">current session</span>
+                                    <% } %>
                                 </td>
                             </tr>
                             <% }) %>
@@ -73,50 +225,90 @@
             </div>
         </section>
 
+        <!-- RECENT TRANSACTIONS -->
         <section>
-            <div class="flex items-center gap-4 mb-6">
-                <div class="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></div>
-                <h2 class="text-xs font-black uppercase tracking-[0.4em] text-white">Global Template Assets</h2>
+            <div class="flex items-center gap-3 mb-5">
+                <div class="h-1 w-6 bg-blue-500 rounded-full"></div>
+                <h2 class="text-xs font-black uppercase tracking-[0.3em] text-white">Transaksi Terbaru</h2>
+                <a href="/admin/payments" class="text-[9px] font-mono text-slate-500 hover:text-blue-400 ml-auto transition uppercase tracking-wider">Lihat semua →</a>
             </div>
-            
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                <% if (recentTransactions.length === 0) { %>
+                <div class="py-12 text-center">
+                    <p class="text-slate-600 text-xs font-mono uppercase tracking-widest">Belum ada transaksi</p>
+                </div>
+                <% } else { %>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[600px] md:min-w-full">
+                    <table class="w-full text-left min-w-[500px]">
                         <thead class="bg-slate-950 border-b border-slate-800">
                             <tr>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase">Owner</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase hidden md:table-cell text-center">Preview</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase">Asset Name</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase text-right">Moderation</th>
+                                <th class="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-widest">Order ID</th>
+                                <th class="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-widest hidden sm:table-cell">Customer</th>
+                                <th class="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-widest text-right">Nominal</th>
+                                <th class="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-widest text-center">Status</th>
+                                <th class="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-widest hidden md:table-cell">Tanggal</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-800">
-                            <% templates.forEach(item => { %>
-                            <tr class="hover:bg-slate-800/30 transition">
-                                <td class="px-6 py-4">
-                                    <span class="text-xs font-mono text-blue-400">@<%= item.author ? item.author.username : 'NULL' %></span>
+                        <tbody class="divide-y divide-slate-800/60">
+                            <% recentTransactions.forEach(tx => { %>
+                            <tr class="hover:bg-slate-800/20 transition">
+                                <td class="px-5 py-3.5">
+                                    <span class="text-[10px] font-mono text-slate-300"><%= tx.orderId %></span>
                                 </td>
-                                <td class="px-6 py-4 hidden md:table-cell">
-                                    <img src="<%= item.imageUrl %>" class="h-8 w-12 object-cover rounded border border-slate-700 mx-auto grayscale group-hover:grayscale-0 transition">
+                                <td class="px-5 py-3.5 text-xs text-slate-400 hidden sm:table-cell"><%= tx.customerName %></td>
+                                <td class="px-5 py-3.5 text-right">
+                                    <span class="text-sm font-black text-white font-mono">Rp <%= (tx.amount || 0).toLocaleString('id-ID') %></span>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <p class="text-sm font-medium text-white line-clamp-1"><%= item.title %></p>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg border
+                                        <%= tx.status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                           tx.status === 'pending'  ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                                           tx.status === 'failed'   ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                                                      'bg-slate-700/40 text-slate-400 border-slate-700/60' %>">
+                                        <%= tx.status %>
+                                    </span>
                                 </td>
-                                <td class="px-6 py-4 text-right">
-                                    <form action="/delete/<%= item._id %>" method="POST" onsubmit="return confirm('FORCE DELETE: Hapus asset ini?')">
-                                        <button class="text-red-500 hover:bg-red-500 hover:text-white text-[9px] font-black uppercase tracking-tighter border border-red-900/50 px-3 py-1.5 rounded-lg transition-all active:scale-95">
-                                            Delete
-                                        </button>
-                                    </form>
+                                <td class="px-5 py-3.5 text-[10px] font-mono text-slate-500 hidden md:table-cell">
+                                    <%= new Date(tx.createdAt).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) %>
                                 </td>
                             </tr>
                             <% }) %>
                         </tbody>
                     </table>
                 </div>
+                <% } %>
+            </div>
+        </section>
+
+        <!-- QUICK LINKS -->
+        <section>
+            <div class="flex items-center gap-3 mb-5">
+                <div class="h-1 w-6 bg-violet-500 rounded-full"></div>
+                <h2 class="text-xs font-black uppercase tracking-[0.3em] text-white">Akses Cepat</h2>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <%
+                const quickLinks = [
+                    { label: 'Berita',      href: '/admin/berita',             icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z' },
+                    { label: 'Artikel',     href: '/admin/article/add',        icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
+                    { label: 'Galeri',      href: '/admin/galeri',             icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
+                    { label: 'Pembayaran',  href: '/admin/payments',           icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
+                    { label: 'SEO & Iklan', href: '/admin/seo-settings',       icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+                    { label: 'Sekretariat', href: '/admin/sekretariat/kontak', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' }
+                ];
+                %>
+                <% quickLinks.forEach(link => { %>
+                <a href="<%= link.href %>" class="group flex flex-col items-center gap-2.5 p-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-600 rounded-2xl transition">
+                    <svg class="w-5 h-5 text-slate-500 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= link.icon %>"/>
+                    </svg>
+                    <span class="text-[10px] font-mono text-slate-500 group-hover:text-white uppercase tracking-wider transition"><%= link.label %></span>
+                </a>
+                <% }) %>
             </div>
         </section>
 
     </div>
 </div>
+
 <%- include('partials/footer') %>

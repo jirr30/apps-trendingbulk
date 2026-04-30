@@ -1,0 +1,154 @@
+<%- include('partials/admin_header', { pageTitle: 'Pencapaian Kami' }) %>
+
+<div class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 space-y-6">
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-xl font-black text-white tracking-tight">Pencapaian Kami</h1>
+            <p class="text-slate-500 text-xs font-mono mt-0.5">Kelola data pencapaian dan penghargaan</p>
+        </div>
+        <a href="/profile" target="_blank"
+           class="inline-flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl border border-slate-700 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+            Lihat Publik
+        </a>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+    <div class="flex items-center gap-3 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-sm">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        Data berhasil disimpan.
+    </div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+    <div class="flex items-center gap-3 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        <%= error %>
+    </div>
+    <% } %>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+        <!-- Form Tambah -->
+        <div class="lg:col-span-2">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+                <h2 class="text-sm font-bold text-white mb-5 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Tambah Pencapaian
+                </h2>
+                <form action="/admin/pencapaian/save" method="POST" class="space-y-4">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Nama Event / Penghargaan <span class="text-red-400">*</span></label>
+                        <input type="text" name="namaEvent" required placeholder="cth: Festival Teater Nasional"
+                            class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Kategori</label>
+                        <input type="text" name="kategori" placeholder="cth: Juara 1, Nominasi, Pemenang"
+                            class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Karya</label>
+                        <input type="text" name="karya" placeholder="cth: Nama naskah / produksi"
+                            class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Tahun <span class="text-red-400">*</span></label>
+                        <input type="number" name="tahun" required min="1900" max="2100"
+                            value="<%= new Date().getFullYear() %>"
+                            class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition">
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-xl transition flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Simpan Pencapaian
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Daftar Pencapaian -->
+        <div class="lg:col-span-3">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        Daftar Pencapaian
+                    </h2>
+                    <span class="text-xs font-mono text-slate-500"><%= pencapaianList.length %> data</span>
+                </div>
+
+                <% if (pencapaianList && pencapaianList.length > 0) { %>
+                <div class="divide-y divide-slate-800/60">
+                    <% pencapaianList.forEach(function(item, i) { %>
+                    <div class="flex items-start gap-4 px-6 py-4 hover:bg-slate-800/30 transition group">
+                        <!-- Tahun badge -->
+                        <div class="shrink-0 text-center">
+                            <div class="h-10 w-14 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center">
+                                <span class="text-xs font-black text-amber-400 font-mono"><%= item.tahun %></span>
+                            </div>
+                        </div>
+                        <!-- Info -->
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-white truncate"><%= item.namaEvent %></p>
+                            <div class="flex flex-wrap gap-1.5 mt-1.5">
+                                <% if (item.kategori) { %>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><%= item.kategori %></span>
+                                <% } %>
+                                <% if (item.karya) { %>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium text-slate-400 border border-slate-700"><%= item.karya %></span>
+                                <% } %>
+                            </div>
+                        </div>
+                        <!-- Hapus -->
+                        <form action="/admin/pencapaian/delete/<%= item._id %>" method="POST"
+                              onsubmit="return confirm('Hapus pencapaian ini?')"
+                              class="shrink-0 opacity-0 group-hover:opacity-100 transition">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button type="submit"
+                                class="p-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 hover:border-red-500/40 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                    <% }) %>
+                </div>
+                <% } else { %>
+                <div class="text-center py-16">
+                    <div class="h-12 w-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                    </div>
+                    <p class="text-slate-500 text-sm font-medium">Belum ada data pencapaian.</p>
+                    <p class="text-slate-700 text-xs font-mono mt-1">Tambahkan melalui form di kiri.</p>
+                </div>
+                <% } %>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,144 @@
+<%- include('partials/admin_header', { pageTitle: 'Sekretariat - Visi & Misi' }) %>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+
+<div class="min-h-screen bg-slate-950 py-10 px-4 md:px-6">
+<div class="max-w-4xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="h-9 w-9 bg-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-900/30">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-black text-white uppercase tracking-tight">Visi & Misi</h1>
+                <p class="text-slate-500 text-[10px] font-mono mt-0.5">Kelola visi dan misi organisasi</p>
+            </div>
+        </div>
+        <a href="/dashboard" class="flex items-center gap-2 text-slate-400 hover:text-white text-xs font-bold border border-slate-800 hover:border-slate-600 px-4 py-2 rounded-xl bg-slate-900/50 uppercase tracking-wider transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Kembali
+        </a>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+    <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <p class="text-emerald-400 text-xs font-bold">Visi & Misi berhasil disimpan.</p>
+    </div>
+    <% } %>
+
+    <form id="visi-form" action="/admin/sekretariat/visi-misi/save" method="POST" class="space-y-6">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="space-y-2">
+            <div class="flex items-center justify-between">
+                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500">Isi Visi & Misi <span class="text-red-500">*</span></label>
+                <span id="word-count" class="text-[10px] font-mono text-slate-600">0 kata</span>
+            </div>
+            <div class="rounded-xl overflow-hidden border border-slate-700 shadow-xl">
+                <textarea id="visi_editor"><%- typeof sekretariat !== 'undefined' && sekretariat ? sekretariat.visiMisi : '' %></textarea>
+                <input type="hidden" id="konten-hidden" name="visiMisi">
+            </div>
+            <p id="content-error" class="text-[10px] font-mono text-red-500 hidden">Konten tidak boleh kosong.</p>
+        </div>
+
+        <div class="flex items-start gap-3 px-4 py-3 bg-slate-900/50 border border-slate-800 rounded-xl">
+            <svg class="w-4 h-4 text-slate-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-slate-500 text-xs font-mono">Konten ini tampil di section <span class="text-violet-400">"Visi & Misi"</span> pada halaman <span class="text-violet-400">/sekretariat</span>.</p>
+        </div>
+
+        <div class="flex gap-4 pt-2">
+            <a href="/dashboard" class="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 text-xs font-bold uppercase tracking-widest rounded-xl transition text-center">
+                Batal
+            </a>
+            <button type="submit" id="btn-submit" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-lg shadow-violet-900/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Simpan Visi & Misi
+            </button>
+        </div>
+    </form>
+
+</div>
+</div>
+
+<style>
+    .ck.ck-editor__main .ck-editor__editable {
+        min-height: 300px;
+        max-height: 70vh;
+        overflow-y: auto;
+        background: #ffffff !important;
+        color: #1e293b !important;
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+        line-height: 1.8;
+        padding: 1rem;
+    }
+    @media (min-width: 640px) {
+        .ck.ck-editor__main .ck-editor__editable {
+            min-height: 350px;
+            padding: 2rem 2.5rem;
+        }
+    }
+    .ck.ck-toolbar { background: #f8fafc !important; border-bottom: 1px solid #e2e8f0 !important; padding: 6px 8px !important; }
+    .ck.ck-editor { border-radius: 0 !important; border: none !important; }
+    .ck.ck-editor__top .ck-sticky-panel .ck-toolbar { border-radius: 0 !important; }
+</style>
+
+<script>
+let editorInstance = null;
+
+ClassicEditor.create(document.querySelector('#visi_editor'), {
+    removePlugins: ['Autoformat', 'TextTransformation'],
+    simpleUpload: { uploadUrl: '/upload-image', withCredentials: true },
+    heading: {
+        options: [
+            { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+            { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+            { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+            { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+        ]
+    },
+    toolbar: {
+        items: ['heading', '|', 'bold', 'italic', 'underline', '|', 'link', 'bulletedList', 'numberedList', '|', 'blockQuote', '|', 'undo', 'redo'],
+        shouldNotGroupWhenFull: true
+    }
+}).then(editor => {
+    editorInstance = editor;
+    window._ckEditor = editor;
+    editor.model.document.on('change:data', () => {
+        const text  = editor.getData().replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        const words = text ? text.split(' ').length : 0;
+        document.getElementById('word-count').textContent = words + ' kata';
+    });
+    const initText = editor.getData().replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    document.getElementById('word-count').textContent = (initText ? initText.split(' ').length : 0) + ' kata';
+}).catch(err => {
+    console.error(err);
+    const el = document.querySelector('#visi_editor');
+    el.style.cssText = 'display:block;min-height:300px;width:100%;padding:1rem;background:#fff;color:#1e293b;';
+});
+
+document.getElementById('visi-form').addEventListener('submit', function(e) {
+    const data = editorInstance ? editorInstance.getData() : '';
+    if (!data.trim()) {
+        e.preventDefault();
+        document.getElementById('content-error').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('konten-hidden').value = data;
+});
+</script>
+
+<%- include('partials/footer') %>

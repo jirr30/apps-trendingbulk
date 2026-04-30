@@ -1,141 +1,566 @@
-<%- include('partials/header') %>
+<%- include('partials/admin_header') %>
 
-<main class="min-h-screen bg-slate-950 pt-12 pb-24 px-6">
-    <div class="max-w-7xl mx-auto">
-        
-        <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="h-3 w-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)] animate-pulse"></div>
-                    <h1 class="text-4xl font-black text-white tracking-tighter uppercase italic">Terminal Dashboard</h1>
+<% const _stats = (typeof stats !== 'undefined' && stats) ? stats : { templates:0, articles:0, berita:0, galeri:0, totalKonten:0, articlesThisMonth:0, beritaThisMonth:0 }; %>
+<% const _chart = (typeof chartData !== 'undefined' && chartData) ? chartData : []; %>
+
+<main class="min-h-screen bg-slate-950 pt-6 pb-24">
+<div class="max-w-7xl mx-auto px-4 md:px-6">
+
+    <!-- ===== PAGE HEADER ===== -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <p class="text-[10px] font-mono text-slate-600 uppercase tracking-[0.3em] mb-1">
+                <%= new Date().toLocaleDateString('id-ID', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) %>
+            </p>
+            <h1 class="text-2xl font-black text-white tracking-tight">
+                Selamat datang, <span class="text-blue-400"><%= userName %></span>
+            </h1>
+            <p class="text-slate-500 text-xs mt-1">Kelola konten dan pengaturan website Teater Saphalta</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="/admin/berita/add" class="flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold rounded-xl transition">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Berita
+            </a>
+            <a href="/admin/article/add" class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-xl transition shadow-lg shadow-blue-900/30">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Tulis Blog
+            </a>
+        </div>
+    </div>
+
+    <!-- ===== FLASH MESSAGES ===== -->
+    <% if (success) { %>
+    <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <p class="text-emerald-400 text-xs font-bold"><%= success %></p>
+    </div>
+    <% } %>
+    <% if (error) { %>
+    <div class="mb-6 flex items-center gap-3 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+        <svg class="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <p class="text-red-400 text-xs font-bold"><%= error %></p>
+    </div>
+    <% } %>
+
+    <!-- ===== STATS CARDS ===== -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+        <!-- Riwayat Pementasan -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group hover:border-blue-500/40 transition">
+            <div class="absolute top-0 right-0 h-20 w-20 bg-blue-600/5 rounded-full -translate-y-6 translate-x-6 group-hover:bg-blue-600/10 transition"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="h-8 w-8 bg-blue-600/10 border border-blue-500/20 rounded-xl flex items-center justify-center">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <a href="/upload" class="text-[9px] font-mono text-blue-400/60 hover:text-blue-400 transition uppercase tracking-wider">Kelola →</a>
                 </div>
-                <p class="text-slate-500 font-mono text-xs uppercase tracking-[0.3em]">
-                    Active Operator: <span class="text-blue-400 font-bold"><%= userName %></span> 
-                    <span class="mx-2 text-slate-800">|</span> 
-                    Node: <span class="text-slate-300">apps.trendingbulk.top</span>
-                </p>
-            </div>
-            
-            <div class="flex gap-4">
-                <a href="/upload" class="bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-xl border border-slate-800 transition-all flex items-center gap-2">
-                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    New Template
-                </a>
-                <a href="/admin/article/add" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-xl transition-all shadow-lg shadow-blue-900/20 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    Write Article
-                </a>
+                <p class="text-3xl font-black text-white"><%= _stats.templates %></p>
+                <p class="text-[10px] font-mono text-slate-500 mt-1">Riwayat Pementasan</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div class="bg-slate-900/40 border border-slate-800 p-6 rounded-[2rem]">
-                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Articles</p>
-                <h3 class="text-3xl font-black text-white"><%= articles.length %> <span class="text-blue-500 text-sm italic font-medium tracking-normal">Entries</span></h3>
-            </div>
-            <div class="bg-slate-900/40 border border-slate-800 p-6 rounded-[2rem]">
-                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Active Templates</p>
-                <h3 class="text-3xl font-black text-white"><%= templates.length %> <span class="text-emerald-500 text-sm italic font-medium tracking-normal">Assets</span></h3>
-            </div>
-            <div class="bg-slate-900/40 border border-slate-800 p-6 rounded-[2rem]">
-                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">System Status</p>
-                <div class="flex items-center gap-2 mt-2">
-                    <span class="px-2 py-1 bg-emerald-500/10 text-emerald-500 text-[9px] font-black rounded uppercase">Operational</span>
-                    <span class="px-2 py-1 bg-blue-500/10 text-blue-500 text-[9px] font-black rounded uppercase">v2.4-stable</span>
+        <!-- Blog / Naskah -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group hover:border-emerald-500/40 transition">
+            <div class="absolute top-0 right-0 h-20 w-20 bg-emerald-600/5 rounded-full -translate-y-6 translate-x-6 group-hover:bg-emerald-600/10 transition"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="h-8 w-8 bg-emerald-600/10 border border-emerald-500/20 rounded-xl flex items-center justify-center">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                    </div>
+                    <a href="/admin/article/add" class="text-[9px] font-mono text-emerald-400/60 hover:text-emerald-400 transition uppercase tracking-wider">Tulis →</a>
                 </div>
+                <p class="text-3xl font-black text-white"><%= _stats.articles %></p>
+                <p class="text-[10px] font-mono text-slate-500 mt-1">Blog & Naskah</p>
+                <% if (_stats.articlesThisMonth > 0) { %>
+                <div class="mt-2 flex items-center gap-1">
+                    <div class="h-1 w-1 rounded-full bg-emerald-500"></div>
+                    <span class="text-[9px] text-emerald-400 font-mono">+<%= _stats.articlesThisMonth %> bulan ini</span>
+                </div>
+                <% } %>
             </div>
         </div>
 
-        <section class="mb-16">
-            <div class="flex items-center gap-4 mb-6">
-                <h2 class="text-xl font-black text-white uppercase tracking-tighter italic">Knowledge Repository</h2>
-                <div class="h-[1px] flex-1 bg-slate-900"></div>
-            </div>
-
-            <div class="bg-slate-900/20 border border-slate-800 rounded-[2.5rem] overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-800 bg-slate-900/50">
-                            <th class="p-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Document Title</th>
-                            <th class="p-6 text-[10px] font-black text-slate-500 uppercase tracking-widest hidden md:table-cell">Author</th>
-                            <th class="p-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-800/50">
-                        <% articles.forEach(article => { %>
-                        <tr class="hover:bg-slate-800/20 transition-colors group">
-                            <td class="p-6">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-10 w-10 rounded-xl overflow-hidden bg-slate-800 border border-slate-700 shrink-0">
-                                        <img src="<%= article.thumbnail || '/images/default-doc.png' %>" class="h-full w-full object-cover">
-                                    </div>
-                                    <div>
-                                        <a href="/article/<%= article._id %>" class="text-slate-200 font-bold hover:text-blue-400 transition block leading-tight mb-1"><%= article.title %></a>
-                                        <span class="text-[9px] font-mono text-slate-600 uppercase tracking-tighter"><%= article.createdAt.toDateString() %></span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="p-6 hidden md:table-cell">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase italic">@<%= article.author ? article.author.username : 'admin' %></span>
-                            </td>
-                            <td class="p-6">
-                                <div class="flex items-center gap-3">
-                                    <a href="/admin/article/edit/<%= article._id %>" class="p-2 text-slate-500 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition" title="Edit Article">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </a>
-                                    <form action="/admin/article/delete/<%= article._id %>" method="POST" onsubmit="return confirm('Archive this document?');">
-                                        <button type="submit" class="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition" title="Delete">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        <% }) %>
-                        <% if (articles.length === 0) { %>
-                            <tr><td colspan="3" class="p-12 text-center text-slate-600 font-mono text-xs uppercase tracking-[0.3em]">No documentation found in this node.</td></tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section>
-            <div class="flex items-center gap-4 mb-6">
-                <h2 class="text-xl font-black text-white uppercase tracking-tighter italic">Asset Catalog</h2>
-                <div class="h-[1px] flex-1 bg-slate-900"></div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <% templates.forEach(template => { %>
-                <div class="bg-slate-900/40 border border-slate-800 rounded-[2rem] overflow-hidden group hover:border-blue-500/50 transition-all duration-500">
-                    <div class="aspect-video relative overflow-hidden">
-                        <img src="<%= template.imageUrl %>" class="w-full h-full object-cover transition duration-700 group-hover:scale-110 group-hover:rotate-2">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent opacity-60"></div>
+        <!-- Berita -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group hover:border-amber-500/40 transition">
+            <div class="absolute top-0 right-0 h-20 w-20 bg-amber-600/5 rounded-full -translate-y-6 translate-x-6 group-hover:bg-amber-600/10 transition"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="h-8 w-8 bg-amber-600/10 border border-amber-500/20 rounded-xl flex items-center justify-center">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 4v6h-6"/>
+                        </svg>
                     </div>
-                    <div class="p-6">
-                        <h4 class="text-slate-200 font-bold mb-1 truncate text-sm uppercase tracking-tight"><%= template.title %></h4>
-                        <p class="text-[10px] text-slate-500 mb-6 line-clamp-1"><%= template.description %></p>
-                        <div class="flex items-center justify-between border-t border-slate-800/50 pt-4">
-                            <div class="flex gap-2">
-                                <a href="/admin/template/edit/<%= template._id %>" class="text-slate-500 hover:text-blue-400 transition">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                </a>
-                                <form action="/delete/<%= template._id %>" method="POST" onsubmit="return confirm('Destroy asset?');">
-                                    <button type="submit" class="text-slate-500 hover:text-red-500 transition">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
-                                </form>
-                            </div>
-                            <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest italic">Core Asset</span>
-                        </div>
-                    </div>
+                    <a href="/admin/berita" class="text-[9px] font-mono text-amber-400/60 hover:text-amber-400 transition uppercase tracking-wider">Kelola →</a>
                 </div>
-                <% }) %>
+                <p class="text-3xl font-black text-white"><%= _stats.berita %></p>
+                <p class="text-[10px] font-mono text-slate-500 mt-1">Berita & Info</p>
+                <% if (_stats.beritaThisMonth > 0) { %>
+                <div class="mt-2 flex items-center gap-1">
+                    <div class="h-1 w-1 rounded-full bg-amber-500"></div>
+                    <span class="text-[9px] text-amber-400 font-mono">+<%= _stats.beritaThisMonth %> bulan ini</span>
+                </div>
+                <% } %>
             </div>
-        </section>
+        </div>
+
+        <!-- Galeri -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group hover:border-violet-500/40 transition">
+            <div class="absolute top-0 right-0 h-20 w-20 bg-violet-600/5 rounded-full -translate-y-6 translate-x-6 group-hover:bg-violet-600/10 transition"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="h-8 w-8 bg-violet-600/10 border border-violet-500/20 rounded-xl flex items-center justify-center">
+                        <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <a href="/admin/galeri" class="text-[9px] font-mono text-violet-400/60 hover:text-violet-400 transition uppercase tracking-wider">Kelola →</a>
+                </div>
+                <p class="text-3xl font-black text-white"><%= _stats.galeri %></p>
+                <p class="text-[10px] font-mono text-slate-500 mt-1">Foto & Video</p>
+            </div>
+        </div>
 
     </div>
+
+    <!-- ===== GRAFIK AKTIVITAS 6 BULAN ===== -->
+    <% if (_chart.length > 0) { %>
+    <%
+        const _maxVal = Math.max(1, ..._chart.map(function(c){ return c.articles + c.berita; }));
+    %>
+    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+                <div class="h-7 w-1 bg-blue-500 rounded-full"></div>
+                <div>
+                    <h2 class="text-sm font-black text-white">Aktivitas Konten</h2>
+                    <p class="text-[10px] font-mono text-slate-500 mt-0.5">6 bulan terakhir</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-1.5">
+                    <div class="h-2 w-2 rounded-full bg-emerald-500"></div>
+                    <span class="text-[10px] font-mono text-slate-500">Blog</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <div class="h-2 w-2 rounded-full bg-amber-500"></div>
+                    <span class="text-[10px] font-mono text-slate-500">Berita</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-end gap-3 h-40">
+            <% _chart.forEach(function(c) {
+                var total = c.articles + c.berita;
+                var articlePct = _maxVal > 0 ? Math.round((c.articles / _maxVal) * 100) : 0;
+                var beritaPct  = _maxVal > 0 ? Math.round((c.berita  / _maxVal) * 100) : 0;
+            %>
+            <div class="flex-1 flex flex-col items-center gap-1">
+                <span class="text-[9px] font-mono text-slate-600"><%= total > 0 ? total : '' %></span>
+                <div class="w-full flex flex-col-reverse gap-0.5" style="height:120px;">
+                    <div class="w-full rounded-t-lg bg-amber-500/80 transition-all duration-500" style="height:<%= beritaPct %>%;min-height:<%= c.berita > 0 ? '4px' : '0' %>;"></div>
+                    <div class="w-full rounded-t-lg bg-emerald-500/80 transition-all duration-500" style="height:<%= articlePct %>%;min-height:<%= c.articles > 0 ? '4px' : '0' %>;"></div>
+                </div>
+                <span class="text-[9px] font-mono text-slate-500"><%= c.label %></span>
+            </div>
+            <% }) %>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-800 grid grid-cols-3 gap-4">
+            <div class="text-center">
+                <p class="text-lg font-black text-white"><%= _stats.totalKonten %></p>
+                <p class="text-[9px] font-mono text-slate-600 uppercase tracking-wider">Total Konten</p>
+            </div>
+            <div class="text-center border-x border-slate-800">
+                <p class="text-lg font-black text-emerald-400">+<%= _stats.articlesThisMonth %></p>
+                <p class="text-[9px] font-mono text-slate-600 uppercase tracking-wider">Blog Bulan Ini</p>
+            </div>
+            <div class="text-center">
+                <p class="text-lg font-black text-amber-400">+<%= _stats.beritaThisMonth %></p>
+                <p class="text-[9px] font-mono text-slate-600 uppercase tracking-wider">Berita Bulan Ini</p>
+            </div>
+        </div>
+    </div>
+    <% } %>
+
+    <!-- ===== MAIN CONTENT GRID ===== -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+        <!-- KIRI: Recent Blog + Berita (2/3) -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Recent Blog -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <div class="h-7 w-1 bg-emerald-500 rounded-full"></div>
+                        <h2 class="text-sm font-black text-white">Blog & Naskah</h2>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono"><%= articles.length %></span>
+                    </div>
+                    <a href="/admin/article/add" class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        Tulis
+                    </a>
+                </div>
+                <div class="divide-y divide-slate-800/60">
+                    <% if (articles.length === 0) { %>
+                    <div class="px-6 py-10 text-center">
+                        <p class="text-slate-600 text-xs font-mono uppercase tracking-[0.2em]">Belum ada blog</p>
+                    </div>
+                    <% } %>
+                    <% articles.slice(0, 5).forEach(article => { %>
+                    <div class="flex items-center gap-4 px-6 py-4 hover:bg-slate-800/30 transition group">
+                        <div class="h-10 w-10 rounded-xl overflow-hidden bg-slate-800 border border-slate-700 shrink-0">
+                            <img src="<%= article.thumbnail || '/images/default-doc.png' %>" class="h-full w-full object-cover">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <a href="/article/<%= article._id %>" target="_blank" class="text-sm font-bold text-slate-200 hover:text-emerald-400 transition truncate block leading-tight"><%= article.title %></a>
+                            <div class="flex items-center gap-3 mt-0.5">
+                                <span class="text-[10px] font-mono text-slate-600">@<%= article.author ? article.author.username : 'admin' %></span>
+                                <span class="text-[10px] font-mono text-slate-700">·</span>
+                                <span class="text-[10px] font-mono text-slate-600"><%= article.createdAt.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) %></span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0">
+                            <a href="/admin/article/edit/<%= article._id %>" class="p-1.5 text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition" title="Edit">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </a>
+                            <form action="/admin/article/delete/<%= article._id %>" method="POST" onsubmit="return confirm('Hapus artikel ini?')">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <button type="submit" class="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition" title="Hapus">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+                <% if (articles.length > 5) { %>
+                <div class="px-6 py-3 border-t border-slate-800 text-center">
+                    <span class="text-[10px] font-mono text-slate-600">+ <%= articles.length - 5 %> artikel lainnya</span>
+                </div>
+                <% } %>
+            </div>
+
+            <!-- Recent Berita -->
+            <% const _recentBerita = (typeof recentBerita !== 'undefined' && recentBerita) ? recentBerita : []; %>
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <div class="h-7 w-1 bg-amber-500 rounded-full"></div>
+                        <h2 class="text-sm font-black text-white">Berita Terkini</h2>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono"><%= _recentBerita.length %></span>
+                    </div>
+                    <a href="/admin/berita/add" class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-amber-400 hover:text-amber-300 transition">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        Tambah
+                    </a>
+                </div>
+                <div class="divide-y divide-slate-800/60">
+                    <% if (_recentBerita.length === 0) { %>
+                    <div class="px-6 py-10 text-center">
+                        <p class="text-slate-600 text-xs font-mono uppercase tracking-[0.2em]">Belum ada berita</p>
+                    </div>
+                    <% } %>
+                    <% _recentBerita.forEach(b => { %>
+                    <div class="flex items-center gap-4 px-6 py-4 hover:bg-slate-800/30 transition group">
+                        <div class="h-10 w-10 rounded-xl overflow-hidden bg-slate-800 border border-slate-700 shrink-0">
+                            <% if (b.thumbnail) { %>
+                            <img src="<%= b.thumbnail %>" class="h-full w-full object-cover">
+                            <% } else { %>
+                            <div class="h-full w-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/></svg>
+                            </div>
+                            <% } %>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <a href="/berita/<%= b.slug || b._id %>" target="_blank" class="text-sm font-bold text-slate-200 hover:text-amber-400 transition truncate block leading-tight"><%= b.title %></a>
+                            <span class="text-[10px] font-mono text-slate-600"><%= b.createdAt.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) %></span>
+                        </div>
+                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0">
+                            <a href="/admin/berita/edit/<%= b._id %>" class="p-1.5 text-slate-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg transition" title="Edit">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </a>
+                            <a href="/admin/berita" class="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-lg transition" title="Semua Berita">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- KANAN: Site Identity + Quick Links (1/3) -->
+        <div class="space-y-6">
+
+            <!-- Site Identity -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="h-7 w-1 bg-blue-500 rounded-full"></div>
+                    <h2 class="text-sm font-black text-white">Site Identity</h2>
+                </div>
+
+                <!-- Logo Preview -->
+                <div class="flex items-center gap-4 mb-5 pb-5 border-b border-slate-800">
+                    <div class="h-14 w-14 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                        <% if (typeof siteSetting !== 'undefined' && siteSetting && siteSetting.logoUrl) { %>
+                        <img src="<%= siteSetting.logoUrl %>" alt="Logo" class="w-full h-full object-contain p-1">
+                        <% } else { %>
+                        <svg class="h-7 w-7 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <% } %>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-bold text-slate-300 mb-0.5">Logo Website</p>
+                        <% if (typeof siteSetting !== 'undefined' && siteSetting && siteSetting.logoUrl) { %>
+                        <p class="text-[10px] text-emerald-400 font-mono">Terpasang</p>
+                        <form action="/admin/site-settings/logo/delete" method="POST" onsubmit="return confirm('Hapus logo?')">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button type="submit" class="text-[10px] font-mono text-red-500 hover:text-red-400 transition mt-1">Hapus Logo</button>
+                        </form>
+                        <% } else { %>
+                        <p class="text-[10px] text-slate-600 font-mono">Menggunakan ikon default</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Upload Form -->
+                <form action="/admin/site-settings/logo" method="POST" enctype="multipart/form-data" class="space-y-3">
+                    <label id="logo-drop" class="flex items-center gap-3 w-full border-2 border-dashed border-slate-700 rounded-xl px-4 py-3.5 cursor-pointer hover:border-blue-500/60 hover:bg-blue-500/5 transition group">
+                        <input type="file" name="logo" id="logo-input" required accept="image/jpeg,image/jpg,image/png,image/webp,image/svg+xml" class="hidden">
+                        <div id="logo-placeholder" class="flex items-center gap-3 w-full">
+                            <div class="h-8 w-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-slate-600 group-hover:text-blue-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium">Pilih file logo baru</p>
+                                <p class="text-[10px] text-slate-600 font-mono">PNG · JPG · WEBP · SVG · Max 2MB</p>
+                            </div>
+                        </div>
+                        <div id="logo-preview-wrap" class="hidden items-center gap-3 w-full">
+                            <img id="logo-preview-img" class="h-10 w-10 object-contain rounded-lg border border-slate-700 bg-slate-800 p-1 shrink-0">
+                            <div>
+                                <p id="logo-file-name" class="text-xs text-blue-400 font-mono truncate max-w-[150px]"></p>
+                                <p id="logo-file-size" class="text-[10px] text-slate-600"></p>
+                            </div>
+                        </div>
+                    </label>
+                    <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Simpan Logo
+                    </button>
+                </form>
+            </div>
+
+            <!-- Quick Navigation -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="h-7 w-1 bg-violet-500 rounded-full"></div>
+                    <h2 class="text-sm font-black text-white">Menu Cepat</h2>
+                </div>
+                <div class="space-y-1.5">
+                    <a href="/upload" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 transition group">
+                        <div class="h-7 w-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400 group-hover:text-white transition">Riwayat Pementasan</span>
+                    </a>
+                    <a href="/admin/sejarah" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 transition group">
+                        <div class="h-7 w-7 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400 group-hover:text-white transition">Sejarah Kami</span>
+                    </a>
+                    <a href="/admin/pencapaian" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 transition group">
+                        <div class="h-7 w-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400 group-hover:text-white transition">Pencapaian Kami</span>
+                    </a>
+                    <a href="/admin/galeri" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 transition group">
+                        <div class="h-7 w-7 rounded-lg bg-slate-700/50 border border-slate-700 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400 group-hover:text-white transition">Galeri Foto</span>
+                    </a>
+                    <a href="/admin/seo-settings" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 transition group">
+                        <div class="h-7 w-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400 group-hover:text-white transition">SEO & Iklan</span>
+                    </a>
+                    <a href="/" target="_blank" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 transition group">
+                        <div class="h-7 w-7 rounded-lg bg-slate-700/50 border border-slate-700 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400 group-hover:text-white transition">Lihat Website</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== PROFILE CATALOG ===== -->
+    <div class="mb-8">
+        <div class="flex items-center gap-3 mb-5">
+            <div class="h-9 w-1 bg-blue-500 rounded-full"></div>
+            <h2 class="text-sm font-black text-white">Riwayat Pementasan</h2>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono"><%= templates.length %></span>
+            <div class="flex-1"></div>
+            <a href="/upload" class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 transition">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Tambah
+            </a>
+        </div>
+
+        <% if (templates.length === 0) { %>
+        <div class="bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl py-12 text-center">
+            <p class="text-slate-600 text-xs font-mono uppercase tracking-[0.2em]">Belum ada data pementasan</p>
+            <a href="/upload" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Tambah Sekarang
+            </a>
+        </div>
+        <% } else { %>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <% templates.forEach(template => { %>
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden group hover:border-blue-500/40 transition-all duration-300">
+                <div class="aspect-video relative overflow-hidden">
+                    <img src="<%= template.imageUrl %>" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                </div>
+                <div class="p-3">
+                    <h4 class="text-xs text-slate-200 font-bold truncate mb-0.5"><%= template.title %></h4>
+                    <p class="text-[10px] text-slate-600 font-mono truncate mb-2"><%= template.description || '—' %></p>
+                    <% if (template.labelKarya || template.labelProduksi) { %>
+                    <div class="flex flex-wrap gap-1 mb-3">
+                        <% if (template.labelKarya) { %>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-blue-500/15 text-blue-400 border border-blue-500/20 truncate max-w-full"><%= template.labelKarya %></span>
+                        <% } %>
+                        <% if (template.labelProduksi) { %>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-violet-500/15 text-violet-400 border border-violet-500/20 truncate max-w-full"><%= template.labelProduksi %></span>
+                        <% } %>
+                    </div>
+                    <% } else { %>
+                    <div class="mb-3"></div>
+                    <% } %>
+                    <div class="flex items-center justify-between">
+                        <a href="/admin/template/edit/<%= template._id %>" class="text-[10px] text-blue-400 hover:text-blue-300 font-bold transition">Edit</a>
+                        <form action="/delete/<%= template._id %>" method="POST" onsubmit="return confirm('Hapus data ini?')">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button type="submit" class="text-[10px] text-slate-600 hover:text-red-400 font-bold transition">Hapus</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <% }) %>
+        </div>
+        <% } %>
+    </div>
+
+    <!-- ===== SOCIAL MEDIA ===== -->
+    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="h-9 w-1 bg-pink-500 rounded-full"></div>
+            <h2 class="text-sm font-black text-white">Social Media</h2>
+        </div>
+        <form action="/admin/social-media/update" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+                <div>
+                    <label class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <svg class="w-3.5 h-3.5 text-pink-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        Instagram
+                    </label>
+                    <input type="url" name="instagram" value="<%= socialMedia && socialMedia.instagram ? socialMedia.instagram : '' %>" placeholder="https://instagram.com/..." class="w-full bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-4 py-2.5 focus:outline-none focus:border-pink-500 transition placeholder-slate-600">
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <svg class="w-3.5 h-3.5 text-sky-400" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        Twitter / X
+                    </label>
+                    <input type="url" name="twitter" value="<%= socialMedia && socialMedia.twitter ? socialMedia.twitter : '' %>" placeholder="https://x.com/..." class="w-full bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500 transition placeholder-slate-600">
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <svg class="w-3.5 h-3.5 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        Facebook
+                    </label>
+                    <input type="url" name="facebook" value="<%= socialMedia && socialMedia.facebook ? socialMedia.facebook : '' %>" placeholder="https://facebook.com/..." class="w-full bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500 transition placeholder-slate-600">
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <svg class="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        YouTube
+                    </label>
+                    <input type="url" name="youtube" value="<%= socialMedia && socialMedia.youtube ? socialMedia.youtube : '' %>" placeholder="https://youtube.com/..." class="w-full bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-4 py-2.5 focus:outline-none focus:border-red-500 transition placeholder-slate-600">
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <svg class="w-3.5 h-3.5 text-slate-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+                        TikTok
+                    </label>
+                    <input type="url" name="tiktok" value="<%= socialMedia && socialMedia.tiktok ? socialMedia.tiktok : '' %>" placeholder="https://tiktok.com/@..." class="w-full bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-4 py-2.5 focus:outline-none focus:border-slate-400 transition placeholder-slate-600">
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        WhatsApp
+                    </label>
+                    <input type="url" name="whatsapp" value="<%= socialMedia && socialMedia.whatsapp ? socialMedia.whatsapp : '' %>" placeholder="https://wa.me/62..." class="w-full bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-4 py-2.5 focus:outline-none focus:border-green-500 transition placeholder-slate-600">
+                </div>
+
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-lg shadow-blue-900/20">
+                    Simpan Social Media
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
 </main>
+
+<script>
+(function() {
+    const logoInput       = document.getElementById('logo-input');
+    const logoPlaceholder = document.getElementById('logo-placeholder');
+    const logoPreviewWrap = document.getElementById('logo-preview-wrap');
+    const logoPreviewImg  = document.getElementById('logo-preview-img');
+    const logoFileName    = document.getElementById('logo-file-name');
+    const logoFileSize    = document.getElementById('logo-file-size');
+    if (!logoInput) return;
+    logoInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            logoPreviewImg.src = e.target.result;
+            logoFileName.textContent = file.name;
+            logoFileSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+            logoPlaceholder.classList.add('hidden');
+            logoPreviewWrap.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+})();
+</script>
 
 <%- include('partials/footer') %>

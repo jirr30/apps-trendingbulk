@@ -1,4 +1,8 @@
 const Article = require('../models/Article');
+const JadwalLatihan = require('../models/JadwalLatihan');
+const MateriLatihan = require('../models/MateriLatihan');
+const MateriTeater = require('../models/MateriTeater');
+const Gallery = require('../models/Gallery');
 const fs = require('fs');
 const path = require('path');
 const sanitizeHtml = require('sanitize-html');
@@ -55,11 +59,18 @@ const normalizeYoutube = (url) => {
 
 
 // 1. Simpan Artikel
+function generateSlugArticle(title) {
+    return title.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 80);
+}
+
 exports.saveArticle = async (req, res) => {
     try {
-        const { title, content, videoUrl } = req.body;
-
-        // Bersihkan konten dari script berbahaya tapi tetap izinkan tag penting
+        const { title, content, videoUrl, karya, slug, metaTitle, metaDescription, metaKeywords, category, tags } = req.body;
         const cleanContent = sanitizeHtml(content, sanitizeOptions);
 
         const newArticle = new Article({
@@ -67,7 +78,14 @@ exports.saveArticle = async (req, res) => {
             content: cleanContent,
             thumbnail: req.file ? `/uploads/${req.file.filename}` : '',
             videoUrl: normalizeYoutube(videoUrl),
-            author: req.session.userId
+            karya: karya || '',
+            author: req.session.userId,
+            slug: (slug || '').trim() || generateSlugArticle(title),
+            metaTitle:       (metaTitle || '').trim(),
+            metaDescription: (metaDescription || '').trim(),
+            metaKeywords:    (metaKeywords || '').trim(),
+            category:        (category || '').trim(),
+            tags:            (tags || '').trim()
         });
 
         await newArticle.save();
@@ -78,14 +96,15 @@ exports.saveArticle = async (req, res) => {
     }
 };
 
-// 2. List Publik (Dengan Fitur Search)
+// 2. List Publik (Dengan Fitur Search + Pagination)
 exports.getPublicArticles = async (req, res) => {
     try {
-        // Ambil query pencarian dari URL (contoh: /articles?q=mikrotik)
         const searchQuery = req.query.q || '';
-        let query = {};
+        const LIMIT = 9;
+        const currentPage = Math.max(1, parseInt(req.query.page) || 1);
+        const skip = (currentPage - 1) * LIMIT;
 
-        // Jika ada pencarian, gunakan Regex untuk mencari di judul atau konten (case-insensitive)
+        let query = {};
         if (searchQuery) {
             query = {
                 $or: [
@@ -95,16 +114,36 @@ exports.getPublicArticles = async (req, res) => {
             };
         }
 
-        // Cari berdasarkan query dan urutkan dari yang terbaru
-        const articles = await Article.find(query)
-            .populate('author', 'username')
-            .sort({ createdAt: -1 });
+        const URUTAN_HARI = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
-        res.render('public_articles', { 
-            articles, 
-            page: 'articles', 
+        const [totalArticles, articles, jadwalList, materiLatihan, materiTeater, heroPhotos] = await Promise.all([
+            Article.countDocuments(query),
+            Article.find(query).populate('author', 'username').sort({ createdAt: -1 }).skip(skip).limit(LIMIT),
+            JadwalLatihan.find().sort({ hari: 1 }),
+            MateriLatihan.find().sort({ kategori: 1, nama: 1 }),
+            MateriTeater.find().sort({ createdAt: -1 }),
+            Gallery.find({ type: 'foto' }).sort({ createdAt: -1 }).limit(10)
+        ]);
+
+        const totalPages = Math.ceil(totalArticles / LIMIT);
+
+        const jadwalGrouped = {};
+        URUTAN_HARI.forEach(h => { jadwalGrouped[h] = []; });
+        jadwalList.forEach(j => { if (jadwalGrouped[j.hari]) jadwalGrouped[j.hari].push(j); });
+
+        res.render('public_articles', {
+            articles,
+            heroPhotos,
+            page: 'articles',
             userId: req.session.userId || null,
-            searchQuery // Lempar kembali ke view agar teks di kolom pencarian tidak hilang
+            searchQuery,
+            jadwalGrouped,
+            hariList: URUTAN_HARI,
+            materiLatihan,
+            materiTeater,
+            currentPage,
+            totalPages,
+            totalArticles
         });
     } catch (error) {
         console.error("Fetch Error:", error);
@@ -135,7 +174,7 @@ exports.getEditArticle = async (req, res) => {
         if (!article) return res.status(404).send("Data tidak ditemukan.");
 
         // Proteksi: Hanya owner atau admin yang bisa edit
-        if (article.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin') {
+        if (article.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin' && req.session.role !== 'superadmin') {
             return res.status(403).send("Akses Ditolak: Anda tidak memiliki izin mengedit artikel ini.");
         }
 
@@ -149,15 +188,22 @@ exports.getEditArticle = async (req, res) => {
 exports.updateArticle = async (req, res) => {
     try {
         const article = await Article.findById(req.params.id);
-        if (!article || (article.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin')) {
+        if (!article || (article.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin' && req.session.role !== 'superadmin')) {
             return res.status(403).send("Update Ditolak!");
         }
 
-        const { title, content, videoUrl } = req.body;
+        const { title, content, videoUrl, karya, slug, metaTitle, metaDescription, metaKeywords, category, tags } = req.body;
         const updateData = {
             title,
             content: sanitizeHtml(content, sanitizeOptions),
-            videoUrl: normalizeYoutube(videoUrl)
+            videoUrl: normalizeYoutube(videoUrl),
+            karya: karya || '',
+            slug: (slug || '').trim() || generateSlugArticle(title),
+            metaTitle:       (metaTitle || '').trim(),
+            metaDescription: (metaDescription || '').trim(),
+            metaKeywords:    (metaKeywords || '').trim(),
+            category:        (category || '').trim(),
+            tags:            (tags || '').trim()
         };
 
         if (req.file) {
@@ -183,7 +229,7 @@ exports.updateArticle = async (req, res) => {
 exports.deleteArticle = async (req, res) => {
     try {
         const article = await Article.findById(req.params.id);
-        if (!article || (article.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin')) {
+        if (!article || (article.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin' && req.session.role !== 'superadmin')) {
             return res.status(403).send("Hapus Ditolak!");
         }
 

@@ -1,19 +1,60 @@
 const Template = require('../models/Template');
 const Article = require('../models/Article');
+const Gallery = require('../models/Gallery');
+const Sejarah = require('../models/Sejarah');
+const Pencapaian = require('../models/Pencapaian');
+const Berita = require('../models/Berita');
 const fs = require('fs');
 const path = require('path');
 
 /**
- * 1. TAMPILAN PUBLIK (HOME)
+ * 0. HALAMAN PROFILE (semua templates)
+ */
+exports.getProfilePage = async (req, res) => {
+    try {
+        const [templates, heroPhotos, sejarah, pencapaianList] = await Promise.all([
+            Template.find().populate('author', 'username').sort({ createdAt: -1 }),
+            Gallery.find({ type: 'foto' }).sort({ createdAt: -1 }).limit(10),
+            Sejarah.findOne(),
+            Pencapaian.find().sort({ tahun: -1, createdAt: -1 })
+        ]);
+        res.render('public_home', {
+            templates,
+            heroPhotos,
+            sejarah,
+            pencapaianList,
+            page: 'templates',
+            userId: req.session.userId
+        });
+    } catch (error) {
+        console.error("Error pada Profile Page:", error);
+        res.status(500).send("Terjadi kesalahan pada server.");
+    }
+};
+
+/**
+ * 1. TAMPILAN PUBLIK (HOME / DASHBOARD)
  */
 exports.getPublicData = async (req, res) => {
     try {
-        const data = await Template.find()
-            .populate('author', 'username')
-            .sort({ createdAt: -1 });
-        res.render('public_home', {
-            templates: data,
-            page: 'templates',
+        const [templates, articles, heroPhotos, sejarah, pencapaianList, beritaList, galeriList] = await Promise.all([
+            Template.find().populate('author', 'username').sort({ createdAt: -1 }).limit(4),
+            Article.find().populate('author', 'username').sort({ createdAt: -1 }).limit(4),
+            Gallery.find({ type: 'foto' }).sort({ createdAt: -1 }).limit(10),
+            Sejarah.findOne(),
+            Pencapaian.find().sort({ tahun: -1, createdAt: -1 }).limit(3),
+            Berita.find().populate('author', 'username').sort({ createdAt: -1 }).limit(3),
+            Gallery.find({ type: 'foto' }).sort({ createdAt: -1 }).limit(8)
+        ]);
+        res.render('public_dashboard', {
+            templates,
+            articles,
+            heroPhotos,
+            sejarah,
+            pencapaianList,
+            beritaList,
+            galeriList,
+            page: 'home',
             userId: req.session.userId
         });
     } catch (error) {
@@ -33,24 +74,63 @@ exports.getAllData = async (req, res) => {
 
         if (!userId) return res.redirect('/login');
 
-        // Filter: Admin lihat semua, User lihat milik sendiri
+        // Filter: Admin & Superadmin lihat semua, User lihat milik sendiri
         let filter = { author: userId };
-        if (userRole === 'admin') {
+        if (userRole === 'admin' || userRole === 'superadmin') {
             filter = {};
         }
 
-        const [templates, articles] = await Promise.all([
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // 6 bulan ke belakang untuk chart
+        const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+
+        const [templates, articles, beritaAll, galeriCount, beritaTotal,
+               recentArticlesChart, recentBeritaChart] = await Promise.all([
             Template.find(filter).populate('author', 'username').sort({ createdAt: -1 }),
-            Article.find(filter).populate('author', 'username').sort({ createdAt: -1 })
+            Article.find(filter).populate('author', 'username').sort({ createdAt: -1 }),
+            Berita.find({}).sort({ createdAt: -1 }).limit(5),
+            Gallery.countDocuments(),
+            Berita.countDocuments(),
+            Article.find({ ...filter, createdAt: { $gte: sixMonthsAgo } }).select('createdAt'),
+            Berita.find({ createdAt: { $gte: sixMonthsAgo } }).select('createdAt')
         ]);
 
-        // Merender index.ejs sesuai struktur folder views Anda
+        // Build chart data 6 bulan
+        const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+        const chartData = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const y = d.getFullYear(), m = d.getMonth();
+            chartData.push({
+                label: BULAN[m],
+                articles: recentArticlesChart.filter(a => a.createdAt.getFullYear() === y && a.createdAt.getMonth() === m).length,
+                berita: recentBeritaChart.filter(b => b.createdAt.getFullYear() === y && b.createdAt.getMonth() === m).length
+            });
+        }
+
+        const stats = {
+            templates: templates.length,
+            articles: articles.length,
+            berita: beritaTotal,
+            galeri: galeriCount,
+            totalKonten: templates.length + articles.length + beritaTotal,
+            articlesThisMonth: articles.filter(a => a.createdAt >= startOfMonth).length,
+            beritaThisMonth: recentBeritaChart.filter(b => b.createdAt >= startOfMonth).length,
+        };
+
         res.render('index', {
-            templates: templates,
-            articles: articles,
+            templates,
+            articles,
+            recentBerita: beritaAll,
+            stats,
+            chartData,
             userName: req.session.userName,
             role: userRole,
-            userId: userId
+            userId: userId,
+            success: req.query.success || null,
+            error: req.query.error || null
         });
     } catch (error) {
         console.error("Error pada Dashboard View:", error);
@@ -63,13 +143,15 @@ exports.getAllData = async (req, res) => {
  */
 exports.uploadData = async (req, res) => {
     try {
-        const { title, description } = req.body;
+        const { title, description, labelKarya, labelProduksi } = req.body;
         if (!req.file) return res.status(400).send("Gambar wajib diunggah.");
 
         const newTemplate = new Template({
             title,
             description,
             imageUrl: `/uploads/${req.file.filename}`,
+            labelKarya: labelKarya || '',
+            labelProduksi: labelProduksi || '',
             author: req.session.userId
         });
 
@@ -89,7 +171,7 @@ exports.getEditTemplate = async (req, res) => {
         const item = await Template.findById(req.params.id);
         
         // Proteksi: Cek kepemilikan atau role admin
-        if (!item || (item.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin')) {
+        if (!item || (item.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin' && req.session.role !== 'superadmin')) {
             return res.status(403).send("Akses Ditolak: Anda tidak memiliki izin.");
         }
 
@@ -106,12 +188,20 @@ exports.updateTemplate = async (req, res) => {
     try {
         const item = await Template.findById(req.params.id);
         
-        if (!item || (item.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin')) {
+        if (!item || (item.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin' && req.session.role !== 'superadmin')) {
             return res.status(403).send("Update Ditolak!");
         }
 
-        const { title, description } = req.body;
-        const updateData = { title, description };
+        const { title, description, labelKarya, labelProduksi, metaTitle, metaDescription, metaKeywords, slug } = req.body;
+        const updateData = {
+            title, description,
+            labelKarya:      labelKarya      || '',
+            labelProduksi:   labelProduksi   || '',
+            metaTitle:       (metaTitle       || '').trim(),
+            metaDescription: (metaDescription || '').trim(),
+            metaKeywords:    (metaKeywords    || '').trim(),
+            slug:            (slug            || '').trim() || title.toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').substring(0,80)
+        };
 
         if (req.file) {
             // Hapus file lama jika ada upload baru
@@ -139,7 +229,7 @@ exports.deleteData = async (req, res) => {
     try {
         const item = await Template.findById(req.params.id);
         
-        if (!item || (item.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin')) {
+        if (!item || (item.author.toString() !== req.session.userId.toString() && req.session.role !== 'admin' && req.session.role !== 'superadmin')) {
             return res.status(403).send("Hapus Ditolak!");
         }
 

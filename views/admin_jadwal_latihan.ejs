@@ -1,0 +1,303 @@
+<%- include('partials/admin_header', { pageTitle: pageTitle }) %>
+
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-8">
+
+    <!-- Page Header -->
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-black uppercase tracking-tighter text-white">Jadwal Latihan</h1>
+            <p class="text-slate-500 text-xs font-mono mt-1">Kelola jadwal latihan mingguan</p>
+        </div>
+        <a href="/admin/jadwal-latihan/add"
+            class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-lg shadow-blue-900/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Tambah Jadwal
+        </a>
+    </div>
+
+    <!-- Alert -->
+    <% if (success) { %>
+    <div class="mb-6 px-4 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-mono">
+        ✓ <%= success %>
+    </div>
+    <% } %>
+    <% if (error) { %>
+    <div class="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-mono">
+        ✗ <%= error %>
+    </div>
+    <% } %>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <p class="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1">Total Jadwal</p>
+            <p class="text-2xl font-black text-white"><%= jadwal.length %></p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <p class="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1">Hari Aktif</p>
+            <p class="text-2xl font-black text-white"><%= hariList.filter(h => grouped[h].length > 0).length %></p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <p class="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1">Pelatih</p>
+            <p class="text-2xl font-black text-white"><%= [...new Set(jadwal.map(j => j.pelatih))].length %></p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <p class="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1">Lokasi</p>
+            <p class="text-2xl font-black text-white"><%= [...new Set(jadwal.map(j => j.tempat))].length %></p>
+        </div>
+    </div>
+
+    <!-- Jadwal per Hari -->
+    <% if (jadwal.length === 0) { %>
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-16 text-center">
+        <p class="text-5xl mb-4">📅</p>
+        <p class="text-slate-400 font-bold text-sm">Belum ada jadwal latihan</p>
+        <p class="text-slate-600 text-xs font-mono mt-1">Klik tombol "Tambah Jadwal" untuk memulai</p>
+    </div>
+    <% } else { %>
+    <div class="space-y-6">
+        <% hariList.forEach(hari => { %>
+        <% if (grouped[hari] && grouped[hari].length > 0) { %>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <!-- Hari Header -->
+            <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
+                    <h2 class="text-sm font-black uppercase tracking-widest text-white"><%= hari %></h2>
+                    <span class="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded-lg border border-slate-700">
+                        <%= grouped[hari].length %> sesi
+                    </span>
+                </div>
+            </div>
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-slate-800">
+                            <th class="text-left px-6 py-3 text-[10px] font-mono uppercase tracking-widest text-slate-500">Waktu</th>
+                            <th class="text-left px-6 py-3 text-[10px] font-mono uppercase tracking-widest text-slate-500">Materi</th>
+                            <th class="text-left px-6 py-3 text-[10px] font-mono uppercase tracking-widest text-slate-500">Pelatih</th>
+                            <th class="text-left px-6 py-3 text-[10px] font-mono uppercase tracking-widest text-slate-500">Tempat</th>
+                            <th class="text-left px-6 py-3 text-[10px] font-mono uppercase tracking-widest text-slate-500">Keterangan</th>
+                            <th class="px-6 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/50">
+                        <% grouped[hari].sort((a, b) => a.waktu_mulai.localeCompare(b.waktu_mulai)).forEach(item => { %>
+                        <tr class="hover:bg-slate-800/30 transition group">
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-mono font-bold text-blue-400">
+                                    <%= item.waktu_mulai %> – <%= item.waktu_selesai %>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-bold text-slate-200"><%= item.materi %></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs text-slate-400"><%= item.pelatih %></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs text-slate-400"><%= item.tempat %></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs text-slate-500 italic"><%= item.keterangan || '-' %></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition justify-end">
+                                    <a href="/admin/jadwal-latihan/<%= item._id %>/edit"
+                                        class="p-1.5 rounded-lg text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 transition">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </a>
+                                    <form action="/admin/jadwal-latihan/delete/<%= item._id %>" method="POST"
+                                          onsubmit="return confirm('Hapus jadwal ini?')">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <button type="submit"
+                                            class="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <% } %>
+        <% }) %>
+    </div>
+    <% } %>
+</div>
+
+<!-- MODAL TAMBAH -->
+<div id="modal-tambah" class="fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-sm" style="display:none">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-800">
+            <h3 class="text-sm font-black uppercase tracking-widest text-white">Tambah Jadwal Latihan</h3>
+            <button onclick="closeModal()" class="text-slate-500 hover:text-white transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <form action="/admin/jadwal-latihan/save" method="POST" class="px-6 py-6 space-y-4">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Hari <span class="text-red-500">*</span></label>
+                    <select name="hari" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-blue-500/60 transition">
+                        <% ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].forEach(h => { %>
+                        <option value="<%= h %>"><%= h %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Pelatih <span class="text-red-500">*</span></label>
+                    <input type="text" name="pelatih" required placeholder="Nama pelatih..."
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/60 transition">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Waktu Mulai <span class="text-red-500">*</span></label>
+                    <input type="time" name="waktu_mulai" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-blue-500/60 transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Waktu Selesai <span class="text-red-500">*</span></label>
+                    <input type="time" name="waktu_selesai" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-blue-500/60 transition">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Materi <span class="text-red-500">*</span></label>
+                <input type="text" name="materi" required placeholder="Contoh: Teknik Dasar, Sparring, Fisik..."
+                    class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/60 transition">
+            </div>
+            <div>
+                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Tempat <span class="text-red-500">*</span></label>
+                <input type="text" name="tempat" required placeholder="Nama lokasi latihan..."
+                    class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/60 transition">
+            </div>
+            <div>
+                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Keterangan</label>
+                <textarea name="keterangan" rows="2" placeholder="Catatan tambahan (opsional)..."
+                    class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/60 transition resize-none"></textarea>
+            </div>
+            <button type="submit"
+                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-lg shadow-blue-900/20">
+                Simpan Jadwal
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL EDIT -->
+<div id="modal-edit" class="fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-sm" style="display:none">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-800">
+            <h3 class="text-sm font-black uppercase tracking-widest text-white">Edit Jadwal Latihan</h3>
+            <button onclick="closeEditModal()" class="text-slate-500 hover:text-white transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <form id="form-edit" action="" method="POST" class="px-6 py-6 space-y-4">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Hari <span class="text-red-500">*</span></label>
+                    <select id="edit-hari" name="hari" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-blue-500/60 transition">
+                        <% ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].forEach(h => { %>
+                        <option value="<%= h %>"><%= h %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Pelatih <span class="text-red-500">*</span></label>
+                    <input type="text" id="edit-pelatih" name="pelatih" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/60 transition">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Waktu Mulai <span class="text-red-500">*</span></label>
+                    <input type="time" id="edit-waktu-mulai" name="waktu_mulai" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-blue-500/60 transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Waktu Selesai <span class="text-red-500">*</span></label>
+                    <input type="time" id="edit-waktu-selesai" name="waktu_selesai" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-blue-500/60 transition">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Materi <span class="text-red-500">*</span></label>
+                <input type="text" id="edit-materi" name="materi" required
+                    class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/60 transition">
+            </div>
+            <div>
+                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Tempat <span class="text-red-500">*</span></label>
+                <input type="text" id="edit-tempat" name="tempat" required
+                    class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/60 transition">
+            </div>
+            <div>
+                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Keterangan</label>
+                <textarea id="edit-keterangan" name="keterangan" rows="2"
+                    class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/60 transition resize-none"></textarea>
+            </div>
+            <button type="submit"
+                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-lg shadow-blue-900/20">
+                Perbarui Jadwal
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('modal-tambah').style.display = 'flex';
+    }
+    function closeModal() {
+        document.getElementById('modal-tambah').style.display = 'none';
+    }
+    function closeEditModal() {
+        document.getElementById('modal-edit').style.display = 'none';
+    }
+    async function openEditModal(id) {
+        try {
+            const res = await fetch('/admin/jadwal-latihan/' + id + '/json');
+            const data = await res.json();
+            document.getElementById('form-edit').action = '/admin/jadwal-latihan/update/' + id;
+            document.getElementById('edit-hari').value = data.hari;
+            document.getElementById('edit-waktu-mulai').value = data.waktu_mulai;
+            document.getElementById('edit-waktu-selesai').value = data.waktu_selesai;
+            document.getElementById('edit-materi').value = data.materi;
+            document.getElementById('edit-pelatih').value = data.pelatih;
+            document.getElementById('edit-tempat').value = data.tempat;
+            document.getElementById('edit-keterangan').value = data.keterangan || '';
+            document.getElementById('modal-edit').style.display = 'flex';
+        } catch(e) {
+            alert('Gagal memuat data jadwal.');
+        }
+    }
+    // Tutup modal klik di luar
+    ['modal-tambah', 'modal-edit'].forEach(id => {
+        document.getElementById(id).addEventListener('click', function(e) {
+            if (e.target === this) this.style.display = 'none';
+        });
+    });
+</script>
+
+</body>
+</html>

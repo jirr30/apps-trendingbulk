@@ -16,14 +16,30 @@ const TemplateSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Path gambar wajib ada']
     },
-    
+    labelKarya: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    labelProduksi: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+
+    // SEO Fields
+    metaTitle:       { type: String, trim: true, default: '' },
+    metaDescription: { type: String, trim: true, default: '' },
+    metaKeywords:    { type: String, trim: true, default: '' },
+    slug:            { type: String, trim: true, default: '' },
+
     // RELASI MULTI-USER (Kepemilikan Aset)
     author: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Merujuk ke model User
+        ref: 'User',
         required: true
     }
-}, { 
+}, {
     // Otomatis membuat field createdAt dan updatedAt secara standar
     timestamps: true 
 });

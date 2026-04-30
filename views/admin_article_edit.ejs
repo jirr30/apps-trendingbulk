@@ -1,110 +1,334 @@
-<%- include('partials/header') %>
+<%- include('partials/admin_header', { pageTitle: 'Edit Naskah' }) %>
 
 <script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
 
-<div class="min-h-screen bg-slate-950 py-12 px-6">
-    <div class="max-w-5xl mx-auto">
-        
-        <div class="mb-8 flex justify-between items-end">
-            <div>
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.8)]"></div>
-                    <h2 class="text-3xl font-black text-white tracking-tighter italic uppercase">Edit Article</h2>
-                </div>
-                <p class="text-emerald-500/80 font-mono text-[10px] uppercase tracking-[0.3em] italic">NOC CORE: Update Documentation Mode</p>
+<div class="min-h-screen bg-slate-950 py-10 px-4 md:px-6">
+<div class="max-w-5xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="h-9 w-9 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-900/30">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
             </div>
-            <a href="/dashboard" class="text-slate-400 hover:text-white text-[10px] font-mono transition border border-slate-800 px-4 py-2 rounded-xl bg-slate-900/50 uppercase tracking-widest hover:border-emerald-500">
-                [ Cancel_Changes ]
-            </a>
+            <div>
+                <h1 class="text-xl font-black text-white uppercase tracking-tight">Edit Naskah</h1>
+                <p class="text-slate-500 text-[10px] font-mono mt-0.5 truncate max-w-xs"><%= item.title %></p>
+            </div>
+        </div>
+        <a href="/dashboard" class="flex items-center gap-2 text-slate-400 hover:text-white text-xs font-bold border border-slate-800 hover:border-slate-600 px-4 py-2 rounded-xl bg-slate-900/50 uppercase tracking-wider transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Batal
+        </a>
+    </div>
+
+    <form id="edit-form" action="/admin/article/update/<%= item._id %>" method="POST" enctype="multipart/form-data" class="space-y-6">
+
+        <!-- Judul & Karya -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="space-y-2">
+                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500">Judul Naskah <span class="text-red-500">*</span></label>
+                <input type="text" name="title" id="input-title" value="<%= item.title %>" required
+                    class="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white text-sm placeholder-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition">
+                <p id="title-count" class="text-[10px] font-mono text-slate-600 text-right"><%= item.title.length %> karakter</p>
+            </div>
+            <div class="space-y-2">
+                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500">Karya</label>
+                <input type="text" name="karya" value="<%= item.karya || '' %>" placeholder="Nama penulis / karya..."
+                    class="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white text-sm placeholder-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition">
+                <p class="text-[10px] font-mono text-slate-600">Contoh: Tim Teater Saphalta, Anton Chekhov</p>
+            </div>
         </div>
 
-        <form action="/admin/article/update/<%= item._id %>" method="POST" enctype="multipart/form-data" class="space-y-6">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-2">Article Title</label>
-                    <input type="text" name="title" value="<%= item.title %>" required
-                        class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition shadow-inner font-mono text-sm">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-2">YouTube Documentation Link</label>
-                    <input type="text" name="videoUrl" value="<%= item.videoUrl %>"
-                        class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition shadow-inner font-mono text-sm">
-                </div>
-            </div>
+        <!-- YouTube URL -->
+        <div class="space-y-2">
+            <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500">YouTube URL</label>
+            <input type="text" name="videoUrl" value="<%= item.videoUrl %>"
+                class="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white text-sm placeholder-slate-600 outline-none focus:border-red-500/60 focus:ring-1 focus:ring-red-500/20 transition">
+            <p class="text-[10px] font-mono text-slate-600">Opsional · Format: youtube.com/watch?v=ID atau youtu.be/ID</p>
+        </div>
 
-            <div class="p-6 bg-slate-900/50 border border-slate-800 rounded-2xl shadow-xl">
-                <label class="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] block mb-4">Featured Thumbnail Management</label>                
-                <div class="flex flex-col md:flex-row gap-8 items-center">
-                    <% if (item.thumbnail) { %>
-                        <div class="relative group shrink-0">
-                            <div class="absolute -top-2 -left-2 bg-blue-600 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-tighter z-10">Live Preview</div>
-                            <img src="<%= item.thumbnail %>" class="h-28 w-44 object-cover rounded-xl border border-slate-700 opacity-80 group-hover:opacity-100 transition duration-500 shadow-2xl">
-                        </div>
-                    <% } %>
-                    <div class="flex-1 w-full space-y-3">
-                        <p class="text-slate-500 text-[10px] italic leading-relaxed">Pilih file baru untuk mengganti thumbnail. Kosongkan jika tidak ingin mengubah.</p>
-                        <input type="file" name="thumbnail" class="text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-emerald-600/10 file:text-emerald-500 hover:file:bg-emerald-600/20 cursor-pointer w-full transition">
+        <!-- Thumbnail -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+            <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3">Thumbnail / Cover</label>
+            <div class="flex flex-col md:flex-row gap-5 items-start">
+                <% if (item.thumbnail) { %>
+                <div class="relative shrink-0">
+                    <span class="absolute -top-2 -left-2 bg-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase z-10">Current</span>
+                    <img id="thumb-preview" src="<%= item.thumbnail %>" class="h-28 w-44 object-cover rounded-xl border border-slate-700 shadow-xl opacity-90">
+                </div>
+                <% } else { %>
+                <div id="thumb-preview-wrap" class="hidden shrink-0">
+                    <div class="relative">
+                        <span class="absolute -top-2 -left-2 bg-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase z-10">Preview</span>
+                        <img id="thumb-preview-new" class="h-28 w-44 object-cover rounded-xl border border-slate-700 shadow-xl">
                     </div>
                 </div>
+                <% } %>
+                <div class="flex-1 w-full">
+                    <label id="thumb-drop" class="block w-full border-2 border-dashed border-slate-700 rounded-xl p-5 text-center cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/5 transition group">
+                        <input type="file" name="thumbnail" id="thumb-input" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" class="hidden">
+                        <div id="thumb-label">
+                            <p class="text-xs text-slate-500 group-hover:text-slate-300 transition">Klik untuk ganti thumbnail</p>
+                            <p class="text-[10px] text-slate-600 mt-1 font-mono">JPG, PNG, WEBP, GIF · Maks 5MB</p>
+                        </div>
+                    </label>
+                </div>
             </div>
+        </div>
 
-            <div class="bg-white rounded-2xl overflow-hidden shadow-2xl">
-                <textarea name="content" id="article_editor"><%= item.content %></textarea>
+        <!-- Editor -->
+        <div class="space-y-2">
+            <div class="flex items-center justify-between">
+                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500">Konten <span class="text-red-500">*</span></label>
+                <span id="word-count" class="text-[10px] font-mono text-slate-600">0 kata</span>
             </div>
+            <div class="rounded-xl overflow-hidden border border-slate-700 shadow-xl">
+                <textarea id="article_editor"><%= item.content %></textarea>
+                <input type="hidden" id="content-hidden" name="content">
+            </div>
+            <p id="content-error" class="text-[10px] font-mono text-red-500 hidden">Konten tidak boleh kosong.</p>
+        </div>
 
-            <button type="submit" class="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-[0.4em] rounded-2xl transition-all duration-300 transform hover:scale-[1.005] shadow-[0_10px_30px_rgba(16,185,129,0.3)] active:scale-95">
-                Sync & Update Documentation
+        <!-- SEO Panel -->
+        <div class="border border-slate-800 rounded-2xl overflow-hidden">
+            <button type="button" id="seo-toggle"
+                class="w-full flex items-center justify-between px-5 py-4 bg-slate-900/60 hover:bg-slate-900 transition text-left">
+                <div class="flex items-center gap-3">
+                    <div class="h-6 w-1 bg-emerald-500 rounded-full"></div>
+                    <span class="text-sm font-black text-white">SEO & Meta</span>
+                    <% if (item.metaDescription) { %>
+                    <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Meta OK</span>
+                    <% } else { %>
+                    <span class="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">Belum diisi</span>
+                    <% } %>
+                </div>
+                <svg id="seo-chevron" class="w-4 h-4 text-slate-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
             </button>
-        </form>
-    </div>
+            <div id="seo-body" class="<%= item.metaDescription ? '' : 'hidden' %> px-5 pb-5 pt-4 space-y-4 bg-slate-900/30">
+                <!-- Slug -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1.5">Slug URL</label>
+                    <div class="flex items-center gap-0 bg-slate-800 border border-slate-700 rounded-xl overflow-hidden focus-within:border-emerald-500 transition">
+                        <span class="px-3 text-slate-600 text-xs font-mono border-r border-slate-700 py-2.5 shrink-0">/article/</span>
+                        <input type="text" name="slug" id="seo-slug" value="<%= item.slug || '' %>" placeholder="judul-artikel-anda"
+                               class="flex-1 bg-transparent px-3 py-2.5 text-xs text-white font-mono placeholder-slate-600 focus:outline-none">
+                    </div>
+                </div>
+                <!-- Meta Title -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1.5">Meta Title</label>
+                    <input type="text" name="metaTitle" id="seo-metaTitle" maxlength="70" value="<%= item.metaTitle || '' %>" placeholder="Judul SEO artikel..."
+                           class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">
+                    <div class="flex justify-between mt-1"><span class="text-slate-600 text-[10px]">Optimal: 50–60 karakter</span><span id="cnt-mt" class="text-[10px] font-mono text-slate-600"><%= (item.metaTitle||'').length %>/60</span></div>
+                </div>
+                <!-- Meta Description -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1.5">Meta Description</label>
+                    <textarea name="metaDescription" id="seo-metaDesc" maxlength="170" rows="2" placeholder="Deskripsi singkat artikel..."
+                              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition resize-none"><%= item.metaDescription || '' %></textarea>
+                    <div class="flex justify-between mt-1"><span class="text-slate-600 text-[10px]">Optimal: 120–160 karakter</span><span id="cnt-md" class="text-[10px] font-mono text-slate-600"><%= (item.metaDescription||'').length %>/160</span></div>
+                </div>
+                <!-- Keywords, Category, Tags -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5">Keywords</label>
+                        <input type="text" name="metaKeywords" value="<%= item.metaKeywords || '' %>" placeholder="kata, kunci, artikel"
+                               class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5">Kategori</label>
+                        <input type="text" name="category" value="<%= item.category || '' %>" placeholder="Naskah / Materi"
+                               class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5">Tags</label>
+                        <input type="text" name="tags" value="<%= item.tags || '' %>" placeholder="teater, naskah"
+                               class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">
+                    </div>
+                </div>
+                <!-- Google Preview -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Preview Google</p>
+                    <p id="prev-url" class="text-[11px] text-emerald-600 font-mono mb-0.5">apps.trendingbulk.top/article/<%= item.slug || item._id %></p>
+                    <p id="prev-title" class="text-sm font-bold text-blue-400 mb-0.5 line-clamp-1"><%= item.metaTitle || item.title %></p>
+                    <p id="prev-desc" class="text-xs text-slate-400 line-clamp-2"><%= item.metaDescription || 'Deskripsi meta akan tampil di sini...' %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-4 pt-2">
+            <a href="/dashboard"
+                class="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 text-xs font-bold uppercase tracking-widest rounded-xl transition text-center">
+                Batal
+            </a>
+            <button type="submit" id="btn-submit"
+                class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-lg shadow-emerald-900/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Simpan Perubahan
+            </button>
+        </div>
+    </form>
+</div>
 </div>
 
 <style>
-    /* Styling agar CKEditor muncul besar dan teks terbaca jelas */
-    .ck-editor__editable_inline {
-        min-height: 500px !important;
-        color: #1a1a1a !important;
-        font-family: 'Inter', sans-serif;
-        line-height: 1.8;
-        padding: 2rem !important;
+    .ck.ck-editor__main .ck-editor__editable {
+        min-height: 480px !important;
+        background: #ffffff !important;
+        color: #1e293b !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 15px !important;
+        line-height: 1.8 !important;
+        padding: 2rem 2.5rem !important;
     }
-    .ck-editor {
-        width: 100% !important;
+    .ck.ck-toolbar {
+        background: #f8fafc !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding: 6px 8px !important;
     }
-    .ck-toolbar {
-        border: none !important;
-        background-color: #f8fafc !important;
-        padding: 0.5rem !important;
-    }
+    .ck.ck-editor { border-radius: 0 !important; border: none !important; }
+    .ck.ck-editor__top .ck-sticky-panel .ck-toolbar { border-radius: 0 !important; }
+    .ck.ck-editor__main .ck-editor__editable h1 { font-size: 2em !important; font-weight: 700 !important; line-height: 1.3 !important; margin: 0.5em 0 0.25em !important; }
+    .ck.ck-editor__main .ck-editor__editable h2 { font-size: 1.6em !important; font-weight: 700 !important; line-height: 1.35 !important; margin: 0.5em 0 0.25em !important; }
+    .ck.ck-editor__main .ck-editor__editable h3 { font-size: 1.3em !important; font-weight: 600 !important; line-height: 1.4 !important; margin: 0.5em 0 0.25em !important; }
+    .ck.ck-editor__main .ck-editor__editable h4 { font-size: 1.1em !important; font-weight: 600 !important; line-height: 1.45 !important; margin: 0.5em 0 0.25em !important; }
 </style>
 
 <script>
-    // Konfigurasi identik dengan halaman Add yang sudah berhasil
-    ClassicEditor
-        .create(document.querySelector('#article_editor'), {
-            ckfinder: {
-                // Endpoint untuk handle upload image & paste
-                uploadUrl: '/upload-image'
-            },
-            toolbar: {
-		items: [
-                	'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
-                	'uploadImage', 'insertTable', 'blockQuote', 'mediaEmbed', '|', 'undo', 'redo'
-            	],
-	    	shouldNotGroupWhenFull: true
-	    }
-        })
-        .then(editor => {
-            console.log('NOC Editor: Edit Mode Synchronized.');
-        })
-        .catch(error => {
-            console.error('Editor Error:', error);
-            // Fallback manual jika JS gagal
-            document.querySelector('#article_editor').style.display = 'block';
-            document.querySelector('#article_editor').style.height = '500px';
-            document.querySelector('#article_editor').style.width = '100%';
-        });
+let editorInstance = null;
+
+ClassicEditor.create(document.querySelector('#article_editor'), {
+    removePlugins: ['Autoformat', 'TextTransformation'],
+    simpleUpload: {
+        uploadUrl: '/upload-image',
+        withCredentials: true
+    },
+    heading: {
+        options: [
+            { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+            { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+            { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+            { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+            { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+        ]
+    },
+    toolbar: {
+        items: [
+            'heading', '|',
+            'bold', 'italic', 'underline', 'strikethrough', '|',
+            'link', 'bulletedList', 'numberedList', '|',
+            'outdent', 'indent', '|',
+            'uploadImage', 'insertTable', 'blockQuote', 'mediaEmbed', '|',
+            'alignment', '|',
+            'undo', 'redo'
+        ],
+        shouldNotGroupWhenFull: true
+    },
+    image: {
+        toolbar: ['imageTextAlternative', 'toggleImageCaption', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side']
+    },
+    table: {
+        contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
+    }
+}).then(editor => {
+    editorInstance = editor;
+    window._ckEditor = editor;
+
+    function updateWordCount(html) {
+        const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        const words = text ? text.split(' ').length : 0;
+        document.getElementById('word-count').textContent = words + ' kata';
+    }
+    updateWordCount(editor.getData());
+    editor.model.document.on('change:data', () => updateWordCount(editor.getData()));
+
+}).catch(error => {
+    console.error('CKEditor Error:', error);
+    const el = document.querySelector('#article_editor');
+    el.style.display = 'block';
+    el.style.minHeight = '400px';
+    el.style.width = '100%';
+    el.style.padding = '1rem';
+    el.style.background = '#fff';
+    el.style.color = '#1e293b';
+});
+
+document.getElementById('input-title').addEventListener('input', function() {
+    document.getElementById('title-count').textContent = this.value.length + ' karakter';
+});
+
+document.getElementById('thumb-input').addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const existingPreview = document.getElementById('thumb-preview');
+            if (existingPreview) existingPreview.src = e.target.result;
+            const newPreviewWrap = document.getElementById('thumb-preview-wrap');
+            if (newPreviewWrap) {
+                newPreviewWrap.classList.remove('hidden');
+                document.getElementById('thumb-preview-new').src = e.target.result;
+            }
+            document.getElementById('thumb-label').innerHTML = '<p class="text-xs text-emerald-400 font-mono">' + this.files[0].name + '</p>';
+        };
+        reader.readAsDataURL(this.files[0]);
+    }
+});
+
+// SEO Panel
+(function() {
+    var btn = document.getElementById('seo-toggle');
+    var body = document.getElementById('seo-body');
+    var chev = document.getElementById('seo-chevron');
+    if (btn) btn.addEventListener('click', function() {
+        body.classList.toggle('hidden');
+        chev.style.transform = body.classList.contains('hidden') ? '' : 'rotate(180deg)';
+    });
+    var slugEl = document.getElementById('seo-slug');
+    var mtEl   = document.getElementById('seo-metaTitle');
+    var mdEl   = document.getElementById('seo-metaDesc');
+    var cntMt  = document.getElementById('cnt-mt');
+    var cntMd  = document.getElementById('cnt-md');
+    var prevUrl   = document.getElementById('prev-url');
+    var prevTitle = document.getElementById('prev-title');
+    var prevDesc  = document.getElementById('prev-desc');
+    function updatePreview() {
+        if (prevUrl)   prevUrl.textContent   = 'apps.trendingbulk.top/article/' + (slugEl ? slugEl.value || 'slug-artikel' : '');
+        if (prevTitle) prevTitle.textContent = mtEl ? (mtEl.value || 'Judul artikel') : '';
+        if (prevDesc)  prevDesc.textContent  = mdEl ? (mdEl.value || 'Deskripsi meta akan tampil di sini...') : '';
+    }
+    if (mtEl) mtEl.addEventListener('input', function() {
+        if (cntMt) { cntMt.textContent = this.value.length+'/60'; cntMt.className = this.value.length > 60 ? 'text-[10px] font-mono text-amber-400' : 'text-[10px] font-mono text-slate-600'; }
+        updatePreview();
+    });
+    if (mdEl) mdEl.addEventListener('input', function() {
+        if (cntMd) { cntMd.textContent = this.value.length+'/160'; cntMd.className = this.value.length > 160 ? 'text-[10px] font-mono text-amber-400' : 'text-[10px] font-mono text-slate-600'; }
+        updatePreview();
+    });
+    if (slugEl) slugEl.addEventListener('input', updatePreview);
+})();
+
+document.getElementById('edit-form').addEventListener('submit', function(e) {
+    const content = editorInstance ? editorInstance.getData() : '';
+    if (!content.trim()) {
+        e.preventDefault();
+        document.getElementById('content-error').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('content-hidden').value = content;
+    document.getElementById('content-error').classList.add('hidden');
+    document.getElementById('btn-submit').innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Menyimpan...';
+    document.getElementById('btn-submit').disabled = true;
+});
 </script>
 
 <%- include('partials/footer') %>

@@ -1,0 +1,537 @@
+<%- include('partials/admin_header', { pageTitle: 'Manajemen Berita' }) %>
+
+<div class="min-h-screen bg-slate-950">
+
+    <!-- Page Header -->
+    <div class="border-b border-slate-800/60 bg-slate-900/30 backdrop-blur-sm sticky top-14 z-20">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/30 shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 4v6h-6"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-sm font-black text-white uppercase tracking-tight">Manajemen Berita</h1>
+                    <p class="text-[10px] font-mono text-slate-500 mt-0.5">
+                        <span class="text-blue-400"><%= beritaList.length %></span> artikel tersedia
+                    </p>
+                </div>
+            </div>
+            <a href="/admin/berita/add"
+               class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-lg shadow-blue-900/30">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                </svg>
+                Tambah Berita
+            </a>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-8">
+
+        <!-- Stats Cards -->
+        <% const _stats = (typeof stats !== 'undefined' && stats) ? stats : { total: 0, thisMonth: 0, withThumbnail: 0, withVideo: 0 }; %>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <!-- Total Berita -->
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group hover:border-blue-500/40 transition">
+                <div class="absolute top-0 right-0 h-20 w-20 bg-blue-600/5 rounded-full -translate-y-6 translate-x-6 group-hover:bg-blue-600/10 transition"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="h-8 w-8 bg-blue-600/10 border border-blue-500/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-[9px] font-mono text-blue-400/60 uppercase tracking-widest">Total</span>
+                    </div>
+                    <p class="text-3xl font-black text-white"><%= _stats.total %></p>
+                    <p class="text-[10px] font-mono text-slate-500 mt-1">Semua Berita</p>
+                </div>
+            </div>
+
+            <!-- Bulan Ini -->
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group hover:border-emerald-500/40 transition">
+                <div class="absolute top-0 right-0 h-20 w-20 bg-emerald-600/5 rounded-full -translate-y-6 translate-x-6 group-hover:bg-emerald-600/10 transition"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="h-8 w-8 bg-emerald-600/10 border border-emerald-500/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-[9px] font-mono text-emerald-400/60 uppercase tracking-widest">Baru</span>
+                    </div>
+                    <p class="text-3xl font-black text-white"><%= _stats.thisMonth %></p>
+                    <p class="text-[10px] font-mono text-slate-500 mt-1">Bulan Ini</p>
+                </div>
+            </div>
+
+            <!-- Ada Thumbnail -->
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group hover:border-violet-500/40 transition">
+                <div class="absolute top-0 right-0 h-20 w-20 bg-violet-600/5 rounded-full -translate-y-6 translate-x-6 group-hover:bg-violet-600/10 transition"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="h-8 w-8 bg-violet-600/10 border border-violet-500/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-[9px] font-mono text-violet-400/60 uppercase tracking-widest">Media</span>
+                    </div>
+                    <p class="text-3xl font-black text-white"><%= _stats.withThumbnail %></p>
+                    <p class="text-[10px] font-mono text-slate-500 mt-1">Ada Thumbnail</p>
+                </div>
+            </div>
+
+            <!-- SEO Lengkap -->
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group hover:border-emerald-500/40 transition">
+                <div class="absolute top-0 right-0 h-20 w-20 bg-emerald-600/5 rounded-full -translate-y-6 translate-x-6 group-hover:bg-emerald-600/10 transition"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="h-8 w-8 bg-emerald-600/10 border border-emerald-500/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <span class="text-[9px] font-mono text-emerald-400/60 uppercase tracking-widest">SEO</span>
+                    </div>
+                    <p class="text-3xl font-black text-white"><%= beritaList.filter(b => b.metaDescription).length %></p>
+                    <p class="text-[10px] font-mono text-slate-500 mt-1">SEO Lengkap</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Toolbar: Search + View Toggle -->
+        <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+            <!-- Search -->
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <input id="search-input" type="text" placeholder="Cari judul atau penulis..."
+                    class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-600 outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition font-mono">
+                <div id="search-count" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                    <span class="text-[10px] font-mono text-slate-600 hidden" id="search-result-text"></span>
+                </div>
+            </div>
+
+            <!-- Sort -->
+            <div class="flex items-center gap-2">
+                <select id="sort-select"
+                    class="bg-slate-900 border border-slate-800 text-slate-400 text-xs rounded-xl px-3 py-2.5 outline-none focus:border-blue-500/50 transition cursor-pointer font-mono">
+                    <option value="newest">Terbaru</option>
+                    <option value="oldest">Terlama</option>
+                    <option value="title">A–Z Judul</option>
+                </select>
+
+                <!-- View toggle -->
+                <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1">
+                    <button id="btn-view-table" title="Tampilan Tabel"
+                        class="p-1.5 rounded-lg bg-slate-800 text-white transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <button id="btn-view-grid" title="Tampilan Grid"
+                        class="p-1.5 rounded-lg text-slate-600 hover:text-slate-300 transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TABLE VIEW ==================== -->
+        <div id="view-table">
+            <div class="bg-slate-900/30 border border-slate-800 rounded-2xl overflow-hidden overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-slate-800 bg-slate-900/60">
+                            <th class="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-12">#</th>
+                            <th class="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Berita</th>
+                            <th class="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest hidden md:table-cell">Penulis</th>
+                            <th class="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest hidden lg:table-cell">Tanggal</th>
+                            <th class="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest hidden lg:table-cell">SEO</th>
+                            <th class="px-5 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-800/40">
+                        <% beritaList.forEach((article, index) => { %>
+                        <tr class="article-row hover:bg-slate-800/20 transition-colors group"
+                            data-title="<%= article.title.toLowerCase() %>"
+                            data-author="<%= article.author ? article.author.username.toLowerCase() : 'admin' %>"
+                            data-date="<%= article.createdAt.getTime() %>">
+                            <td class="px-5 py-4">
+                                <span class="text-[11px] font-mono text-slate-600"><%= String(index + 1).padStart(2, '0') %></span>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-4">
+                                    <!-- Thumbnail -->
+                                    <div class="shrink-0 h-12 w-16 rounded-xl overflow-hidden bg-slate-800 border border-slate-700">
+                                        <% if (article.thumbnail) { %>
+                                            <img src="<%= article.thumbnail %>" alt="" class="h-full w-full object-cover group-hover:scale-105 transition duration-300">
+                                        <% } else { %>
+                                            <div class="h-full w-full flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                </svg>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                    <!-- Info -->
+                                    <div class="min-w-0">
+                                        <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                                            <% if (article.category) { %>
+                                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wide"><%= article.category %></span>
+                                            <% } %>
+                                        </div>
+                                        <a href="/berita/<%= article.slug || article._id %>" target="_blank"
+                                           class="text-slate-200 font-bold hover:text-blue-400 transition text-sm line-clamp-1 block leading-snug mb-1">
+                                            <%= article.title %>
+                                        </a>
+                                        <p class="text-[10px] font-mono text-slate-600 line-clamp-1 hidden sm:block">
+                                            <%
+                                                const plainText = (article.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g,' ').trim();
+                                                const excerpt = plainText.length > 80 ? plainText.substring(0, 80) + '...' : plainText;
+                                            %>
+                                            <%= excerpt %>
+                                        </p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4 hidden md:table-cell">
+                                <div class="flex items-center gap-2">
+                                    <div class="h-6 w-6 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center">
+                                        <span class="text-[9px] font-black text-slate-400 uppercase">
+                                            <%= article.author ? article.author.username.charAt(0).toUpperCase() : 'A' %>
+                                        </span>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-400">@<%= article.author ? article.author.username : 'admin' %></span>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4 hidden lg:table-cell">
+                                <div>
+                                    <p class="text-xs font-mono text-slate-400">
+                                        <%
+                                            const d = article.createdAt;
+                                            const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                                            const dateStr = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+                                        %>
+                                        <%= dateStr %>
+                                    </p>
+                                    <p class="text-[9px] font-mono text-slate-600 mt-0.5">
+                                        <%
+                                            const h = String(d.getHours()).padStart(2,'0');
+                                            const m = String(d.getMinutes()).padStart(2,'0');
+                                        %>
+                                        <%= h %>:<%= m %> WIB
+                                    </p>
+                                </div>
+                            </td>
+                            <!-- SEO Status -->
+                            <td class="px-5 py-4 hidden lg:table-cell">
+                                <% const hasSeo = article.metaDescription && article.metaDescription.length > 0; %>
+                                <% const hasSlug = article.slug && article.slug.length > 0; %>
+                                <div class="flex flex-col gap-1">
+                                    <% if (hasSeo) { %>
+                                    <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wide w-fit">
+                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        Meta OK
+                                    </span>
+                                    <% } else { %>
+                                    <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wide w-fit">
+                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        Belum
+                                    </span>
+                                    <% } %>
+                                    <% if (hasSlug) { %>
+                                    <span class="text-[9px] font-mono text-slate-600 truncate max-w-[120px]"><%= article.slug %></span>
+                                    <% } %>
+                                </div>
+                            </td>
+                            <!-- Aksi -->
+                            <td class="px-5 py-4">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="/berita/<%= article.slug || article._id %>" target="_blank"
+                                       class="p-2 text-slate-600 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition" title="Preview">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </a>
+                                    <a href="/admin/berita/edit/<%= article._id %>"
+                                       class="p-2 text-slate-600 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition" title="Edit">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </a>
+                                    <form action="/admin/berita/delete/<%= article._id %>" method="POST"
+                                          onsubmit="return confirm('Hapus berita ini?');">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <button type="submit" class="p-2 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition" title="Hapus">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+
+                <!-- Empty state table -->
+                <div id="table-empty" class="hidden py-20 text-center">
+                    <div class="h-14 w-14 bg-slate-800/60 border border-slate-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <p class="text-slate-500 font-bold text-sm">Tidak ada hasil ditemukan</p>
+                    <p class="text-slate-600 text-xs font-mono mt-1">Coba kata kunci yang berbeda</p>
+                </div>
+
+                <!-- Footer info -->
+                <div class="border-t border-slate-800/40 px-5 py-3 flex items-center justify-between bg-slate-900/20">
+                    <p class="text-[10px] font-mono text-slate-600">
+                        Menampilkan <span id="visible-count" class="text-slate-400"><%= beritaList.length %></span> dari <span class="text-slate-400"><%= beritaList.length %></span> berita
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== GRID VIEW ==================== -->
+        <div id="view-grid" class="hidden">
+            <div id="grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <% beritaList.forEach(article => { %>
+                <div class="article-card bg-slate-900/40 border border-slate-800 rounded-2xl overflow-hidden group hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-900/10 transition-all duration-300"
+                     data-title="<%= article.title.toLowerCase() %>"
+                     data-author="<%= article.author ? article.author.username.toLowerCase() : 'admin' %>"
+                     data-date="<%= article.createdAt.getTime() %>">
+
+                    <!-- Cover -->
+                    <div class="aspect-video relative overflow-hidden bg-slate-800">
+                        <% if (article.thumbnail) { %>
+                            <img src="<%= article.thumbnail %>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent"></div>
+                        <% } else { %>
+                            <div class="w-full h-full flex items-center justify-center">
+                                <svg class="w-8 h-8 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                        <% } %>
+
+                        <!-- Video badge -->
+                        <% if (article.videoUrl) { %>
+                            <div class="absolute top-2.5 right-2.5">
+                                <span class="flex items-center gap-1 text-[9px] font-bold px-2 py-1 rounded-lg bg-red-600/90 text-white uppercase tracking-wide backdrop-blur-sm">
+                                    <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    Video
+                                </span>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-4">
+                        <!-- Category + SEO badge -->
+                        <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                            <% if (article.category) { %>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wide"><%= article.category %></span>
+                            <% } %>
+                            <% if (article.metaDescription) { %>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wide">SEO ✓</span>
+                            <% } else { %>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wide">SEO!</span>
+                            <% } %>
+                        </div>
+                        <a href="/berita/<%= article.slug || article._id %>" target="_blank"
+                           class="text-slate-100 font-bold text-sm hover:text-blue-400 transition line-clamp-2 leading-snug block mb-2">
+                            <%= article.title %>
+                        </a>
+                        <p class="text-[10px] font-mono text-slate-600 line-clamp-2 mb-3">
+                            <%
+                                const plainText2 = (article.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g,' ').trim();
+                                const excerpt2 = plainText2.length > 90 ? plainText2.substring(0, 90) + '...' : plainText2;
+                            %>
+                            <%= excerpt2 %>
+                        </p>
+
+                        <!-- Meta + Aksi -->
+                        <div class="flex items-center justify-between pt-3 border-t border-slate-800/60">
+                            <div class="flex items-center gap-1.5">
+                                <div class="h-5 w-5 rounded-md bg-slate-800 flex items-center justify-center">
+                                    <span class="text-[8px] font-black text-slate-400 uppercase">
+                                        <%= article.author ? article.author.username.charAt(0).toUpperCase() : 'A' %>
+                                    </span>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-500">
+                                    <%
+                                        const dc = article.createdAt;
+                                        const monthsShort = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                                    %>
+                                    <%= dc.getDate() + ' ' + monthsShort[dc.getMonth()] %>
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <a href="/admin/berita/edit/<%= article._id %>"
+                                   class="p-1.5 rounded-lg bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-blue-500 text-slate-500 hover:text-white transition">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                </a>
+                                <form action="/admin/berita/delete/<%= article._id %>" method="POST"
+                                      onsubmit="return confirm('Hapus berita ini?')" class="inline">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button type="submit"
+                                        class="p-1.5 rounded-lg bg-slate-800 hover:bg-red-600/80 border border-slate-700 hover:border-red-500 text-slate-500 hover:text-white transition">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+
+            <!-- Empty state grid -->
+            <div id="grid-empty" class="hidden py-20 text-center">
+                <div class="h-14 w-14 bg-slate-800/60 border border-slate-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <p class="text-slate-500 font-bold text-sm">Tidak ada hasil ditemukan</p>
+                <p class="text-slate-600 text-xs font-mono mt-1">Coba kata kunci yang berbeda</p>
+            </div>
+        </div>
+
+        <!-- Empty state (when 0 beritaList total) -->
+        <% if (beritaList.length === 0) { %>
+        <div class="text-center py-24">
+            <div class="h-20 w-20 bg-slate-900 border border-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <svg class="w-9 h-9 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 4v6h-6"/>
+                </svg>
+            </div>
+            <h3 class="text-white font-black text-lg uppercase tracking-tight mb-2">Belum Ada Berita</h3>
+            <p class="text-slate-500 text-sm font-mono">Belum ada artikel yang dipublish</p>
+        </div>
+        <% } %>
+
+    </div>
+</div>
+
+<script>
+(function () {
+    const rowsTable = Array.from(document.querySelectorAll('tr.article-row'));
+    const cardsGrid = Array.from(document.querySelectorAll('.article-card'));
+    const searchInput  = document.getElementById('search-input');
+    const sortSelect   = document.getElementById('sort-select');
+    const visibleCount = document.getElementById('visible-count');
+    const resultText   = document.getElementById('search-result-text');
+    const tableEmpty   = document.getElementById('table-empty');
+    const gridEmpty    = document.getElementById('grid-empty');
+    const tableBody    = document.getElementById('table-body');
+    const gridContainer= document.getElementById('grid-container');
+
+    // View toggle
+    const viewTable = document.getElementById('view-table');
+    const viewGrid  = document.getElementById('view-grid');
+    const btnTable  = document.getElementById('btn-view-table');
+    const btnGrid   = document.getElementById('btn-view-grid');
+    let currentView = 'table';
+
+    function setView(v) {
+        currentView = v;
+        if (v === 'table') {
+            viewTable.classList.remove('hidden');
+            viewGrid.classList.add('hidden');
+            btnTable.classList.add('bg-slate-800','text-white');
+            btnTable.classList.remove('text-slate-600');
+            btnGrid.classList.remove('bg-slate-800','text-white');
+            btnGrid.classList.add('text-slate-600');
+        } else {
+            viewGrid.classList.remove('hidden');
+            viewTable.classList.add('hidden');
+            btnGrid.classList.add('bg-slate-800','text-white');
+            btnGrid.classList.remove('text-slate-600');
+            btnTable.classList.remove('bg-slate-800','text-white');
+            btnTable.classList.add('text-slate-600');
+        }
+        filterAndSort();
+    }
+
+    btnTable.addEventListener('click', () => setView('table'));
+    btnGrid.addEventListener('click', () => setView('grid'));
+
+    // Filter + Sort
+    function filterAndSort() {
+        const q = searchInput.value.trim().toLowerCase();
+        const sortVal = sortSelect.value;
+
+        const items = currentView === 'table' ? rowsTable : cardsGrid;
+
+        // Filter
+        const visible = items.filter(el => {
+            const title  = el.dataset.title  || '';
+            const author = el.dataset.author || '';
+            const match  = !q || title.includes(q) || author.includes(q);
+            el.classList.toggle('hidden', !match);
+            return match;
+        });
+
+        // Sort
+        const parent = currentView === 'table' ? tableBody : gridContainer;
+        visible.sort((a, b) => {
+            if (sortVal === 'newest') return Number(b.dataset.date) - Number(a.dataset.date);
+            if (sortVal === 'oldest') return Number(a.dataset.date) - Number(b.dataset.date);
+            if (sortVal === 'title')  return (a.dataset.title || '').localeCompare(b.dataset.title || '');
+            return 0;
+        });
+        visible.forEach(el => parent.appendChild(el));
+
+        // Empty state
+        const isEmpty = visible.length === 0;
+        if (currentView === 'table') {
+            tableEmpty.classList.toggle('hidden', !isEmpty);
+        } else {
+            gridEmpty.classList.toggle('hidden', !isEmpty);
+        }
+
+        // Count
+        if (visibleCount) visibleCount.textContent = visible.length;
+        if (q) {
+            resultText.textContent = visible.length + ' hasil untuk "' + q + '"';
+            resultText.classList.remove('hidden');
+        } else {
+            resultText.classList.add('hidden');
+        }
+    }
+
+    searchInput.addEventListener('input', filterAndSort);
+    sortSelect.addEventListener('change', filterAndSort);
+
+    // Renumber table rows after sort
+    const origObserver = new MutationObserver(() => {
+        const rows = tableBody.querySelectorAll('tr.article-row:not(.hidden)');
+        rows.forEach((row, i) => {
+            const numCell = row.querySelector('td:first-child span');
+            if (numCell) numCell.textContent = String(i + 1).padStart(2, '0');
+        });
+    });
+    if (tableBody) origObserver.observe(tableBody, { childList: true });
+})();
+</script>
+
+<%- include('partials/footer') %>
